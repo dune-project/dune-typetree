@@ -25,6 +25,7 @@ typetree_HEADERS =				\
   traversalutilities.hh				\
   treepath.hh					\
   typetraits.hh					\
+  typetree.hh					\
   utility.hh					\
   variadiccompositenode.hh			\
   visitor.hh

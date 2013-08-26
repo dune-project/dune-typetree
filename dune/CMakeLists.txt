@@ -2,7 +2,7 @@ set(dunedir  ${CMAKE_INSTALL_INCLUDEDIR}/dune)
 set(SUBDIRS  typetree)
 
 set(dune_HEADERS
-  typetree.hh)
+  )
 
 # include not needed for CMake
 # include $(top_srcdir)/am/global-rules

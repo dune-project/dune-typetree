@@ -1,5 +1,5 @@
 
-#include <dune/typetree.hh>
+#include <dune/typetree/typetree.hh>
 #include <dune/typetree/pairtraversal.hh>
 
 #include <iostream>
