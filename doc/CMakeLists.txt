@@ -1,5 +1,3 @@
-# $Id: Makefile.am 3930 2007-12-05 17:17:07Z robertk $
-
 set(SUBDIRS  doxygen)
 
 # setting like in dune-web
