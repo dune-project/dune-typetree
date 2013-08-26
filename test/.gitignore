@@ -1,0 +1,10 @@
+testfilteredcompositenode
+testproxynode
+testtypetree
+testtypetree-legacy
+testtypetree-no-rvalue-refs
+testtypetree-no-sfinae
+testtypetree-no-variadic
+testtypetreetransformation
+*.log
+*.trs
