@@ -1,0 +1,27 @@
+TypeTree
+========
+
+This is the 1.0 release of the TypeTree library for statically typed object trees.
+
+TypeTree 1.0 simply represents the state of the library when it was extracted from
+PDELab, only adjusted for the namespace change resulting from the move to a freestanding
+library.
+
+Future development will most likely drop support for some of the older compiler still
+supported by this release.
+
+
+Changes
+=======
+
+TypeTree 1.0
+------------
+
+This is the initial standalone release. It only contains changes due to the extraction
+from the PDELab sources.
+
+- Moved headers from dune/pdelab/common/typetree/ to dune/typetree/.
+
+- Changed namespace from Dune::PDELab::TypeTree to Dune::TypeTree.
+
+- Moved tests to top-level directory tests/.
