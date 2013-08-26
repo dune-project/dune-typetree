@@ -6,8 +6,6 @@
 
 #include <dune/common/typetraits.hh>
 
-#include "function.hh"
-
 namespace Dune {
 
   // Provide some more C++11 TMP helpers.
@@ -38,27 +36,6 @@ namespace Dune {
     {
       typedef void type;
     };
-
-    // // forward decl of Tag defined in function.hh
-    struct GridFunctionTag;
-    struct PowerGridFunctionTag;
-    struct CompositeGridFunctionTag;
-
-    template<typename T, typename = void>
-    struct IsGridFunction
-    {
-      static const bool value = false;
-    };
-
-    template<typename T>
-    struct IsGridFunction<T, typename AlwaysVoid<typename T::ImplementationTag>::type >
-    {
-      typedef typename T::ImplementationTag A;
-      static const bool value = is_same<A, GridFunctionTag>::value ||
-        is_same<A, PowerGridFunctionTag>::value ||
-        is_same<A, CompositeGridFunctionTag>::value;
-    };
-
 
 #ifndef DOXYGEN
 
