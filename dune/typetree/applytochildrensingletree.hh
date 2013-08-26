@@ -83,7 +83,7 @@ namespace Dune {
                                                                    tp);
         }
 
-lse
+#else
 
         // non-const tree, non-const visitor
         template<typename N, typename V, typename TreePath>
@@ -168,7 +168,7 @@ lse
           v.afterChild(std::forward<N>(n),n.template child<count-1>(),tp,integral_constant<std::size_t,count-1>());
         }
 
-lse
+#else
 
         // non-const tree, non-const visitor
         template<typename N, typename V, typename TreePath>

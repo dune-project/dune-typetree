@@ -133,7 +133,7 @@ namespace Dune {
 
         static const result_type result =
 
-cumulate_node_helper<LeafNode,Functor,Reduction,current_value,TreePath,Functor::template doVisit<LeafNode,TreePath>::value>::result;
+          accumulate_node_helper<LeafNode,Functor,Reduction,current_value,TreePath,Functor::template doVisit<LeafNode,TreePath>::value>::result;
 
       };
 
@@ -205,63 +205,63 @@ cumulate_node_helper<LeafNode,Functor,Reduction,current_value,TreePath,Functor::
 
     } // anonymous namespace
 
-    //! Statically accumulate a value over the nodes of a TypeTree.
-    /**
-     * This struct implements an algorithm for iterating over a tree and
-     * calculating an accumulated value at compile time.
-     *
-     * \tparam Tree        The tree to iterate over.
-     * \tparam Functor     The compile-time functor used for visiting each node.
-     *
-     * This functor must implement the following interface:
-     *
-     * \code
-     * struct AccumulationFunctor
-     * {
-     *
-     *   // The result type of the overall computation.
-     *   typedef ... result_type;
-     *
-     *   // Decide whether to include the given node in the calculation
-     *   // or to skip it.
-     *   template<typename Node, typename TreePath>
-     *   struct doVisit
-     *   {
-     *     static const bool value = true;
-     *   };
-     *
-     *   // Calculate the per-node result.
-     *   template<typename Node, typename TreePath>
-     *   struct visit
-     *   {
-     *     static const result_type result = ...;
-     *   };
-     *
-     * };
-     * \endcode
-     *
-     * \tparam Reduction   The reduction operator used to accumulate the per-node
-     *                     results.
-     *
-     * The reduction operator must implement the following interface:
-     *
-     * \code
-     * template<typename result_type>
-     * struct ReductionOperator
-     * {
-     *
-     *   // combine two per-node results
-     *   template<result_type r1, result_type r2>
-     *   struct reduce
-     *   {
-     *     static const result_type result = ...;
-     *   };
-     *
-     * };
-     * \endcode
-     *
-     * \tparam startValue  The starting value fed into the initial accumulation step.
-     */
+      //! Statically accumulate a value over the nodes of a TypeTree.
+      /**
+       * This struct implements an algorithm for iterating over a tree and
+       * calculating an accumulated value at compile time.
+       *
+       * \tparam Tree        The tree to iterate over.
+       * \tparam Functor     The compile-time functor used for visiting each node.
+       *
+       * This functor must implement the following interface:
+       *
+       * \code
+       * struct AccumulationFunctor
+       * {
+       *
+       *   // The result type of the overall computation.
+       *   typedef ... result_type;
+       *
+       *   // Decide whether to include the given node in the calculation
+       *   // or to skip it.
+       *   template<typename Node, typename TreePath>
+       *   struct doVisit
+       *   {
+       *     static const bool value = true;
+       *   };
+       *
+       *   // Calculate the per-node result.
+       *   template<typename Node, typename TreePath>
+       *   struct visit
+       *   {
+       *     static const result_type result = ...;
+       *   };
+       *
+       * };
+       * \endcode
+       *
+       * \tparam Reduction   The reduction operator used to accumulate the per-node
+       *                     results.
+       *
+       * The reduction operator must implement the following interface:
+       *
+       * \code
+       * template<typename result_type>
+       * struct ReductionOperator
+       * {
+       *
+       *   // combine two per-node results
+       *   template<result_type r1, result_type r2>
+       *   struct reduce
+       *   {
+       *     static const result_type result = ...;
+       *   };
+       *
+       * };
+       * \endcode
+       *
+       * \tparam startValue  The starting value fed into the initial accumulation step.
+       */
     template<typename Tree, typename Functor, typename Reduction, typename Functor::result_type startValue, typename ParentChildReduction = Reduction>
     struct AccumulateValue
     {
@@ -453,7 +453,7 @@ cumulate_node_helper<LeafNode,Functor,Reduction,current_value,TreePath,Functor::
         : public accumulate_type_generic_composite_node<CompositeNode,Policy,current_type,TreePath>
       {};
 
-f HAVE_VARIADIC_TEMPLATES
+#if HAVE_VARIADIC_TEMPLATES
 
       //! VariadicCompositeNode specialization.
       template<typename VariadicCompositeNode, typename Policy, typename current_type, typename TreePath>
@@ -461,18 +461,18 @@ f HAVE_VARIADIC_TEMPLATES
         : public accumulate_type_generic_composite_node<VariadicCompositeNode,Policy,current_type,TreePath>
       {};
 
-ndif // HAVE_VARIADIC_TEMPLATES
+#endif // HAVE_VARIADIC_TEMPLATES
 
     } // anonymous namespace
 
 
-    /**
-     * Policy for controlling the static type accumulation algorithm AccumulateType.
-     * See the documentation of nested types for further information.
-     *
-     *
-     * \tparam startType  The start type fed into the initial accumulation step.
-     */
+      /**
+       * Policy for controlling the static type accumulation algorithm AccumulateType.
+       * See the documentation of nested types for further information.
+       *
+       *
+       * \tparam startType  The start type fed into the initial accumulation step.
+       */
     template<
       typename Functor,
       typename Reduction,
