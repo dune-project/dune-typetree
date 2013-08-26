@@ -1,37 +1,38 @@
-set(typetreedir  ${CMAKE_INSTALL_INCLUDEDIR}/dune/pdelab/common/typetree)
+set(typetreedir  ${CMAKE_INSTALL_INCLUDEDIR}/dune/typetree)
 
-set(typetree_HEADERS                               
-        accumulate_static.hh                    
-        applytochildrensingletree.hh            
-        applytochildrentreepair.hh              
-        childextraction.hh                      
-        compositenode.hh                        
-        compositenodemacros.hh                  
-        filteredcompositenode.hh                
-        filters.hh                              
-        fixedcapacitystack.hh                   
-        generictransformationdescriptors.hh     
-        leafnode.hh                             
-        nodeinterface.hh                        
-        nodetags.hh                             
-        pairtraversal.hh                        
-        powercompositenodetransformationtemplates.hh 
-        powernode.hh                            
-        proxynode.hh                            
-        simpletransformationdescriptors.hh      
-        transformation.hh                       
-        transformationutilities.hh              
-        traversal.hh                            
-        traversalutilities.hh                   
-        treepath.hh                             
-        utility.hh                              
-        variadiccompositenode.hh                
-        visitor.hh)
+set(typetree_HEADERS
+  accumulate_static.hh
+  applytochildrensingletree.hh
+  applytochildrentreepair.hh
+  childextraction.hh
+  compositenode.hh
+  compositenodemacros.hh
+  filteredcompositenode.hh
+  filters.hh
+  fixedcapacitystack.hh
+  generictransformationdescriptors.hh
+  leafnode.hh
+  nodeinterface.hh
+  nodetags.hh
+  pairtraversal.hh
+  powercompositenodetransformationtemplates.hh
+  powernode.hh
+  proxynode.hh
+  simpletransformationdescriptors.hh
+  transformation.hh
+  transformationutilities.hh
+  traversal.hh
+  traversalutilities.hh
+  treepath.hh
+  typetraits.hh
+  utility.hh
+  variadiccompositenode.hh
+  visitor.hh)
 
-set(noinst_LTLIBRARIES  libpdelabtypetree.la)
-dune_add_library(pdelabtypetree OBJECT
-        utility.cc)
 
+dune_add_library(dunetypetree
+  utility.cc
+  ADD_LIBS ${DUNE_LIBS})
 
 # include not needed for CMake
 # include $(top_srcdir)/am/global-rules
