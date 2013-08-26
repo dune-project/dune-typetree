@@ -23,10 +23,11 @@ Makefile.in
 /configure.lineno
 /depcomp
 /dependencies.m4
-/dune-pdelab.pc
+/dune-typetree.pc
 /install-sh
 /libtool
 /ltmain.sh
 /missing
 /stamp-h1
 /test-driver
+compile
