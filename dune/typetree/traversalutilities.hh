@@ -1,56 +1,55 @@
 // -*- tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 2 -*-
 // vi: set et ts=4 sw=2 sts=2:
 
-#ifndef DUNE_PDELAB_COMMON_TYPETREE_TRAVERSALUTILITIES_HH
-#define DUNE_PDELAB_COMMON_TYPETREE_TRAVERSALUTILITIES_HH
+#ifndef DUNE_TYPETREE_TRAVERSALUTILITIES_HH
+#define DUNE_TYPETREE_TRAVERSALUTILITIES_HH
 
-#include <dune/pdelab/common/typetree/traversal.hh>
+#include <dune/typetree/traversal.hh>
 
 namespace Dune {
-  namespace PDELab {
-    namespace TypeTree {
+  namespace TypeTree {
 
-      /** \addtogroup Tree Traversal
-       *  \ingroup TypeTree
-       *  \{
+    /** \addtogroup Tree Traversal
+     *  \ingroup TypeTree
+     *  \{
+     */
+
+    namespace {
+
+      //! Visitor that applies a functor and an associated reduction to a TypeTree.
+      /**
+       * \tparam F The functor to apply to leaf nodes. Must return a ResultType.
+       * \tparam R The reduction used to combine the results.
+       * \tparam ResultType The result type of the operation.
        */
+      template<typename F, typename R, typename ResultType>
+      struct LeafReductionVisitor
+        : public TypeTree::TreeVisitor
+      {
 
-      namespace {
+        static const TreePathType::Type treePathType = TreePathType::dynamic;
 
-        //! Visitor that applies a functor and an associated reduction to a TypeTree.
-        /**
-         * \tparam F The functor to apply to leaf nodes. Must return a ResultType.
-         * \tparam R The reduction used to combine the results.
-         * \tparam ResultType The result type of the operation.
-         */
-        template<typename F, typename R, typename ResultType>
-        struct LeafReductionVisitor
-          : public TypeTree::TreeVisitor
+        template<typename Node, typename TreePath>
+        void leaf(const Node& node, TreePath treePath)
         {
+          _value = _reduction(_value,_functor(node,treePath));
+        }
 
-          static const TreePathType::Type treePathType = TreePathType::dynamic;
+        LeafReductionVisitor(F functor, R reduction, ResultType startValue)
+          : _functor(functor)
+          , _reduction(reduction)
+          , _value(startValue)
+        {}
 
-          template<typename Node, typename TreePath>
-          void leaf(const Node& node, TreePath treePath)
-          {
-            _value = _reduction(_value,_functor(node,treePath));
-          }
+        ResultType result() { return _value; }
 
-          LeafReductionVisitor(F functor, R reduction, ResultType startValue)
-            : _functor(functor)
-            , _reduction(reduction)
-            , _value(startValue)
-          {}
+        F _functor;
+        R _reduction;
+        ResultType _value;
 
-          ResultType result() { return _value; }
+      };
 
-          F _functor;
-          R _reduction;
-          ResultType _value;
-
-        };
-
-      } // anonymous namespace
+    } // anonymous namespace
 
       //! Calculate a quantity as a reduction over the leaf nodes of a TypeTree.
       /**
@@ -78,18 +77,17 @@ namespace Dune {
        *
        * \returns The value obtained by combining the individual results for all leafs.
        */
-      template<typename ResultType, typename Tree, typename F, typename R>
-      ResultType reduceOverLeafs(const Tree& tree, F functor, R reduction, ResultType startValue)
-      {
-        LeafReductionVisitor<F,R,ResultType> visitor(functor,reduction,startValue);
-        TypeTree::applyToTree(tree,visitor);
-        return visitor.result();
-      }
+    template<typename ResultType, typename Tree, typename F, typename R>
+    ResultType reduceOverLeafs(const Tree& tree, F functor, R reduction, ResultType startValue)
+    {
+      LeafReductionVisitor<F,R,ResultType> visitor(functor,reduction,startValue);
+      TypeTree::applyToTree(tree,visitor);
+      return visitor.result();
+    }
 
-      //! \} group Tree Traversal
+    //! \} group Tree Traversal
 
-    } // namespace TypeTree
-  } // namespace PDELab
+  } // namespace TypeTree
 } //namespace Dune
 
-#endif // DUNE_PDELAB_COMMON_TYPETREE_TRAVERSALUTILITIES_HH
+#endif // DUNE_TYPETREE_TRAVERSALUTILITIES_HH

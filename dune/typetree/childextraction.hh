@@ -1,20 +1,18 @@
 // -*- tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 2 -*-
 // vi: set et ts=8 sw=2 sts=2:
 
-#ifndef DUNE_PDELAB_COMMON_TYPETREE_CHILDEXTRACTION_HH
-#define DUNE_PDELAB_COMMON_TYPETREE_CHILDEXTRACTION_HH
+#ifndef DUNE_TYPETREE_CHILDEXTRACTION_HH
+#define DUNE_TYPETREE_CHILDEXTRACTION_HH
 
 #include <dune/common/documentation.hh>
 #include <dune/common/static_assert.hh>
 #include <dune/common/typetraits.hh>
 #include <dune/common/shared_ptr.hh>
 
-#include <dune/pdelab/common/typetree/treepath.hh>
+#include <dune/typetree/treepath.hh>
 
 
 namespace Dune {
-  namespace PDELab {
-
   namespace TypeTree {
 
 
@@ -97,7 +95,7 @@ namespace Dune {
      *
      * Example:
      *
-     * extract_child(node,Dune::PDELab::TypeTree::TreePath<2,3,0>())
+     * extract_child(node,Dune::TypeTree::TreePath<2,3,0>())
      *
      * returns the first child of the fourth child of the third child
      * of node.
@@ -125,7 +123,7 @@ namespace Dune {
      *
      * Example:
      *
-     * extract_child(node,Dune::PDELab::TypeTree::TreePath<2,3,0>())
+     * extract_child(node,Dune::TypeTree::TreePath<2,3,0>())
      *
      * returns the first child of the fourth child of the third child
      * of node.
@@ -233,7 +231,7 @@ namespace Dune {
      *
      * Example:
      *
-     * extract_child_storage(node,Dune::PDELab::TypeTree::TreePath<2,3,0>())
+     * extract_child_storage(node,Dune::TypeTree::TreePath<2,3,0>())
      *
      * returns the first child of the fourth child of the third child
      * of node.
@@ -262,7 +260,7 @@ namespace Dune {
      *
      * Example:
      *
-     * extract_child_storage(node,Dune::PDELab::TypeTree::TreePath<2,3,0>())
+     * extract_child_storage(node,Dune::TypeTree::TreePath<2,3,0>())
      *
      * returns the first child of the foruth child of the third child
      * of node.
@@ -362,8 +360,6 @@ namespace Dune {
     //! \} group TypeTree
 
   } // namespace TypeTree
-
-  } // namespace PDELab
 } //namespace Dune
 
-#endif // DUNE_PDELAB_COMMON_TYPETREE_CHILDEXTRACTION_HH
+#endif // DUNE_TYPETREE_CHILDEXTRACTION_HH

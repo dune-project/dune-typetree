@@ -1,8 +1,8 @@
 // -*- tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 2 -*-
 // vi: set et ts=8 sw=2 sts=2:
 
-#ifndef DUNE_PDELAB_COMMON_TYPETREE_TREEPATH_HH
-#define DUNE_PDELAB_COMMON_TYPETREE_TREEPATH_HH
+#ifndef DUNE_TYPETREE_TREEPATH_HH
+#define DUNE_TYPETREE_TREEPATH_HH
 
 #include <cstddef>
 
@@ -10,13 +10,11 @@
 #include <dune/common/static_assert.hh>
 #include <dune/common/typetraits.hh>
 
-#include <dune/pdelab/common/typetree/fixedcapacitystack.hh>
-#include <dune/pdelab/common/typetree/utility.hh>
+#include <dune/typetree/fixedcapacitystack.hh>
+#include <dune/typetree/utility.hh>
 
 
 namespace Dune {
-  namespace PDELab {
-
   namespace TypeTree {
 
 
@@ -582,8 +580,6 @@ namespace Dune {
     //! \} group TypeTree
 
   } // namespace TypeTree
-
-  } // namespace PDELab
 } //namespace Dune
 
-#endif // DUNE_PDELAB_COMMON_TYPETREE_TREEPATH_HH
+#endif // DUNE_TYPETREE_TREEPATH_HH

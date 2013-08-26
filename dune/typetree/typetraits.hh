@@ -1,8 +1,8 @@
 // -*- tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 2 -*-
 // vi: set et ts=4 sw=2 sts=2:
 
-#ifndef DUNE_PDELAB_COMMON_TYPETRAITS_HH
-#define DUNE_PDELAB_COMMON_TYPETRAITS_HH
+#ifndef DUNE_TYPETREE_TYPETRAITS_HH
+#define DUNE_TYPETREE_TYPETRAITS_HH
 
 #include <dune/common/typetraits.hh>
 
@@ -27,11 +27,11 @@ namespace Dune {
 
   // Every compiler we currently support should have TR1.
 #error Your compiler supports neither C++11 nor TR1!
-#error PDELab requires at least TR1 support in your compiler to work, bailing out...
+#error TypeTree requires at least TR1 support in your compiler to work, bailing out...
 
 #endif
 
-  namespace PDELab {
+  namespace TypeTree {
 
     template<typename>
     struct AlwaysVoid
@@ -69,7 +69,7 @@ namespace Dune {
 #elif HAVE_GCC___TYPEOF__
 #define DUNE_DECLTYPE __typeof__
 #else
-#error The TypeTree library (and by extension PDELab) require support for
+#error The TypeTree library requires support for
 #error C++11 decltype or a compatible fallback in your compiler.
 #error Neither of those was found, aborting!!!!
 #endif
@@ -123,7 +123,7 @@ namespace Dune {
         >::type::type type;
     };
 
-  } // end namespace PDELab
+  } // end namespace TypeTree
 } // end namespace Dune
 
-#endif // DUNE_PDELAB_COMMON_TYPETRAITS_HH
+#endif // DUNE_TYPETREE_TYPETRAITS_HH

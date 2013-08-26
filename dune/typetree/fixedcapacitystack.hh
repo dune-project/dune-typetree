@@ -1,15 +1,13 @@
 // -*- tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 2 -*-
 // vi: set et ts=8 sw=2 sts=2:
 
-#ifndef DUNE_PDELAB_COMMON_TYPETREE_FIXEDCAPACITYSTACK_HH
-#define DUNE_PDELAB_COMMON_TYPETREE_FIXEDCAPACITYSTACK_HH
+#ifndef DUNE_TYPETREE_FIXEDCAPACITYSTACK_HH
+#define DUNE_TYPETREE_FIXEDCAPACITYSTACK_HH
 
 #include <dune/common/array.hh>
 #include <cassert>
 
 namespace Dune {
-  namespace PDELab {
-
   namespace TypeTree {
 
 
@@ -148,8 +146,6 @@ namespace Dune {
     //! \} group TypeTree
 
   } // namespace TypeTree
-
-  } // namespace PDELab
 } //namespace Dune
 
-#endif // DUNE_PDELAB_COMMON_TYPETREE_FIXEDCAPACITYSTACK_HH
+#endif // DUNE_TYPETREE_FIXEDCAPACITYSTACK_HH
