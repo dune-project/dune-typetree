@@ -93,11 +93,11 @@ namespace Dune {
     template<typename F>
     struct evaluate_if_meta_function
     {
-      typedef typename conditional<
+      typedef typename SelectType<
         is_base_of<meta_function,F>::value,
         lazy_evaluate<F>,
         lazy_identity<F>
-        >::type::type type;
+        >::Type::type type;
     };
 
   } // end namespace TypeTree
