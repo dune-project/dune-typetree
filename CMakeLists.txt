@@ -55,7 +55,7 @@ set(DISTCHECK_CONFIGURE_FLAGS  --with-dune=${DUNEROOT} CXX="${CXX}" CXXFLAGS="${
 
 foreach(i ${SUBDIRS})
   if(${i} STREQUAL "test")
-    set(opt "EXCLUDE_FROM_ALL")g
+    set(opt "EXCLUDE_FROM_ALL")
   endif(${i} STREQUAL "test")
   add_subdirectory(${i} ${opt})
 endforeach(i ${SUBDIRS})
