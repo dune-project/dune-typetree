@@ -5,5 +5,5 @@ set(modules
   FindCXXTemplateAliases.cmake
   FindGCCTypeof.cmake
   FindPackageMultipass.cmake
-  ResolveCompilerPaths.cmake
+  ResolveCompilerPaths.cmake)
 install(FILES ${modules} DESTINATION ${DUNE_INSTALL_MODULEDIR})

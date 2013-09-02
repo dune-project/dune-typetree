@@ -1,4 +1,3 @@
-add_subdirectory(fem)
 #defined empty so we can add to it later
 set(NORMALTESTS  )
 set(MOSTLYCLEANFILES )
