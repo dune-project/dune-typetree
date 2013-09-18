@@ -1,4 +1,4 @@
-/* begin dune-pdelab
+/* begin dune-typetree
    put the definitions for config.h specific to
    your project here. Everything above will be
    overwritten
@@ -39,4 +39,4 @@
 /* Define to 1 if GCC's __typeof__ extension is supported. */
 #cmakedefine HAVE_GCC___TYPEOF__ 1
 
-/* end dune-pdelab */
+/* end dune-typetree */
