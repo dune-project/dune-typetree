@@ -1,5 +1,5 @@
 set(modules
-  DuneTypeTreeMacros.cmake
+  DuneTypetreeMacros.cmake
   FindCXXDecltype.cmake
   FindCXXInitializerList.cmake
   FindCXXTemplateAliases.cmake
