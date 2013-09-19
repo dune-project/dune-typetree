@@ -1,5 +1,5 @@
 MODULES =					\
-  DuneTypeTreeMacros.cmake			\
+  DuneTypetreeMacros.cmake			\
   FindCXXDecltype.cmake				\
   FindCXXInitializerList.cmake			\
   FindCXXTemplateAliases.cmake			\
