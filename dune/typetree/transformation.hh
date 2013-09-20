@@ -127,16 +127,28 @@ namespace Dune {
         return TransformTree<SourceTree,Transformation,typename SourceTree::NodeTag,NodeTransformation::recursive>::transform(s,t);
       }
 
+      //! Apply transformation to an existing tree s.
+      static transformed_type transform(shared_ptr<const SourceTree> sp, const Transformation& t = Transformation())
+      {
+        return TransformTree<SourceTree,Transformation,typename SourceTree::NodeTag,NodeTransformation::recursive>::transform(sp,t);
+      }
+
+      //! Apply transformation to an existing tree s.
+      static transformed_type transform(shared_ptr<const SourceTree> sp, Transformation& t)
+      {
+        return TransformTree<SourceTree,Transformation,typename SourceTree::NodeTag,NodeTransformation::recursive>::transform(sp,t);
+      }
+
       //! Apply transformation to storage type of an existing tree, returning a heap-allocated storage type
       //! instance of the transformed tree.
-      static transformed_storage_type transform_storage(shared_ptr<const SourceTree> sp, Transformation& t)
+      static transformed_storage_type transform_storage(shared_ptr<const SourceTree> sp, const Transformation& t = Transformation())
       {
         return TransformTree<SourceTree,Transformation,typename SourceTree::NodeTag,NodeTransformation::recursive>::transform_storage(sp,t);
       }
 
       //! Apply transformation to storage type of an existing tree, returning a heap-allocated storage type
       //! instance of the transformed tree.
-      static transformed_storage_type transform_storage(shared_ptr<const SourceTree> sp, const Transformation& t)
+      static transformed_storage_type transform_storage(shared_ptr<const SourceTree> sp, Transformation& t)
       {
         return TransformTree<SourceTree,Transformation,typename SourceTree::NodeTag,NodeTransformation::recursive>::transform_storage(sp,t);
       }
@@ -166,6 +178,18 @@ namespace Dune {
       static transformed_type transform(const S& s, const T& t)
       {
         return NodeTransformation::transform(s,t);
+      }
+
+      // delegate instance transformation to per-node specification
+      static transformed_type transform(shared_ptr<const S> sp, T& t)
+      {
+        return NodeTransformation::transform(sp,t);
+      }
+
+      // delegate instance transformation to per-node specification
+      static transformed_type transform(shared_ptr<const S> sp, const T& t)
+      {
+        return NodeTransformation::transform(sp,t);
       }
 
       static transformed_storage_type transform_storage(shared_ptr<const S> sp, T& t)
@@ -201,6 +225,18 @@ namespace Dune {
       static transformed_type transform(const S& s, const T& t)
       {
         return NodeTransformation::transform(s,t);
+      }
+
+      // delegate instance transformation to per-node specification
+      static transformed_type transform(shared_ptr<const S> sp, T& t)
+      {
+        return NodeTransformation::transform(sp,t);
+      }
+
+      // delegate instance transformation to per-node specification
+      static transformed_type transform(shared_ptr<const S> sp, const T& t)
+      {
+        return NodeTransformation::transform(sp,t);
       }
 
       static transformed_storage_type transform_storage(shared_ptr<const S> sp, T& t)
@@ -269,6 +305,35 @@ namespace Dune {
         }
         // transform node
         return NodeTransformation::transform(s,t,children);
+      }
+
+      // Transform an instance of S.
+      static transformed_type transform(shared_ptr<const S> sp, T& t)
+      {
+        // transform children
+        typedef TransformTree<typename S::ChildType,T,typename S::ChildType::NodeTag,ChildNodeTransformation::recursive> ChildTreeTransformation;
+        typedef typename ChildTreeTransformation::transformed_type transformed_child;
+        const std::size_t child_count = S::CHILDREN;
+        array<shared_ptr<transformed_child>,child_count> children;
+        for (std::size_t k = 0; k < child_count; ++k) {
+          children[k] = ChildTreeTransformation::transform_storage(sp->childStorage(k),t);
+        }
+        // transform node
+        return NodeTransformation::transform(sp,t,children);
+      }
+
+      static transformed_type transform(shared_ptr<const S> sp, const T& t)
+      {
+        // transform children
+        typedef TransformTree<typename S::ChildType,T,typename S::ChildType::NodeTag,ChildNodeTransformation::recursive> ChildTreeTransformation;
+        typedef typename ChildTreeTransformation::transformed_type transformed_child;
+        const std::size_t child_count = S::CHILDREN;
+        array<shared_ptr<transformed_child>,child_count> children;
+        for (std::size_t k = 0; k < child_count; ++k) {
+          children[k] = ChildTreeTransformation::transform_storage(sp->childStorage(k),t);
+        }
+        // transform node
+        return NodeTransformation::transform(sp,t,children);
       }
 
       static transformed_storage_type transform_storage(shared_ptr<const S> sp, T& t)

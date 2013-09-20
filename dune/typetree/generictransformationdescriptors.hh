@@ -34,6 +34,11 @@ namespace Dune {
         return transformed_type(s,t);
       }
 
+      static transformed_type transform(shared_ptr<const SourceNode> s, const Transformation& t)
+      {
+        return transformed_type(s,t);
+      }
+
       static transformed_storage_type transform_storage(shared_ptr<const SourceNode> s, const Transformation& t)
       {
         return make_shared<transformed_type>(s,t);
@@ -57,6 +62,12 @@ namespace Dune {
 
       template<typename TC>
       static typename result<TC>::type transform(const SourceNode& s, const Transformation& t, const array<shared_ptr<TC>,result<TC>::type::CHILDREN>& children)
+      {
+        return typename result<TC>::type(s,t,children);
+      }
+
+      template<typename TC>
+      static typename result<TC>::type transform(shared_ptr<const SourceNode> s, const Transformation& t, const array<shared_ptr<TC>,result<TC>::type::CHILDREN>& children)
       {
         return typename result<TC>::type(s,t,children);
       }
@@ -98,6 +109,12 @@ namespace Dune {
 
       template<typename... TC>
       static typename result<TC...>::type transform(const SourceNode& s, const Transformation& t, shared_ptr<TC>... children)
+      {
+        return typename result<TC...>::type(s,t,children...);
+      }
+
+      template<typename... TC>
+      static typename result<TC...>::type transform(shared_ptr<const SourceNode> s, const Transformation& t, shared_ptr<TC>... children)
       {
         return typename result<TC...>::type(s,t,children...);
       }
