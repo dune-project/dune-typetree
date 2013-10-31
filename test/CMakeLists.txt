@@ -12,7 +12,7 @@ set(noinst_HEADERS
 set(noinst_SCRIPTS
   make_pvd.sh)
 
-set(headercheck_IGNORE
+exclude_from_headercheck(
   typetreetargetnodes.hh
   typetreetestswitch.hh
   typetreetestutility.hh)
