@@ -12,7 +12,6 @@
 #include <dune/typetree/nodetags.hh>
 #include <dune/common/tuples.hh>
 #include <dune/common/shared_ptr.hh>
-#include <dune/common/deprecated.hh>
 
 namespace Dune {
   namespace TypeTree {
@@ -90,26 +89,6 @@ namespace Dune {
       const typename Child<k>::Type& child() const
       {
         return *get<k>(_children);
-      }
-
-      //! Returns the i-th child.
-      /**
-       * \returns a reference to the i-th child.
-       */
-      template<std::size_t k>
-      typename Child<k>::Type& DUNE_DEPRECATED getChild()
-      {
-        return child<k>();
-      }
-
-      //! Returns the i-th child (const version).
-      /**
-       * \returns a const reference to the i-th child.
-       */
-      template<std::size_t k>
-      const typename Child<k>::Type& DUNE_DEPRECATED getChild() const
-      {
-        return child<k>();
       }
 
       //! Returns the storage of the i-th child.

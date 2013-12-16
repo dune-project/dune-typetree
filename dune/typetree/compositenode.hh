@@ -186,17 +186,6 @@ namespace Dune {
         return *get<k>(_children);
       }
 
-      //! Returns the i-th child (const version).
-      /**
-       * \returns a const reference to the i-th child.
-       */
-      template<std::size_t k>
-      const typename Child<k>::Type& DUNE_DEPRECATED getChild() const
-      {
-        dune_static_assert((k < CHILDREN), "child index out of range");
-        return child<k>();
-      }
-
       //! Returns the i-th child.
       /**
        * \returns a reference to the i-th child.
@@ -206,17 +195,6 @@ namespace Dune {
       {
         dune_static_assert((k < CHILDREN), "child index out of range");
         return *get<k>(_children);
-      }
-
-      //! Returns the i-th child.
-      /**
-       * \returns a reference to the i-th child.
-       */
-      template<std::size_t k>
-      typename Child<k>::Type& DUNE_DEPRECATED getChild()
-      {
-        dune_static_assert((k < CHILDREN), "child index out of range");
-        return child<k>();
       }
 
       //! Returns the storage of the i-th child (const version).

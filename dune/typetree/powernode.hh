@@ -6,7 +6,6 @@
 
 #include <cassert>
 
-#include <dune/common/deprecated.hh>
 #include <dune/common/array.hh>
 #include <dune/common/typetraits.hh>
 
@@ -151,28 +150,6 @@ namespace Dune {
         return *_children[i];
       }
 
-      //! Returns the i-th child.
-      /**
-       * \returns a reference to the i-th child.
-       */
-      template<std::size_t i>
-      T& DUNE_DEPRECATED getChild ()
-      {
-        dune_static_assert((i < CHILDREN), "child index out of range");
-        return *_children[i];
-      }
-
-      //! Returns the i-th child (const version).
-      /**
-       * \returns a const reference to the i-th child.
-       */
-      template<std::size_t i>
-      const T& DUNE_DEPRECATED getChild () const
-      {
-        dune_static_assert((i < CHILDREN), "child index out of range");
-        return *_children[i];
-      }
-
       //! Returns the storage of the i-th child.
       /**
        * \returns a copy of the object storing the i-th child.
@@ -235,26 +212,6 @@ namespace Dune {
        * \returns a const reference to the i-th child.
        */
       const T& child (std::size_t i) const
-      {
-        assert(i < CHILDREN && "child index out of range");
-        return *_children[i];
-      }
-
-      //! Returns the i-th child.
-      /**
-       * \returns a reference to the i-th child.
-       */
-      T& getChild (std::size_t i) DUNE_DEPRECATED
-      {
-        assert(i < CHILDREN && "child index out of range");
-        return *_children[i];
-      }
-
-      //! Returns the i-th child (const version).
-      /**
-       * \returns a const reference to the i-th child.
-       */
-      const T& getChild (std::size_t i) const DUNE_DEPRECATED
       {
         assert(i < CHILDREN && "child index out of range");
         return *_children[i];
