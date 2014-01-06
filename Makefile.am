@@ -1,7 +1,5 @@
 # we need the module file to be able to build via dunecontrol
 EXTRA_DIST = CMakeLists.txt				\
-	dune.module dune-typetree-config.cmake.in	\
-	dune-typetree-version.cmake.in			\
 	GPL-2						\
 	GPL-3						\
 	LGPL-3						\
