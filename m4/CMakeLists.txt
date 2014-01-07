@@ -4,4 +4,4 @@ install(PROGRAMS
   cxx11_template_aliases.m4
   dune-typetree.m4
   gcc___typeof__.m4
-  DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/aclocal)
+  DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/dune/aclocal/)
