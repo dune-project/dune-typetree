@@ -360,11 +360,11 @@ namespace Dune {
         bottom_up_reduction
         >
       {
-        typedef typename SelectType<
+        typedef typename Dune::conditional<
           TreePathBack<tree_path>::value == 0,
           start_type,
           current_type
-          >::Type type;
+          >::type type;
       };
 
 
