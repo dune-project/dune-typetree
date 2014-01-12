@@ -1,11 +1,8 @@
 MODULES =					\
   DuneTypetreeMacros.cmake			\
   FindCXXDecltype.cmake				\
-  FindCXXInitializerList.cmake			\
   FindCXXTemplateAliases.cmake			\
-  FindGCCTypeof.cmake				\
-  FindPackageMultipass.cmake			\
-  ResolveCompilerPaths.cmake
+  FindGCCTypeof.cmake
 
 modulesdir = $(datadir)/dune/cmake/modules
 dist_modules_DATA = ${MODULES}
