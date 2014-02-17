@@ -7,6 +7,7 @@ typetree_HEADERS =				\
   childextraction.hh				\
   compositenode.hh				\
   compositenodemacros.hh			\
+  exceptions.hh					\
   filteredcompositenode.hh			\
   filters.hh					\
   fixedcapacitystack.hh				\
