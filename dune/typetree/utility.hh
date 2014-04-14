@@ -5,6 +5,7 @@
 #define DUNE_TYPETREE_UTILITY_HH
 
 #include <dune/common/shared_ptr.hh>
+#include <dune/common/static_assert.hh>
 #include <dune/common/tuples.hh>
 #include <dune/typetree/nodetags.hh>
 
