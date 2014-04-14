@@ -4,7 +4,6 @@
 AC_DEFUN([CXX11_DECLTYPE_CHECK],[
   AC_CACHE_CHECK([whether the keyword decltype is supported], dune_cv_cxx11_decltype_support, [
     AC_REQUIRE([AC_PROG_CXX])
-    AC_REQUIRE([GXX0X])
     AC_LANG_PUSH([C++])
     AC_RUN_IFELSE([
       AC_LANG_PROGRAM([

@@ -4,7 +4,6 @@
 AC_DEFUN([TEMPLATE_ALIASES_CHECK],[
   AC_CACHE_CHECK([whether template aliases are supported], dune_cv_template_aliases_support, [
     AC_REQUIRE([AC_PROG_CXX])
-    AC_REQUIRE([GXX0X])
     AC_LANG_PUSH([C++])
     AC_RUN_IFELSE([
       AC_LANG_PROGRAM([

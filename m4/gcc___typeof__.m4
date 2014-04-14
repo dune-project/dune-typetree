@@ -5,7 +5,6 @@
 AC_DEFUN([GCC___TYPEOF___CHECK],[
   AC_CACHE_CHECK([whether the GCC extension __typeof__ is supported as a decltype fallback], dune_cv_gcc___typeof___support, [
     AC_REQUIRE([AC_PROG_CXX])
-    AC_REQUIRE([GXX0X])
     AC_LANG_PUSH([C++])
     AC_RUN_IFELSE([
       AC_LANG_PROGRAM([
