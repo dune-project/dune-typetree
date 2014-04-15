@@ -1,11 +1,16 @@
 Copyright holders:
 
-2009--2013    Markus Blatt
+2009          Peter Bastian
+2009--2014    Markus Blatt
+2013          Andreas Buhr
+2014          Ansgar Burchardt
 2009--2013    Christian Engwer
-2009--2012    Jorrit Fahlke
-2010--2013    Steffen Müthing
-2010--2013    Rebecca Neumann
-2013--2013    Andreas Buhr
+2009--2013    Jorrit Fahlke
+2013--2014    Christoph Grüninger
+2013          Dominic Kempf
+2010--2014    Steffen Müthing
+2012          Rebecca Neumann
+2013          Bård Skaflestad
 
 The TypeTree library, headers and test programs are copyrighted free software. You
 can use, modify and/or redistribute it under the terms of either one of the two
