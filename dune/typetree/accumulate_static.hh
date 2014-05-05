@@ -4,6 +4,7 @@
 #ifndef DUNE_TYPETREE_ACCUMULATE_STATIC_HH
 #define DUNE_TYPETREE_ACCUMULATE_STATIC_HH
 
+#include <dune/common/typetraits.hh>
 #include <dune/typetree/nodetags.hh>
 #include <dune/typetree/treepath.hh>
 
