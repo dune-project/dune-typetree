@@ -3,8 +3,8 @@
 
 #Name of the module
 Module: dune-typetree
-Version: 2.3-beta
+Version: 3.0-dev
 Maintainer: steffen.muething@iwr.uni-heidelberg.de
 #depending on
-Depends: dune-common (>= 2.3)
+Depends: dune-common (>= 3.0)
 Whitespace-Hook: Yes
