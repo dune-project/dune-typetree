@@ -1,18 +1,30 @@
 TypeTree
 ========
 
-This is the 1.0 release of the TypeTree library for statically typed object trees.
+This is the 2.3 release of the TypeTree library for statically typed object trees.
 
-TypeTree 1.0 simply represents the state of the library when it was extracted from
-PDELab, only adjusted for the namespace change resulting from the move to a freestanding
-library.
+TypeTree 2.3 is compatible with the 2.3 release of the DUNE core modules and the 2.0
+release of PDELab.
 
-Future development will most likely drop support for some of the older compiler still
-supported by this release.
+This will be the last release with support for GCC 4.4 and older, future releases will
+at least require GCC 4.5.
 
 
 Changes
 =======
+
+TypeTree 2.3
+------------
+
+This release only contains minor changes to fix buildsystem issues and fix a number of
+bugs.
+
+- Full support for CMake (thanks to Christoph and Markus!).
+
+- Fixes to Autotools tests.
+
+- Resolved some compilation problems on older compilers.
+
 
 TypeTree 1.0
 ------------
