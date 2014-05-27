@@ -45,8 +45,6 @@ namespace Dune {
     struct DefaultVisitor
     {
 
-#if HAVE_RVALUE_REFERENCES || DOXYGEN
-
       //! Method for prefix tree traversal.
       /**
        * This method gets called when first encountering a non-leaf node and
@@ -120,38 +118,6 @@ namespace Dune {
       template<typename T, typename Child, typename TreePath, typename ChildIndex>
       void afterChild(T&& t, Child&& child, TreePath treePath, ChildIndex childIndex) const {}
 
-#else // HAVE_RVALUE_REFERENCES
-
-      // These are just a repeat of the above if the compiler does not support
-      // rvalue references. Since our methods are all empty, we only need methods
-      // which take the node as const reference.
-
-      // Method for prefix traversal
-      template<typename T, typename TreePath>
-      void pre(const T& t, TreePath treePath) const {}
-
-      // Method for infix traversal
-      template<typename T, typename TreePath>
-      void in(const T& t, TreePath treePath) const {}
-
-      // Method for postfix traversal
-      template<typename T, typename TreePath>
-      void post(const T& t, TreePath treePath) const {}
-
-      // Method for leaf traversal
-      template<typename T, typename TreePath>
-      void leaf(const T& t, TreePath treePath) const {}
-
-      // Method for parent-child traversal
-      template<typename T, typename Child, typename TreePath, typename ChildIndex>
-      void beforeChild(const T& t, const Child& child, TreePath treePath, ChildIndex childIndex) const {}
-
-      // Method for child-parent traversal
-      template<typename T, typename Child, typename TreePath, typename ChildIndex>
-      void afterChild(const T& t, const Child& child, TreePath treePath, ChildIndex childIndex) const {}
-
-#endif // HAVE_RVALUE_REFERENCES || DOXYGEN
-
     };
 
 
@@ -193,8 +159,6 @@ namespace Dune {
      */
     struct DefaultPairVisitor
     {
-
-#if HAVE_RVALUE_REFERENCES || DOXYGEN
 
       //! Method for prefix tree traversal.
       /**
@@ -279,70 +243,6 @@ namespace Dune {
        */
       template<typename T1, typename Child1, typename T2, typename Child2, typename TreePath, typename ChildIndex>
       void afterChild(T1&& t1, Child1&& child1, T2&& t2, Child2&& child2, TreePath treePath, ChildIndex childIndex) const {}
-
-#else // HAVE_RVALUE_REFERENCES
-
-      // These are just a repeat of the above if the compiler does not support
-      // rvalue references. In this case, we need variants for const and non-const
-      // nodes.
-
-      // Method for prefix traversal
-      template<typename T1, typename T2, typename TreePath>
-      void pre(T1& t1, T2& t2, TreePath treePath) const {}
-
-      // Method for infix traversal
-      template<typename T1, typename T2, typename TreePath>
-      void in(T1& t1, T2& t2, TreePath treePath) const {}
-
-      // Method for postfix traversal
-      template<typename T1, typename T2, typename TreePath>
-      void post(T1& t1, T2& t2, TreePath treePath) const {}
-
-      // Method for leaf traversal
-      template<typename T1, typename T2, typename TreePath>
-      void leaf(T1& t1, T2& t2, TreePath treePath) const {}
-
-      template<typename T1, typename Child1, typename T2, typename Child2, typename TreePath, typename ChildIndex>
-      void beforeChild(T1& t1, Child1& child1,
-                       T2& t2, Child2& child2,
-                       TreePath treePath,
-                       ChildIndex childIndex) const {}
-
-      template<typename T1, typename Child1, typename T2, typename Child2, typename TreePath, typename ChildIndex>
-      void afterChild(T1& t1, Child1& child1,
-                      T2& t2, Child2& child2,
-                      TreePath treePath,
-                      ChildIndex childIndex) const {}
-
-      // Method for prefix traversal
-      template<typename T1, typename T2, typename TreePath>
-      void pre(const T1& t1, const T2& t2, TreePath treePath) const {}
-
-      // Method for infix traversal
-      template<typename T1, typename T2, typename TreePath>
-      void in(const T1& t1, const T2& t2, TreePath treePath) const {}
-
-      // Method for postfix traversal
-      template<typename T1, typename T2, typename TreePath>
-      void post(const T1& t1, const T2& t2, TreePath treePath) const {}
-
-      // Method for leaf traversal
-      template<typename T1, typename T2, typename TreePath>
-      void leaf(const T1& t1, const T2& t2, TreePath treePath) const {}
-
-      template<typename T1, typename Child1, typename T2, typename Child2, typename TreePath, typename ChildIndex>
-      void beforeChild(const T1& t1, const Child1& child1,
-                       const T2& t2, const Child2& child2,
-                       TreePath treePath,
-                       ChildIndex childIndex) const {}
-
-      template<typename T1, typename Child1, typename T2, typename Child2, typename TreePath, typename ChildIndex>
-      void afterChild(const T1& t1, const Child1& child1,
-                      const T2& t2, const Child2& child2,
-                      TreePath treePath,
-                      ChildIndex childIndex) const {}
-
-#endif // HAVE_RVALUE_REFERENCES || DOXYGEN
 
     };
 

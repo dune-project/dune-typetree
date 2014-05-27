@@ -25,10 +25,8 @@ namespace Dune {
     };
 
 
-#if HAVE_VARIADIC_TEMPLATES
-
     template<typename SourceNode, typename Transformation, template<typename,typename...> class TransformedNode>
-    struct GenericVariadicCompositeNodeTransformationTemplate
+    struct GenericCompositeNodeTransformationTemplate
     {
       template<typename... TC>
       struct result
@@ -36,41 +34,6 @@ namespace Dune {
         typedef TransformedNode<SourceNode,TC...> type;
       };
     };
-
-#endif // HAVE_VARIADIC_TEMPLATES
-
-
-    template<typename SourceNode,
-             typename Transformation,
-             template<typename SourceNode_,
-                      typename C0,
-                      typename C1,
-                      typename C2,
-                      typename C3,
-                      typename C4,
-                      typename C5,
-                      typename C6,
-                      typename C7,
-                      typename C8,
-                      typename C9> class TransformedNode>
-    struct GenericCompositeNodeTransformationTemplate
-    {
-      template<typename TC0,
-               typename TC1,
-               typename TC2,
-               typename TC3,
-               typename TC4,
-               typename TC5,
-               typename TC6,
-               typename TC7,
-               typename TC8,
-               typename TC9>
-      struct result
-      {
-        typedef TransformedNode<SourceNode,TC0,TC1,TC2,TC3,TC4,TC5,TC6,TC7,TC8,TC9> type;
-      };
-    };
-
 
     //! \} group Transformation
 

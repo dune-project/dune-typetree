@@ -19,26 +19,9 @@ exclude_from_headercheck(
 # but since this is need for make all:
 set(EXTRA_DIST  make_pvd.sh)
 
-list(APPEND TESTS testtypetree testtypetree_no_sfinae testtypetree_no_variadic testtypetree_no_rvalue_refs testtypetree_legacy)
+list(APPEND TESTS testtypetree)
 add_executable(testtypetree testtypetree.cc)
 set_property(TARGET testtypetree APPEND PROPERTY COMPILE_DEFINITIONS TEST_TYPETREE)
-
-add_executable(testtypetree_no_sfinae testtypetree.cc)
-set_property(TARGET testtypetree_no_sfinae
-  APPEND PROPERTY
-  COMPILE_DEFINITIONS TEST_TYPETREE_NO_SFINAE)
-
-add_executable(testtypetree_no_variadic testtypetree.cc)
-set_property(TARGET testtypetree_no_variadic APPEND PROPERTY
-  COMPILE_DEFINITIONS TEST_TYPETREE_NO_VARIADIC)
-
-add_executable(testtypetree_no_rvalue_refs testtypetree.cc)
-set_property(TARGET testtypetree_no_rvalue_refs APPEND PROPERTY
-  COMPILE_DEFINITIONS TEST_TYPETREE_NO_RVALUE_REFERENCES)
-
-add_executable(testtypetree_legacy testtypetree.cc)
-set_property(TARGET testtypetree_legacy APPEND PROPERTY
-  COMPILE_DEFINITIONS TEST_TYPETREE_LEGACY)
 
 list(APPEND TESTS testtypetreetransformation)
 add_executable(testtypetreetransformation testtypetreetransformation.cc)

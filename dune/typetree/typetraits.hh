@@ -11,23 +11,8 @@ namespace Dune {
   // Provide some more C++11 TMP helpers.
   // These should be upstreamed to dune-common ASAP.
 
-#if defined HAVE_TYPE_TRAITS
-
   // Tests whether the first template argument is a base class of the second one.
   using std::is_base_of;
-
-#elif defined HAVE_TR1_TYPE_TRAITS
-
-  // This is already in TR1
-  using std::tr1::is_base_of;
-
-#else
-
-  // Every compiler we currently support should have TR1.
-#error Your compiler supports neither C++11 nor TR1!
-#error TypeTree requires at least TR1 support in your compiler to work, bailing out...
-
-#endif
 
   namespace TypeTree {
 

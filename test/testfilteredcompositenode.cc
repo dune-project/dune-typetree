@@ -39,7 +39,7 @@ class SimpleFilteredNode
 
 public:
 
-  typedef SimpleVariadicCompositeTag ImplementationTag;
+  typedef SimpleCompositeTag ImplementationTag;
 
   static const char* name()
   {
@@ -102,14 +102,14 @@ int main(int argc, char** argv)
   typedef SimpleComposite<SimpleLeaf,SimpleLeaf,SimpleLeaf> SC2;
   SC2 sc2(sl1,sl1,sl1);
 
-  typedef SimpleVariadicComposite<SimpleLeaf,SP1,SimpleLeaf,SC1> SVC1;
+  typedef SimpleComposite<SimpleLeaf,SP1,SimpleLeaf,SC1> SVC1;
   SVC1 svc1_1(sl1,sp1_1,sl2,sc1_1);
 
   SP1 sp1_3(SimpleLeaf(),SimpleLeaf(),sl1);
 
   SVC1 svc1_2(SimpleLeaf(),SP1(sp1_2),sl2,const_cast<const SC1&>(sc1_1));
 
-  typedef SimpleVariadicComposite<SimpleLeaf,SVC1,SimpleLeaf,SP1,SC1> SVC2;
+  typedef SimpleComposite<SimpleLeaf,SVC1,SimpleLeaf,SP1,SC1> SVC2;
   SVC2 svc2_1(sl1,svc1_2,sl2,sp1_3,sc1_1);
 
   testFilteredCompositeNode(svc2_1,LeafFilter());

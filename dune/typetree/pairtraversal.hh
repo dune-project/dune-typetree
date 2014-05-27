@@ -23,8 +23,6 @@ namespace Dune {
     struct ApplyToTreePair<tpType,StartTag,StartTag,true>
     {
 
-#if HAVE_RVALUE_REFERENCES
-
       template<typename Node1, typename Node2, typename Visitor>
       static void apply(Node1&& node1, Node2&& node2, Visitor&& visitor)
       {
@@ -36,73 +34,6 @@ namespace Dune {
                                  std::forward<Visitor>(visitor),
                                  TreePathFactory<tpType>::create(node1).mutablePath());
       }
-
-#else
-
-      // The next two methods do some nasty trickery to make sure that both trees
-      // are either const or non-const and that no mixed case can occur. For this
-      // purpose, the enable_if on the first method makes sure that it will only
-      // ever match if both trees are non-const, and the second method casts both
-      // trees to const before passing them on.
-      template<typename Node1, typename Node2, typename Visitor>
-      static
-      typename enable_if<!(IsConst<Node1>::Value || IsConst<Node2>::Value)>::type
-      apply(Node1& node1, Node2& node2, Visitor& visitor)
-      {
-        ApplyToTreePair<tpType,
-                        typename Node1::NodeTag,
-                        typename Node2::NodeTag
-                        >::apply(node1,
-                                 node2,
-                                 visitor,
-                                 TreePathFactory<tpType>::create(node1).mutablePath());
-      }
-
-      template<typename Node1, typename Node2, typename Visitor>
-      static void apply(const Node1& node1, const Node2& node2, Visitor& visitor)
-      {
-        ApplyToTreePair<tpType,
-                        typename Node1::NodeTag,
-                        typename Node2::NodeTag
-                        >::apply(const_cast<const Node1&>(node1), // see previous method
-                                 const_cast<const Node2&>(node2), // for explanation
-                                 visitor,
-                                 TreePathFactory<tpType>::create(node1).mutablePath());
-      }
-
-
-      // The next two methods do some nasty trickery to make sure that both trees
-      // are either const or non-const and that no mixed case can occur. For this
-      // purpose, the enable_if on the first method makes sure that it will only
-      // ever match if both trees are non-const, and the second method casts both
-      // trees to const before passing them on.
-      template<typename Node1, typename Node2, typename Visitor>
-      static
-      typename enable_if<!(IsConst<Node1>::Value || IsConst<Node2>::Value)>::type
-      apply(Node1& node1, Node2& node2, const Visitor& visitor)
-      {
-        ApplyToTreePair<tpType,
-                        typename Node1::NodeTag,
-                        typename Node2::NodeTag
-                        >::apply(node1,
-                                 node2,
-                                 visitor,
-                                 TreePathFactory<tpType>::create(node1).mutablePath());
-      }
-
-      template<typename Node1, typename Node2, typename Visitor>
-      static void apply(const Node1& node1, const Node2& node2, const Visitor& visitor)
-      {
-        ApplyToTreePair<tpType,
-                        typename Node1::NodeTag,
-                        typename Node2::NodeTag
-                        >::apply(const_cast<const Node1&>(node1), // see previous method
-                                 const_cast<const Node2&>(node2), // for explanation
-                                 visitor,
-                                 TreePathFactory<tpType>::create(node1).mutablePath());
-      }
-
-#endif // HAVE_RVALUE_REFERENCES
 
     };
 
@@ -181,8 +112,6 @@ namespace Dune {
     struct ApplyToTreePair<TreePathType::dynamic,PowerNodeTag,PowerNodeTag,true>
     {
 
-#if HAVE_RVALUE_REFERENCES
-
       template<typename N1, typename N2, typename V, typename TreePath>
       static void apply(N1&& n1, N2&& n2, V&& v, TreePath tp)
       {
@@ -215,131 +144,9 @@ namespace Dune {
         v.post(std::forward<N1>(n1),std::forward<N2>(n2),tp.view());
       }
 
-#else
-
-      template<typename N1, typename N2, typename V, typename TreePath>
-      static void apply(N1& n1, N2& n2, V& v, TreePath tp)
-      {
-        v.pre(n1,n2,tp.view());
-        typedef typename N1::template Child<0>::Type C1;
-        typedef typename N2::template Child<0>::Type C2;
-        static_assert(N1::CHILDREN == N2::CHILDREN,
-                      "non-leaf nodes with different numbers of children " \
-                      "are not allowed during simultaneous grid traversal");
-        const bool visit = V::template VisitChild<N1,C1,N2,C2,typename TreePath::ViewType>::value;
-        for (std::size_t k = 0; k < N1::CHILDREN; ++k)
-          {
-            v.beforeChild(n1,n1.child(k),n2,n2.child(k),tp.view(),k);
-            tp.push_back(k);
-            ApplyToTreePair<TreePathType::dynamic, // we know that due to the specialization
-                            typename C1::NodeTag,
-                            typename C2::NodeTag,
-                            visit>::apply(n1.child(k),
-                                          n2.child(k),
-                                          v,
-                                          tp);
-            tp.pop_back();
-            v.afterChild(n1,n1.child(k),n2,n2.child(k),tp.view(),k);
-            if (k < N1::CHILDREN-1)
-              v.in(n1,n2,tp.view());
-          }
-        v.post(n1,n2,tp.view());
-      }
-
-      template<typename N1, typename N2, typename V, typename TreePath>
-      static void apply(const N1& n1, const N2& n2, V& v, TreePath tp)
-      {
-        v.pre(n1,n2,tp.view());
-        typedef typename N1::template Child<0>::Type C1;
-        typedef typename N2::template Child<0>::Type C2;
-        static_assert(N1::CHILDREN == N2::CHILDREN,
-                           "non-leaf nodes with different numbers of children " \
-                           "are not allowed during simultaneous grid traversal");
-        const bool visit = V::template VisitChild<N1,C1,N2,C2,typename TreePath::ViewType>::value;
-        for (std::size_t k = 0; k < N1::CHILDREN; ++k)
-          {
-            v.beforeChild(n1,n1.child(k),n2,n2.child(k),tp.view(),k);
-            tp.push_back(k);
-            ApplyToTreePair<TreePathType::dynamic, // we know that due to the specialization
-                            typename C1::NodeTag,
-                            typename C2::NodeTag,
-                            visit>::apply(n1.child(k),
-                                          n2.child(k),
-                                          v,
-                                          tp);
-            tp.pop_back();
-            v.afterChild(n1,n1.child(k),n2,n2.child(k),tp.view(),k);
-            if (k < N1::CHILDREN-1)
-              v.in(n1,n2,tp.view());
-          }
-        v.post(n1,n2,tp.view());
-      }
-
-      template<typename N1, typename N2, typename V, typename TreePath>
-      static void apply(N1& n1, N2& n2, const V& v, TreePath tp)
-      {
-        v.pre(n1,n2,tp.view());
-        typedef typename N1::template Child<0>::Type C1;
-        typedef typename N2::template Child<0>::Type C2;
-        static_assert(N1::CHILDREN == N2::CHILDREN,
-                      "non-leaf nodes with different numbers of children " \
-                      "are not allowed during simultaneous grid traversal");
-        const bool visit = V::template VisitChild<N1,C1,N2,C2,typename TreePath::ViewType>::value;
-        for (std::size_t k = 0; k < N1::CHILDREN; ++k)
-          {
-            v.beforeChild(n1,n1.child(k),n2,n2.child(k),tp.view(),k);
-            tp.push_back(k);
-            ApplyToTreePair<TreePathType::dynamic, // we know that due to the specialization
-                            typename C1::NodeTag,
-                            typename C2::NodeTag,
-                            visit>::apply(n1.child(k),
-                                          n2.child(k),
-                                          v,
-                                          tp);
-            tp.pop_back();
-            v.afterChild(n1,n1.child(k),n2,n2.child(k),tp.view(),k);
-            if (k < N1::CHILDREN-1)
-              v.in(n1,n2,tp.view());
-          }
-        v.post(n1,n2,tp.view());
-      }
-
-      template<typename N1, typename N2, typename V, typename TreePath>
-      static void apply(const N1& n1, const N2& n2, const V& v, TreePath tp)
-      {
-        v.pre(n1,n2,tp.view());
-        typedef typename N1::template Child<0>::Type C1;
-        typedef typename N2::template Child<0>::Type C2;
-        static_assert(N1::CHILDREN == N2::CHILDREN,
-                      "non-leaf nodes with different numbers of children " \
-                      "are not allowed during simultaneous grid traversal");
-        const bool visit = V::template VisitChild<N1,C1,N2,C2,typename TreePath::ViewType>::value;
-        for (std::size_t k = 0; k < N1::CHILDREN; ++k)
-          {
-            v.beforeChild(n1,n1.child(k),n2,n2.child(k),tp.view(),k);
-            tp.push_back(k);
-            ApplyToTreePair<TreePathType::dynamic, // we know that due to the specialization
-                            typename C1::NodeTag,
-                            typename C2::NodeTag,
-                            visit>::apply(n1.child(k),
-                                          n2.child(k),
-                                          v,
-                                          tp);
-            tp.pop_back();
-            v.afterChild(n1,n1.child(k),n2,n2.child(k),tp.view(),k);
-            if (k < N1::CHILDREN-1)
-              v.in(n1,n2,tp.view());
-          }
-        v.post(n1,n2,tp.view());
-      }
-
-#endif // HAVE_RVALUE_REFERENCES
-
     };
 
 #endif // DOXYGEN
-
-#if HAVE_RVALUE_REFERENCES || DOXYGEN
 
     //! Apply visitor to a pair of TypeTrees.
     /**
@@ -363,34 +170,6 @@ namespace Dune {
                                                                                  std::forward<Tree2>(tree2),
                                                                                  std::forward<Visitor>(visitor));
     }
-
-#else
-
-    template<typename Tree1, typename Tree2, typename Visitor>
-    void applyToTreePair(Tree1& tree1, Tree2& tree2, Visitor& visitor)
-    {
-      ApplyToTreePair<Visitor::treePathType>::apply(tree1,tree2,visitor);
-    }
-
-    template<typename Tree1, typename Tree2, typename Visitor>
-    void applyToTreePair(const Tree1& tree1, const Tree2& tree2, Visitor& visitor)
-    {
-      ApplyToTreePair<Visitor::treePathType>::apply(tree1,tree2,visitor);
-    }
-
-    template<typename Tree1, typename Tree2, typename Visitor>
-    void applyToTreePair(Tree1& tree1, Tree2& tree2, const Visitor& visitor)
-    {
-      ApplyToTreePair<Visitor::treePathType>::apply(tree1,tree2,visitor);
-    }
-
-    template<typename Tree1, typename Tree2, typename Visitor>
-    void applyToTreePair(const Tree1& tree1, const Tree2& tree2, const Visitor& visitor)
-    {
-      ApplyToTreePair<Visitor::treePathType>::apply(tree1,tree2,visitor);
-    }
-
-#endif // HAVE_RVALUE_REFERENCES || DOXYGEN
 
     //! \} group Tree Traversal
 

@@ -45,16 +45,12 @@ namespace Dune {
       return e;
     }
 
-#if HAVE_RVALUE_REFERENCES
-
     // only bind to real rvalues
     template<typename T>
     typename enable_if<!std::is_lvalue_reference<T>::value,shared_ptr<T> >::type convert_arg(T&& t)
     {
       return make_shared<T>(std::forward<T>(t));
     }
-
-#endif
 
 #endif // DOXYGEN
 
@@ -189,16 +185,8 @@ namespace Dune {
     {};
 
 
-    // VariadicCompositeNode: delegate to GenericCompositeNodeInfo
-    template<typename Node>
-    struct TreeInfo<Node,VariadicCompositeNodeTag>
-      : public GenericCompositeNodeInfo<Node>
-    {};
-
 #endif // DOXYGEN
 
-
-#if HAVE_VARIADIC_TEMPLATES
 
     //! Simple holder class for a template argument pack of indices.
     /**
@@ -277,8 +265,6 @@ namespace Dune {
     template<typename... Args>
     void discard(Args&&... args)
     {}
-
-#endif // HAVE_VARIADIC_TEMPLATES
 
     //! \} group TypeTree
 

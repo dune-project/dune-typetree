@@ -232,15 +232,6 @@ namespace Dune {
       typedef typename Node::NodeStorage NodeStorage;
     };
 
-    //! ProxyNode base class for VariadicCompositeNode.
-    template<typename Node>
-    struct ProxyNodeBase<Node,VariadicCompositeNodeTag>
-      : public StaticChildAccessors<Node>
-    {
-      typedef typename Node::ChildTypes ChildTypes;
-      typedef typename Node::NodeStorage NodeStorage;
-    };
-
     //! ProxyNode base class for PowerNode.
     template<typename Node>
     struct ProxyNodeBase<Node,PowerNodeTag>

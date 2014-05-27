@@ -48,8 +48,6 @@ namespace Dune {
 
 #ifndef DOXYGEN
 
-#if HAVE_VARIADIC_TEMPLATES
-
     // end of recursion
     template<typename Node>
     struct extract_child_type<Node,TypeTree::TreePath<> >
@@ -58,28 +56,6 @@ namespace Dune {
       typedef shared_ptr<Node> storage_type;
       typedef shared_ptr<const Node> const_storage_type;
     };
-
-#else // HAVE_VARIADIC_TEMPLATES
-
-
-    // end of recursion
-    template<typename Node>
-    struct extract_child_type<Node,
-                              TypeTree::TreePath<
-                                noChildIndex,noChildIndex,
-                                noChildIndex,noChildIndex,
-                                noChildIndex,noChildIndex,
-                                noChildIndex,noChildIndex,
-                                noChildIndex,noChildIndex
-                                >
-                              >
-    {
-      typedef Node type;
-      typedef shared_ptr<Node> storage_type;
-      typedef shared_ptr<const Node> const_storage_type;
-    };
-
-#endif // HAVE_VARIADIC_TEMPLATES
 
 #endif // DOXYGEN
 

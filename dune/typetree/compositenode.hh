@@ -5,10 +5,8 @@
 #define DUNE_TYPETREE_COMPOSITENODE_HH
 
 #include <dune/typetree/nodetags.hh>
-#include <dune/typetree/utility.hh>
-#include <dune/common/typetraits.hh>
 #include <dune/common/tuples.hh>
-#include <dune/common/exceptions.hh>
+#include <dune/common/shared_ptr.hh>
 
 namespace Dune {
   namespace TypeTree {
@@ -18,144 +16,39 @@ namespace Dune {
      *  \{
      */
 
-    namespace {
-
-      //! TMP for counting the actual number of children of the composite node.
-      /**
-       * This TMP counts the number of children that are not of type EmptyNode.
-       * Moreover, it makes sure that a child of type EmptyNode is not followed by
-       * a non-empty child.
-       */
-      template<typename Children, std::size_t i, std::size_t n, bool atEnd = false>
-      struct count_children
-      {
-
-        static const bool emptyNode = is_same<typename tuple_element<i,Children>::type,EmptyNode>::value;
-
-        static_assert(atEnd ? emptyNode : true,"invalid child structure (EmptyNode followed by real node)");
-
-        static const std::size_t value = count_children<Children,i+1,n,emptyNode>::value + (emptyNode ? 0 : 1);
-
-      };
-
-      //! End of TMP recursion
-      template<typename Children, std::size_t n, bool atEnd>
-      struct count_children<Children,n,n,atEnd>
-      {
-
-        static const std::size_t value = 0;
-
-      };
-
-    } // anonymous namespace
-
-
-      //! Implementation Helper for constructors of composite nodes.
-      /**
-       * Using this struct for all but the first constructor argument in
-       * a composite node implementation makes it possible to only have
-       * a single constructor regardless of the number of actual children
-       * of the node.
-       *
-       * It should be used like this:
-       *
-       * \code
-       * template<typename C1, typename C2, ...>
-       * class MyCompositeNode {
-       *   ...
-       *   MyCompositeNode(C1& c1,
-       *                   typename OptionalChild<C2>::type c2 = OptionalChild<C2>::default_value(),
-       *                   ...)
-       *     : BaseT(c1,c2,...)
-       *   {}
-       * };
-       * \endcode
-       */
-    template<typename T>
-    struct OptionalChild
-    {
-      //! The correct child type.
-      typedef T& type;
-
-      //! Method providing a default value for empty children.
-      static T default_value()
-      {
-        static_assert((AlwaysFalse<T>::value), "You must provide a constructor parameter for every non-empty child!");
-        DUNE_THROW(NotImplemented,"You must provide a constructor parameter for every non-empty child!");
-      }
-    };
-
-#ifndef DOXYGEN
-
-    //! Specialization for empty children.
-    template<>
-    struct OptionalChild<EmptyNode>
-    {
-      typedef EmptyNode type;
-
-      static EmptyNode default_value()
-      {
-        return EmptyNode();
-      }
-    };
-
-#endif // DOXYGEN
-
-
-    /** \brief Base class for composite nodes combining children of different types within a TypeTree.
-     *
-     * A CompositeNode can tie together up to 10 children of different types.
-     *
-     * \note If you need more than 10 children in a composite node and can use a compiler that supports
-     * the upcoming C++0x standard, consider using a VariadicCompositeNode instead.
-     *
-     * \tparam C0,...,C9 The types of the children.
-     */
-    template<typename C0, typename C1 = EmptyNode, typename C2 = EmptyNode, typename C3 = EmptyNode, typename C4 = EmptyNode,
-             typename C5 = EmptyNode, typename C6 = EmptyNode, typename C7 = EmptyNode, typename C8 = EmptyNode, typename C9 = EmptyNode>
+    //! Base class for composite nodes based on variadic templates.
+    template<typename... Children>
     class CompositeNode
     {
 
     public:
 
-      //! The type used for storing the children.
-      typedef tuple<shared_ptr<C0>,
-                    shared_ptr<C1>,
-                    shared_ptr<C2>,
-                    shared_ptr<C3>,
-                    shared_ptr<C4>,
-                    shared_ptr<C5>,
-                    shared_ptr<C6>,
-                    shared_ptr<C7>,
-                    shared_ptr<C8>,
-                    shared_ptr<C9>
-                    > NodeStorage;
-
-      //! The types of all children.
-      typedef tuple<C0,C1,C2,C3,C4,C5,C6,C7,C8,C9> ChildTypes;
-
-      //! Mark this class as non leaf in the TypeTree.
-      static const bool isLeaf = false;
-
-      //! Mark this class as a composite in the TypeTree.
-      static const bool isComposite = true;
-
-      //! Mark this class as a non power in the typeTree.
-      static const bool isPower = false;
-
       //! The type tag that describes a CompositeNode.
       typedef CompositeNodeTag NodeTag;
 
-#ifdef DOXYGEN
-      //! The number of children of the CompositeNode.
-      static const std::size_t CHILDREN = implementation-defined;
-#else
-      static const std::size_t CHILDREN = count_children<ChildTypes,0,tuple_size<ChildTypes>::value>::value;
-#endif
+      //! The type used for storing the children.
+      typedef tuple<shared_ptr<Children>... > NodeStorage;
+
+      //! A tuple storing the types of all children.
+      typedef tuple<Children...> ChildTypes;
+
+      //! Mark this class as non leaf in the \ref TypeTree.
+      static const bool isLeaf = false;
+
+      //! Mark this class as a non power in the \ref TypeTree.
+      static const bool isPower = false;
+
+      //! Mark this class as a composite in the \ref TypeTree.
+      static const bool isComposite = true;
+
+      //! The number of children.
+      static const std::size_t CHILDREN = sizeof...(Children);
 
       //! Access to the type and storage type of the i-th child.
       template<std::size_t k>
       struct Child {
+
+        static_assert((k < CHILDREN), "child index out of range");
 
         //! The type of the child.
         typedef typename tuple_element<k,ChildTypes>::type Type;
@@ -170,20 +63,8 @@ namespace Dune {
         typedef shared_ptr<const typename tuple_element<k,ChildTypes>::type> ConstStorage;
       };
 
-
       //! @name Child Access
       //! @{
-
-      //! Returns the i-th child (const version).
-      /**
-       * \returns a const reference to the i-th child.
-       */
-      template<std::size_t k>
-      const typename Child<k>::Type& child() const
-      {
-        static_assert((k < CHILDREN), "child index out of range");
-        return *get<k>(_children);
-      }
 
       //! Returns the i-th child.
       /**
@@ -192,8 +73,27 @@ namespace Dune {
       template<std::size_t k>
       typename Child<k>::Type& child()
       {
-        static_assert((k < CHILDREN), "child index out of range");
         return *get<k>(_children);
+      }
+
+      //! Returns the i-th child (const version).
+      /**
+       * \returns a const reference to the i-th child.
+       */
+      template<std::size_t k>
+      const typename Child<k>::Type& child() const
+      {
+        return *get<k>(_children);
+      }
+
+      //! Returns the storage of the i-th child.
+      /**
+       * \returns a copy of the object storing the i-th child.
+       */
+      template<std::size_t k>
+      typename Child<k>::Storage childStorage()
+      {
+        return get<k>(_children);
       }
 
       //! Returns the storage of the i-th child (const version).
@@ -206,18 +106,6 @@ namespace Dune {
       template<std::size_t k>
       typename Child<k>::ConstStorage childStorage() const
       {
-        static_assert((k < 10), "child index out of range");
-        return get<k>(_children);
-      }
-
-      //! Returns the storage of the i-th child.
-      /**
-       * \returns a copy of the object storing the i-th child.
-       */
-      template<std::size_t k>
-      typename Child<k>::Storage childStorage()
-      {
-        static_assert((k < 10), "child index out of range");
         return get<k>(_children);
       }
 
@@ -225,15 +113,13 @@ namespace Dune {
       template<std::size_t k>
       void setChild(typename Child<k>::Type& child)
       {
-        static_assert((k < CHILDREN), "child index out of range");
         get<k>(_children) = stackobject_to_shared_ptr(child);
       }
 
-      //! Sets the stored value representing the i-th child to the passed-in value.
+      //! Sets the storage of the i-th child to the passed-in value.
       template<std::size_t k>
       void setChild(typename Child<k>::Storage child)
       {
-        static_assert((k < CHILDREN), "child index out of range");
         get<k>(_children) = child;
       }
 
@@ -244,84 +130,39 @@ namespace Dune {
 
       //! @}
 
-    private:
-
-      //! Helper function to correctly handle empty nodes in the constructor.
-      /**
-       * The default implementation assumes the passed-in object to be located on the stack
-       * and wraps it in a shared_ptr with a no-op deleter.
-       */
-      template<typename T>
-      static shared_ptr<T> guarded_wrap_object(T& t)
-      {
-        return stackobject_to_shared_ptr(t);
-      }
-
-      //! Helper function specialization for empty nodes.
-      /**
-       * For efficiency reasons, this returns a static shared_ptr, allowing the EmptyNode object
-       * and its reference counter block to be shared by all empty children.
-       */
-      static shared_ptr<EmptyNode> guarded_wrap_object(EmptyNode& en)
-      {
-        return emptyNodePtr();
-      }
-
     protected:
+
+      //! @name Constructors
+      //! @{
 
       //! Default constructor.
       /**
-       * The default constructor is protected, as CompositeNode is a utility
-       * class that needs to be filled with meaning by subclassing it
-       * and adding useful functionality to the subclass.
-       *
-       * \warning When using the default constructor, make sure to set ALL children
-       * by means of the setChild() methods!
+       * This constructor requires the storage type to be default
+       * constructible.
+       * \warning If the storage type is a pointer, the resulting object
+       * will not be usable before its children are set using any of the
+       * setChild(...) methods!
        */
       CompositeNode()
       {}
 
-      //! Initializes the CompositeNode with the passed-in child objects.
-      CompositeNode(C0& c0,
-                    typename OptionalChild<C1>::type c1 = OptionalChild<C1>::default_value(),
-                    typename OptionalChild<C2>::type c2 = OptionalChild<C2>::default_value(),
-                    typename OptionalChild<C3>::type c3 = OptionalChild<C3>::default_value(),
-                    typename OptionalChild<C4>::type c4 = OptionalChild<C4>::default_value(),
-                    typename OptionalChild<C5>::type c5 = OptionalChild<C5>::default_value(),
-                    typename OptionalChild<C6>::type c6 = OptionalChild<C6>::default_value(),
-                    typename OptionalChild<C7>::type c7 = OptionalChild<C7>::default_value(),
-                    typename OptionalChild<C8>::type c8 = OptionalChild<C8>::default_value(),
-                    typename OptionalChild<C9>::type c9 = OptionalChild<C9>::default_value())
-      : _children(stackobject_to_shared_ptr(c0),
-                  guarded_wrap_object(c1),
-                  guarded_wrap_object(c2),
-                  guarded_wrap_object(c3),
-                  guarded_wrap_object(c4),
-                  guarded_wrap_object(c5),
-                  guarded_wrap_object(c6),
-                  guarded_wrap_object(c7),
-                  guarded_wrap_object(c8),
-                  guarded_wrap_object(c9))
+      //! Initialize all children with the passed-in objects.
+      template<typename... Args, typename = typename enable_if<(sizeof...(Args) == CHILDREN)>::type>
+      CompositeNode(Args&&... args)
+        : _children(convert_arg(std::forward<Args>(args))...)
       {}
 
-      //! Initializes the CompositeNode with copies of the passed-in storage objects.
-      CompositeNode(shared_ptr<C0> c0,
-                    shared_ptr<C1> c1,
-                    shared_ptr<C2> c2,
-                    shared_ptr<C3> c3,
-                    shared_ptr<C4> c4,
-                    shared_ptr<C5> c5,
-                    shared_ptr<C6> c6,
-                    shared_ptr<C7> c7,
-                    shared_ptr<C8> c8,
-                    shared_ptr<C9> c9)
-        : _children(c0,c1,c2,c3,c4,c5,c6,c7,c8,c9)
+      //! Initialize the VariadicCompositeNode with copies of the passed in Storage objects.
+      CompositeNode(shared_ptr<Children>... children)
+        : _children(children...)
       {}
 
-      //! Initializes the CompositeNode from the passed-in NodeStorage object.
+      //! Initialize the VariadicCompositeNode with a copy of the passed-in storage type.
       CompositeNode(const NodeStorage& children)
         : _children(children)
       {}
+
+      //! @}
 
     private:
       NodeStorage _children;

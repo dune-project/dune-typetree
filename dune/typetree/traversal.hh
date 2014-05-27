@@ -35,8 +35,6 @@ namespace Dune {
     struct ApplyToTree<tpType,StartTag,doApply>
     {
 
-#if HAVE_RVALUE_REFERENCES
-
       template<typename Node, typename Visitor>
       static void apply(Node&& node, Visitor&& visitor)
       {
@@ -44,34 +42,6 @@ namespace Dune {
                                                                                   std::forward<Visitor>(visitor),
                                                                                   TreePathFactory<tpType>::create(node).mutablePath());
       }
-
-#else
-
-      template<typename Node, typename Visitor>
-      static void apply(Node& node, Visitor& visitor)
-      {
-        ApplyToTree<tpType,typename Node::NodeTag>::apply(node,visitor,TreePathFactory<tpType>::create(node).mutablePath());
-      }
-
-      template<typename Node, typename Visitor>
-      static void apply(const Node& node, Visitor& visitor)
-      {
-        ApplyToTree<tpType,typename Node::NodeTag>::apply(node,visitor,TreePathFactory<tpType>::create(node).mutablePath());
-      }
-
-      template<typename Node, typename Visitor>
-      static void apply(Node& node, const Visitor& visitor)
-      {
-        ApplyToTree<tpType,typename Node::NodeTag>::apply(node,visitor,TreePathFactory<tpType>::create(node).mutablePath());
-      }
-
-      template<typename Node, typename Visitor>
-      static void apply(const Node& node, const Visitor& visitor)
-      {
-        ApplyToTree<tpType,typename Node::NodeTag>::apply(node,visitor,TreePathFactory<tpType>::create(node).mutablePath());
-      }
-
-#endif // HAVE_RVALUE_REFERENCES
 
     };
 
@@ -100,41 +70,11 @@ namespace Dune {
     struct ApplyToTree<tpType,LeafNodeTag,true>
     {
 
-#if HAVE_RVALUE_REFERENCES
-
       template<typename N, typename V, typename TreePath>
       static void apply(N&& n, V&& v, TreePath tp)
       {
         v.leaf(std::forward<N>(n),tp.view());
       }
-
-#else
-
-      template<typename N, typename V, typename TreePath>
-      static void apply(N& n, V& v, TreePath tp)
-      {
-        v.leaf(n,tp.view());
-      }
-
-      template<typename N, typename V, typename TreePath>
-      static void apply(const N& n, V& v, TreePath tp)
-      {
-        v.leaf(n,tp.view());
-      }
-
-      template<typename N, typename V, typename TreePath>
-      static void apply(N& n, const V& v, TreePath tp)
-      {
-        v.leaf(n,tp.view());
-      }
-
-      template<typename N, typename V, typename TreePath>
-      static void apply(const N& n, const V& v, TreePath tp)
-      {
-        v.leaf(n,tp.view());
-      }
-
-#endif // HAVE_RVALUE_REFERENCES
 
     };
 
@@ -158,8 +98,6 @@ namespace Dune {
     template<>
     struct ApplyToTree<TreePathType::dynamic,PowerNodeTag,true>
     {
-
-#if HAVE_RVALUE_REFERENCES
 
       template<typename N, typename V, typename TreePath>
       static void apply(N&& n, V&& v, TreePath tp)
@@ -206,90 +144,6 @@ namespace Dune {
         v.post(std::forward<N>(n),tp.view());
       }
 
-#else
-
-      // non-const node, non-const visitor
-      template<typename N, typename V, typename TreePath>
-      static void apply(N& n, V& v, TreePath tp)
-      {
-        v.pre(n,tp.view());
-        typedef typename N::template Child<0>::Type C;
-        const bool visit = V::template VisitChild<N,C,typename TreePath::ViewType>::value;
-        for (std::size_t k = 0; k < N::CHILDREN; ++k)
-          {
-            v.beforeChild(n,n.child(k),tp.view(),k);
-            tp.push_back(k);
-            ApplyToTree<V::treePathType,typename C::NodeTag,visit>::apply(n.child(k),v,tp);
-            tp.pop_back();
-            v.afterChild(n,n.child(k),tp.view(),k);
-            if (k < N::CHILDREN-1)
-              v.in(n,tp.view());
-          }
-        v.post(n,tp.view());
-      }
-
-      // const node, non-const visitor
-      template<typename N, typename V, typename TreePath>
-      static void apply(const N& n, V& v, TreePath tp)
-      {
-        v.pre(n,tp.view());
-        typedef typename N::template Child<0>::Type C;
-        const bool visit = V::template VisitChild<N,C,typename TreePath::ViewType>::value;
-        for (std::size_t k = 0; k < N::CHILDREN; ++k)
-          {
-            v.beforeChild(n,n.child(k),tp.view(),k);
-            tp.push_back(k);
-            ApplyToTree<V::treePathType,typename C::NodeTag,visit>::apply(n.child(k),v,tp);
-            tp.pop_back();
-            v.afterChild(n,n.child(k),tp.view(),k);
-            if (k < N::CHILDREN-1)
-              v.in(n,tp.view());
-          }
-        v.post(n,tp.view());
-      }
-
-      // non-const node, const visitor
-      template<typename N, typename V, typename TreePath>
-      static void apply(N& n, const V& v, TreePath tp)
-      {
-        v.pre(n,tp.view());
-        typedef typename N::template Child<0>::Type C;
-        const bool visit = V::template VisitChild<N,C,typename TreePath::ViewType>::value;
-        for (std::size_t k = 0; k < N::CHILDREN; ++k)
-          {
-            v.beforeChild(n,n.child(k),tp.view(),k);
-            tp.push_back(k);
-            ApplyToTree<V::treePathType,typename C::NodeTag,visit>::apply(n.child(k),v,tp);
-            tp.pop_back();
-            v.afterChild(n,n.child(k),tp.view(),k);
-            if (k < N::CHILDREN-1)
-              v.in(n,tp.view());
-          }
-        v.post(n,tp.view());
-      }
-
-      // const node, const visitor
-      template<typename N, typename V, typename TreePath>
-      static void apply(const N& n, const V& v, TreePath tp)
-      {
-        v.pre(n,tp.view());
-        typedef typename N::template Child<0>::Type C;
-        const bool visit = V::template VisitChild<N,C,typename TreePath::ViewType>::value;
-        for (std::size_t k = 0; k < N::CHILDREN; ++k)
-          {
-            v.beforeChild(n,n.child(k),tp.view(),k);
-            tp.push_back(k);
-            ApplyToTree<V::treePathType,typename C::NodeTag,visit>::apply(n.child(k),v,tp);
-            tp.pop_back();
-            v.afterChild(n,n.child(k),tp.view(),k);
-            if (k < N::CHILDREN-1)
-              v.in(n,tp.view());
-          }
-        v.post(n,tp.view());
-      }
-
-#endif // HAVE_RVALUE_REFERENCES
-
     };
 
 
@@ -305,14 +159,6 @@ namespace Dune {
     {
     };
 
-
-    // Traverse VariadicCompositeNode - just forward to the generic algorithm
-    template<TreePathType::Type treePathType>
-    struct ApplyToTree<treePathType,VariadicCompositeNodeTag,true>
-      : public ApplyToGenericCompositeNode
-    {
-    };
-
 #endif // DOXYGEN
 
 
@@ -320,8 +166,6 @@ namespace Dune {
     // ********************************************************************************
     // Public Interface
     // ********************************************************************************
-
-#if HAVE_RVALUE_REFERENCES || DOXYGEN
 
     //! Apply visitor to TypeTree.
     /**
@@ -344,34 +188,6 @@ namespace Dune {
       ApplyToTree<std::remove_reference<Visitor>::type::treePathType>::apply(std::forward<Tree>(tree),
                                                                              std::forward<Visitor>(visitor));
     }
-
-#else
-
-    template<typename Tree, typename Visitor>
-    void applyToTree(Tree& tree, Visitor& visitor)
-    {
-      ApplyToTree<Visitor::treePathType>::apply(tree,visitor);
-    }
-
-    template<typename Tree, typename Visitor>
-    void applyToTree(const Tree& tree, Visitor& visitor)
-    {
-      ApplyToTree<Visitor::treePathType>::apply(tree,visitor);
-    }
-
-    template<typename Tree, typename Visitor>
-    void applyToTree(Tree& tree, const Visitor& visitor)
-    {
-      ApplyToTree<Visitor::treePathType>::apply(tree,visitor);
-    }
-
-    template<typename Tree, typename Visitor>
-    void applyToTree(const Tree& tree, const Visitor& visitor)
-    {
-      ApplyToTree<Visitor::treePathType>::apply(tree,visitor);
-    }
-
-#endif // HAVE_RVALUE_REFERENCES || DOXYGEN
 
     //! \} group Tree Traversal
 

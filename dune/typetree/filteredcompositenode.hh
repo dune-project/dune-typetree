@@ -6,11 +6,6 @@
 
 #include <dune/common/shared_ptr.hh>
 
-#if !(HAVE_VARIADIC_TEMPLATES || DOXYGEN || HEADERCHECK)
-#error The class FilteredCompositeNode requires compiler support for variadic templates, which your compiler lacks.
-#endif
-
-#if (HAVE_VARIADIC_TEMPLATES || DOXYGEN)
 #include <dune/typetree/nodetags.hh>
 #include <dune/typetree/filters.hh>
 #include <dune/common/tuples.hh>
@@ -93,8 +88,8 @@ namespace Dune {
 
     public:
 
-      //! The type tag that describes a VariadicCompositeNode.
-      typedef VariadicCompositeNodeTag NodeTag;
+      //! The type tag that describes a CompositeNode.
+      typedef CompositeNodeTag NodeTag;
 
       //! The type used for storing the children.
       typedef typename mapped_children::NodeStorage NodeStorage;
@@ -255,12 +250,12 @@ namespace Dune {
       //! @name Constructors
       //! @{
 
-      //! Initialize the VariadicCompositeNode with copies of the passed in Storage objects.
+      //! Initialize the CompositeNode with copies of the passed in Storage objects.
       FilteredCompositeNode(shared_ptr<Node> node)
         : _node(node)
       {}
 
-      //! Initialize the VariadicCompositeNode with a copy of the passed-in storage type.
+      //! Initialize the CompositeNode with a copy of the passed-in storage type.
       FilteredCompositeNode(Node& node)
         : _node(stackobject_to_shared_ptr(node))
       {}
@@ -275,7 +270,5 @@ namespace Dune {
 
   } // namespace TypeTree
 } //namespace Dune
-
-#endif // (HAVE_VARIADIC_TEMPLATES || DOXYGEN)
 
 #endif // DUNE_TYPETREE_FILTEREDCOMPOSITENODE_HH

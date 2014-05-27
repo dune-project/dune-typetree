@@ -37,7 +37,7 @@ int main(int argc, char** argv)
   SimpleLeaf sl2;
   SP1 sp1_2(sl2,false);
 
-  typedef SimpleVariadicComposite<SimpleLeafDerived,SP1,SimpleLeaf> SVC1;
+  typedef SimpleComposite<SimpleLeafDerived,SP1,SimpleLeaf> SVC1;
 
   SVC1 svc1_1(SimpleLeafDerived(),sp1_2,sl1);
 
@@ -53,33 +53,6 @@ int main(int argc, char** argv)
 
   Dune::TypeTree::applyToTree(tvc1_1,TreePrinter());
 
-  /*
-  typedef SimpleComposite<SimpleLeaf,SP1,SimpleLeaf> SC1;
-  SC1 sc1_1(sl1,sp1_2,sl2);
-  Dune::TypeTree::applyToTree(const_cast<const SC1&>(sc1_1),treePrinter);
-
-#if HAVE_VARIADIC_TEMPLATES
-
-#if HAVE_RVALUE_REFERENCES
-
-  typedef SimpleVariadicComposite<SimpleLeaf,SP1,SimpleLeaf,SC1> SVC1;
-  SVC1 svc1_1(sl1,sp1_1,sl2,sc1_1);
-  Dune::TypeTree::applyToTree(svc1_1,treePrinter);
-
-  SP1 sp1_3(SimpleLeaf(),SimpleLeaf(),sl1);
-  Dune::TypeTree::applyToTree(sp1_3,TreePrinter());
-
-#if HAVE_VARIADIC_CONSTRUCTOR_SFINAE
-
-  SVC1 svc1_2(SimpleLeaf(),SP1(sp1_2),sl2,const_cast<const SC1&>(sc1_1));
-  Dune::TypeTree::applyToTree(svc1_2,TreePrinter());
-
-#endif
-
-#endif
-
-#endif
-  */
   return 0;
 }
 

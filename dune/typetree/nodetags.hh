@@ -21,9 +21,6 @@ namespace Dune {
     //! Tag designating a composite node.
     struct CompositeNodeTag {};
 
-    //! Tag designating a composite node that is based on variadic templates.
-    struct VariadicCompositeNodeTag {};
-
     //! Tag designating an empty child node in a non-variadic composite node.
     struct EmptyNodeTag {};
 

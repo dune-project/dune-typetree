@@ -59,84 +59,19 @@ struct TargetPower
 };
 
 template<typename S, typename... Children>
-struct TargetVariadicComposite
-  : public Dune::TypeTree::VariadicCompositeNode<Children...>
-{
-
-  template<typename Transformation>
-  TargetVariadicComposite(const S& sc, const Transformation& t, Dune::shared_ptr<Children>... children)
-    : Dune::TypeTree::VariadicCompositeNode<Children...>(children...)
-    , s(Dune::stackobject_to_shared_ptr(sc))
-  {}
-
-  template<typename Transformation>
-  TargetVariadicComposite(Dune::shared_ptr<const S> sc, const Transformation& t, Dune::shared_ptr<Children>... children)
-    : Dune::TypeTree::VariadicCompositeNode<Children...>(children...)
-    , s(sc)
-  {}
-
-  Dune::shared_ptr<const S> s;
-
-  const char* name() const
-  {
-    return "TargetVariadicComposite";
-  }
-
-  int id() const
-  {
-    return s->id();
-  }
-
-
-};
-
-
-template<typename S,
-         typename C0,
-         typename C1 = Dune::TypeTree::EmptyNode,
-         typename C2 = Dune::TypeTree::EmptyNode,
-         typename C3 = Dune::TypeTree::EmptyNode,
-         typename C4 = Dune::TypeTree::EmptyNode,
-         typename C5 = Dune::TypeTree::EmptyNode,
-         typename C6 = Dune::TypeTree::EmptyNode,
-         typename C7 = Dune::TypeTree::EmptyNode,
-         typename C8 = Dune::TypeTree::EmptyNode,
-         typename C9 = Dune::TypeTree::EmptyNode>
 struct TargetComposite
-  : public Dune::TypeTree::CompositeNode<C0,C1,C2,C3,C4,C5,C6,C7,C8,C9>
+  : public Dune::TypeTree::CompositeNode<Children...>
 {
 
-  typedef Dune::TypeTree::CompositeNode<C0,C1,C2,C3,C4,C5,C6,C7,C8,C9> BaseT;
-
   template<typename Transformation>
-  TargetComposite(const S& sc, const Transformation& t,
-                  Dune::shared_ptr<C0> c0,
-                  Dune::shared_ptr< C1> c1,
-                  Dune::shared_ptr< C2> c2,
-                  Dune::shared_ptr< C3> c3,
-                  Dune::shared_ptr< C4> c4,
-                  Dune::shared_ptr< C5> c5,
-                  Dune::shared_ptr< C6> c6,
-                  Dune::shared_ptr< C7> c7,
-                  Dune::shared_ptr< C8> c8,
-                  Dune::shared_ptr< C9> c9)
-    : BaseT(c0,c1,c2,c3,c4,c5,c6,c7,c8,c9)
+  TargetComposite(const S& sc, const Transformation& t, Dune::shared_ptr<Children>... children)
+    : Dune::TypeTree::CompositeNode<Children...>(children...)
     , s(Dune::stackobject_to_shared_ptr(sc))
   {}
 
   template<typename Transformation>
-  TargetComposite(Dune::shared_ptr<const S> sc, const Transformation& t,
-                  Dune::shared_ptr< C0> c0,
-                  Dune::shared_ptr< C1> c1,
-                  Dune::shared_ptr< C2> c2,
-                  Dune::shared_ptr< C3> c3,
-                  Dune::shared_ptr< C4> c4,
-                  Dune::shared_ptr< C5> c5,
-                  Dune::shared_ptr< C6> c6,
-                  Dune::shared_ptr< C7> c7,
-                  Dune::shared_ptr< C8> c8,
-                  Dune::shared_ptr< C9> c9)
-    : BaseT(c0,c1,c2,c3,c4,c5,c6,c7,c8,c9)
+  TargetComposite(Dune::shared_ptr<const S> sc, const Transformation& t, Dune::shared_ptr<Children>... children)
+    : Dune::TypeTree::CompositeNode<Children...>(children...)
     , s(sc)
   {}
 
@@ -155,6 +90,7 @@ struct TargetComposite
 
 };
 
+
 struct TestTransformation {};
 
 // register leaf node
@@ -166,10 +102,6 @@ template<typename SP>
 Dune::TypeTree::GenericPowerNodeTransformation<SP,TestTransformation,TargetPower>
 registerNodeTransformation(SP* sp, TestTransformation* t, SimplePowerTag* tag);
 
-template<typename SVC>
-Dune::TypeTree::GenericVariadicCompositeNodeTransformation<SVC,TestTransformation,TargetVariadicComposite>
-registerNodeTransformation(SVC* svc, TestTransformation* t, SimpleVariadicCompositeTag* tag);
-
 template<typename SC>
 Dune::TypeTree::GenericCompositeNodeTransformation<SC,TestTransformation,TargetComposite>
-registerNodeTransformation(SC* svc, TestTransformation* t, SimpleCompositeTag* tag);
+registerNodeTransformation(SC* sc, TestTransformation* t, SimpleCompositeTag* tag);

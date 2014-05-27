@@ -24,9 +24,8 @@ namespace Dune {
      * \note Constructor signatures are explicitly not specified by this
      *       interface.
      * \note In addition, every node in a tree must be derived from one of
-     *       the node base classes LeafNode, PowerNode, CompositeNode, or
-     *       VariadicCompositeNode, or from a base class for a
-     *       yet-to-be-defined new node type.
+     *       the node base classes LeafNode, PowerNode, or CompositeNode,
+     *       or from a base class for a yet-to-be-defined new node type.
      */
     struct NodeInterface
     {
@@ -44,8 +43,8 @@ namespace Dune {
 
       //! The type tag that describes what kind of node this is
       /**
-       * One of LeafNodeTag, PowerNodeTag, CompositeNodeTag, or
-       * VariadicCompositeNodeTag.  Other tags are also possible when new
+       * One of LeafNodeTag, PowerNodeTag or CompositeNodeTag.
+       * Other tags are also possible when new
        * kinds of nodes are defined.
        */
       typedef ImplementationDefined NodeTag;

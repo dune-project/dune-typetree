@@ -6,7 +6,6 @@ set(typetree_HEADERS
   applytochildrentreepair.hh
   childextraction.hh
   compositenode.hh
-  compositenodemacros.hh
   exceptions.hh
   filteredcompositenode.hh
   filters.hh
@@ -28,7 +27,6 @@ set(typetree_HEADERS
   typetraits.hh
   typetree.hh
   utility.hh
-  variadiccompositenode.hh
   visitor.hh)
 
 

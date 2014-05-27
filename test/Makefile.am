@@ -43,17 +43,9 @@ headercheck_IGNORE =				\
 EXTRA_DIST = CMakeLists.txt
 
 
-NORMALTESTS += testtypetree testtypetree-no-sfinae testtypetree-no-variadic testtypetree-no-rvalue-refs testtypetree-legacy
+NORMALTESTS += testtypetree
 testtypetree_SOURCES = testtypetree.cc
 testtypetree_CPPFLAGS = $(AM_CPPFLAGS) -DTEST_TYPETREE
-testtypetree_no_sfinae_SOURCES = testtypetree.cc
-testtypetree_no_sfinae_CPPFLAGS = $(AM_CPPFLAGS) -DTEST_TYPETREE_NO_SFINAE
-testtypetree_no_variadic_SOURCES = testtypetree.cc
-testtypetree_no_variadic_CPPFLAGS = $(AM_CPPFLAGS) -DTEST_TYPETREE_NO_VARIADIC
-testtypetree_no_rvalue_refs_SOURCES = testtypetree.cc
-testtypetree_no_rvalue_refs_CPPFLAGS = $(AM_CPPFLAGS) -DTEST_TYPETREE_NO_RVALUE_REFERENCES
-testtypetree_legacy_SOURCES = testtypetree.cc
-testtypetree_legacy_CPPFLAGS = $(AM_CPPFLAGS) -DTEST_TYPETREE_LEGACY
 
 NORMALTESTS += testtypetreetransformation
 testtypetreetransformation_SOURCES = testtypetreetransformation.cc

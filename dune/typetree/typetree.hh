@@ -9,7 +9,6 @@
 #include <dune/typetree/leafnode.hh>
 #include <dune/typetree/powernode.hh>
 #include <dune/typetree/compositenode.hh>
-#include <dune/typetree/compositenodemacros.hh>
 #include <dune/typetree/traversal.hh>
 #include <dune/typetree/pairtraversal.hh>
 #include <dune/typetree/traversalutilities.hh>

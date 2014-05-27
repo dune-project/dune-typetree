@@ -20,8 +20,6 @@ namespace Dune {
      *  \{
      */
 
-#if HAVE_VARIADIC_TEMPLATES && HAVE_RVALUE_REFERENCES
-
 #ifndef DOXYGEN
 
     namespace {
@@ -46,8 +44,6 @@ namespace Dune {
       }
 
     } // anonymous namespace
-
-#endif
 
 #endif
 
@@ -315,163 +311,12 @@ namespace Dune {
 
 #else
 
-#if HAVE_VARIADIC_TEMPLATES && HAVE_RVALUE_REFERENCES
-
-
       // this weird signature avoids shadowing other 1-argument constructors
       template<typename C0, typename C1, typename... Children>
       PowerNode (C0&& c0, C1&& c1, Children&&... children)
       {
         assign_reference_pack_to_shared_ptr_array(_children,std::forward<C0>(c0),std::forward<C1>(c1),std::forward<Children>(children)...);
       }
-
-#else
-
-      template<typename U>
-      PowerNode (typename AssertPowerNodeChildCount<PowerNode,U,2>::type& c0,
-                 U& c1)
-      {
-        _children[0] = stackobject_to_shared_ptr(c0);
-        _children[1] = stackobject_to_shared_ptr(c1);
-      }
-
-      template<typename U>
-      PowerNode (typename AssertPowerNodeChildCount<PowerNode,U,3>::type& c0,
-                 U& c1,
-                 U& c2)
-      {
-        _children[0] = stackobject_to_shared_ptr(c0);
-        _children[1] = stackobject_to_shared_ptr(c1);
-        _children[2] = stackobject_to_shared_ptr(c2);
-      }
-
-      template<typename U>
-      PowerNode (typename AssertPowerNodeChildCount<PowerNode,U,4>::type& c0,
-                 U& c1,
-                 U& c2,
-                 U& c3)
-      {
-        _children[0] = stackobject_to_shared_ptr(c0);
-        _children[1] = stackobject_to_shared_ptr(c1);
-        _children[2] = stackobject_to_shared_ptr(c2);
-        _children[3] = stackobject_to_shared_ptr(c3);
-      }
-
-      template<typename U>
-      PowerNode (typename AssertPowerNodeChildCount<PowerNode,U,5>::type& c0,
-                 U& c1,
-                 U& c2,
-                 U& c3,
-                 U& c4)
-      {
-        _children[0] = stackobject_to_shared_ptr(c0);
-        _children[1] = stackobject_to_shared_ptr(c1);
-        _children[2] = stackobject_to_shared_ptr(c2);
-        _children[3] = stackobject_to_shared_ptr(c3);
-        _children[4] = stackobject_to_shared_ptr(c4);
-      }
-
-      template<typename U>
-      PowerNode (typename AssertPowerNodeChildCount<PowerNode,U,6>::type& c0,
-                 U& c1,
-                 U& c2,
-                 U& c3,
-                 U& c4,
-                 U& c5)
-      {
-        _children[0] = stackobject_to_shared_ptr(c0);
-        _children[1] = stackobject_to_shared_ptr(c1);
-        _children[2] = stackobject_to_shared_ptr(c2);
-        _children[3] = stackobject_to_shared_ptr(c3);
-        _children[4] = stackobject_to_shared_ptr(c4);
-        _children[5] = stackobject_to_shared_ptr(c5);
-      }
-
-      template<typename U>
-      PowerNode (typename AssertPowerNodeChildCount<PowerNode,U,7>::type& c0,
-                 U& c1,
-                 U& c2,
-                 U& c3,
-                 U& c4,
-                 U& c5,
-                 U& c6)
-      {
-        _children[0] = stackobject_to_shared_ptr(c0);
-        _children[1] = stackobject_to_shared_ptr(c1);
-        _children[2] = stackobject_to_shared_ptr(c2);
-        _children[3] = stackobject_to_shared_ptr(c3);
-        _children[4] = stackobject_to_shared_ptr(c4);
-        _children[5] = stackobject_to_shared_ptr(c5);
-        _children[6] = stackobject_to_shared_ptr(c6);
-      }
-
-      template<typename U>
-      PowerNode (typename AssertPowerNodeChildCount<PowerNode,U,8>::type& c0,
-                 U& c1,
-                 U& c2,
-                 U& c3,
-                 U& c4,
-                 U& c5,
-                 U& c6,
-                 U& c7)
-      {
-        _children[0] = stackobject_to_shared_ptr(c0);
-        _children[1] = stackobject_to_shared_ptr(c1);
-        _children[2] = stackobject_to_shared_ptr(c2);
-        _children[3] = stackobject_to_shared_ptr(c3);
-        _children[4] = stackobject_to_shared_ptr(c4);
-        _children[5] = stackobject_to_shared_ptr(c5);
-        _children[6] = stackobject_to_shared_ptr(c6);
-        _children[7] = stackobject_to_shared_ptr(c7);
-      }
-
-      template<typename U>
-      PowerNode (typename AssertPowerNodeChildCount<PowerNode,U,9>::type& c0,
-                 U& c1,
-                 U& c2,
-                 U& c3,
-                 U& c4,
-                 U& c5,
-                 U& c6,
-                 U& c7,
-                 U& c8)
-      {
-        _children[0] = stackobject_to_shared_ptr(c0);
-        _children[1] = stackobject_to_shared_ptr(c1);
-        _children[2] = stackobject_to_shared_ptr(c2);
-        _children[3] = stackobject_to_shared_ptr(c3);
-        _children[4] = stackobject_to_shared_ptr(c4);
-        _children[5] = stackobject_to_shared_ptr(c5);
-        _children[6] = stackobject_to_shared_ptr(c6);
-        _children[7] = stackobject_to_shared_ptr(c7);
-        _children[8] = stackobject_to_shared_ptr(c8);
-      }
-
-      template<typename U>
-      PowerNode (typename AssertPowerNodeChildCount<PowerNode,U,10>::type& c0,
-                 U& c1,
-                 U& c2,
-                 U& c3,
-                 U& c4,
-                 U& c5,
-                 U& c6,
-                 U& c7,
-                 U& c8,
-                 U& c9)
-      {
-        _children[0] = stackobject_to_shared_ptr(c0);
-        _children[1] = stackobject_to_shared_ptr(c1);
-        _children[2] = stackobject_to_shared_ptr(c2);
-        _children[3] = stackobject_to_shared_ptr(c3);
-        _children[4] = stackobject_to_shared_ptr(c4);
-        _children[5] = stackobject_to_shared_ptr(c5);
-        _children[6] = stackobject_to_shared_ptr(c6);
-        _children[7] = stackobject_to_shared_ptr(c7);
-        _children[8] = stackobject_to_shared_ptr(c8);
-        _children[9] = stackobject_to_shared_ptr(c9);
-      }
-
-#endif // C++0x
 
 #endif // DOXYGEN
 

@@ -193,16 +193,6 @@ namespace Dune {
         : public accumulate_value_generic_composite_node<CompositeNode,Functor,Reduction,ParentChildReduction,current_value,TreePath>
       {};
 
-#if HAVE_VARIADIC_TEMPLATES
-
-      //! VariadicCompositeNode specialization.
-      template<typename VariadicCompositeNode, typename Functor, typename Reduction, typename ParentChildReduction, typename Functor::result_type current_value, typename TreePath>
-      struct accumulate_value<VariadicCompositeNode,Functor,Reduction,ParentChildReduction,current_value,TreePath,VariadicCompositeNodeTag>
-        : public accumulate_value_generic_composite_node<VariadicCompositeNode,Functor,Reduction,ParentChildReduction,current_value,TreePath>
-      {};
-
-#endif // HAVE_VARIADIC_TEMPLATES
-
     } // anonymous namespace
 
       //! Statically accumulate a value over the nodes of a TypeTree.
@@ -452,16 +442,6 @@ namespace Dune {
       struct accumulate_type<CompositeNode,Policy,current_type,TreePath,CompositeNodeTag>
         : public accumulate_type_generic_composite_node<CompositeNode,Policy,current_type,TreePath>
       {};
-
-#if HAVE_VARIADIC_TEMPLATES
-
-      //! VariadicCompositeNode specialization.
-      template<typename VariadicCompositeNode, typename Policy, typename current_type, typename TreePath>
-      struct accumulate_type<VariadicCompositeNode,Policy,current_type,TreePath,VariadicCompositeNodeTag>
-        : public accumulate_type_generic_composite_node<VariadicCompositeNode,Policy,current_type,TreePath>
-      {};
-
-#endif // HAVE_VARIADIC_TEMPLATES
 
     } // anonymous namespace
 
