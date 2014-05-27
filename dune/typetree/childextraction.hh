@@ -5,7 +5,6 @@
 #define DUNE_TYPETREE_CHILDEXTRACTION_HH
 
 #include <dune/common/documentation.hh>
-#include <dune/common/static_assert.hh>
 #include <dune/common/typetraits.hh>
 #include <dune/common/shared_ptr.hh>
 
@@ -314,8 +313,8 @@ namespace Dune {
       >::type
     extract_child_storage(Node& node, TreePath tp)
     {
-      dune_static_assert((Dune::AlwaysFalse<Node>::value),
-                          "extract_child_storage only works for real children, not the node itself.");
+      static_assert((Dune::AlwaysFalse<Node>::value),
+                    "extract_child_storage only works for real children, not the node itself.");
     }
 
     // ********************************************************************************
@@ -349,8 +348,8 @@ namespace Dune {
       >::type
     extract_child_storage(const Node& node, TreePath tp)
     {
-      dune_static_assert((Dune::AlwaysFalse<Node>::value),
-                          "extract_child_storage only works for real children, not the node itself.");
+      static_assert((Dune::AlwaysFalse<Node>::value),
+                    "extract_child_storage only works for real children, not the node itself.");
     }
 
 

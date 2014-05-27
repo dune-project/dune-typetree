@@ -218,7 +218,7 @@ namespace Dune {
       struct apply
       {
 
-        dune_static_assert((Filter::template validate<Node>::value),"Invalid simple filter");
+        static_assert((Filter::template validate<Node>::value),"Invalid simple filter");
 
         typedef typename filter_helper<Filter,0,0,Children...>::template apply<>::type type;
 

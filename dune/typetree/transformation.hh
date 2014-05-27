@@ -69,7 +69,7 @@ namespace Dune {
         lookup_type
         >::type type;
 
-      dune_static_assert((!is_same<type,void>::value), "Unable to find valid transformation descriptor");
+      static_assert((!is_same<type,void>::value), "Unable to find valid transformation descriptor");
     };
 
     struct EmptyNodeTransformation;

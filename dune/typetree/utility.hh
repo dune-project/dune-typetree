@@ -5,7 +5,6 @@
 #define DUNE_TYPETREE_UTILITY_HH
 
 #include <dune/common/shared_ptr.hh>
-#include <dune/common/static_assert.hh>
 #include <dune/common/tuples.hh>
 #include <dune/typetree/nodetags.hh>
 
@@ -33,9 +32,9 @@ namespace Dune {
     template<typename BaseType, typename T>
     T& assertGridViewType(T& t)
     {
-      dune_static_assert((is_same<typename BaseType::Traits::GridViewType,
-                          typename T::Traits::GridViewType>::value),
-                         "GridViewType must be equal in all components of composite type");
+      static_assert((is_same<typename BaseType::Traits::GridViewType,
+                     typename T::Traits::GridViewType>::value),
+                    "GridViewType must be equal in all components of composite type");
       return t;
     }
 

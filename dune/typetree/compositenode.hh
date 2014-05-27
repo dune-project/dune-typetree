@@ -8,7 +8,6 @@
 #include <dune/typetree/utility.hh>
 #include <dune/common/typetraits.hh>
 #include <dune/common/tuples.hh>
-#include <dune/common/static_assert.hh>
 #include <dune/common/exceptions.hh>
 
 namespace Dune {
@@ -33,7 +32,7 @@ namespace Dune {
 
         static const bool emptyNode = is_same<typename tuple_element<i,Children>::type,EmptyNode>::value;
 
-        dune_static_assert(atEnd ? emptyNode : true,"invalid child structure (EmptyNode followed by real node)");
+        static_assert(atEnd ? emptyNode : true,"invalid child structure (EmptyNode followed by real node)");
 
         static const std::size_t value = count_children<Children,i+1,n,emptyNode>::value + (emptyNode ? 0 : 1);
 
@@ -81,7 +80,7 @@ namespace Dune {
       //! Method providing a default value for empty children.
       static T default_value()
       {
-        dune_static_assert((AlwaysFalse<T>::value), "You must provide a constructor parameter for every non-empty child!");
+        static_assert((AlwaysFalse<T>::value), "You must provide a constructor parameter for every non-empty child!");
         DUNE_THROW(NotImplemented,"You must provide a constructor parameter for every non-empty child!");
       }
     };
@@ -182,7 +181,7 @@ namespace Dune {
       template<std::size_t k>
       const typename Child<k>::Type& child() const
       {
-        dune_static_assert((k < CHILDREN), "child index out of range");
+        static_assert((k < CHILDREN), "child index out of range");
         return *get<k>(_children);
       }
 
@@ -193,7 +192,7 @@ namespace Dune {
       template<std::size_t k>
       typename Child<k>::Type& child()
       {
-        dune_static_assert((k < CHILDREN), "child index out of range");
+        static_assert((k < CHILDREN), "child index out of range");
         return *get<k>(_children);
       }
 
@@ -207,7 +206,7 @@ namespace Dune {
       template<std::size_t k>
       typename Child<k>::ConstStorage childStorage() const
       {
-        dune_static_assert((k < 10), "child index out of range");
+        static_assert((k < 10), "child index out of range");
         return get<k>(_children);
       }
 
@@ -218,7 +217,7 @@ namespace Dune {
       template<std::size_t k>
       typename Child<k>::Storage childStorage()
       {
-        dune_static_assert((k < 10), "child index out of range");
+        static_assert((k < 10), "child index out of range");
         return get<k>(_children);
       }
 
@@ -226,7 +225,7 @@ namespace Dune {
       template<std::size_t k>
       void setChild(typename Child<k>::Type& child)
       {
-        dune_static_assert((k < CHILDREN), "child index out of range");
+        static_assert((k < CHILDREN), "child index out of range");
         get<k>(_children) = stackobject_to_shared_ptr(child);
       }
 
@@ -234,7 +233,7 @@ namespace Dune {
       template<std::size_t k>
       void setChild(typename Child<k>::Storage child)
       {
-        dune_static_assert((k < CHILDREN), "child index out of range");
+        static_assert((k < CHILDREN), "child index out of range");
         get<k>(_children) = child;
       }
 

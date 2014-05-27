@@ -701,9 +701,9 @@ namespace Dune {
         typedef typename remove_reference<N2>::type Node2;
         // make sure both nodes have the same number of children - otherwise, it
         // would be difficult to match the children to each other.
-        dune_static_assert(Node1::CHILDREN == Node2::CHILDREN,
-                           "non-leaf nodes with different numbers of children " \
-                           "are not allowed during simultaneous grid traversal");
+        static_assert(Node1::CHILDREN == Node2::CHILDREN,
+                      "non-leaf nodes with different numbers of children " \
+                      "are not allowed during simultaneous grid traversal");
         apply_to_children_pair<treePathType,Node1::CHILDREN>::apply(std::forward<N1>(n1),
                                                                     std::forward<N2>(n2),
                                                                     std::forward<V>(v),
@@ -747,9 +747,9 @@ namespace Dune {
       apply(N1& n1, N2& n2, V& v, TreePath tp)
       {
         v.pre(n1,n2,tp.view());
-        dune_static_assert(N1::CHILDREN == N2::CHILDREN,
-                           "non-leaf nodes with different numbers of children " \
-                           "are not allowed during simultaneous grid traversal");
+        static_assert(N1::CHILDREN == N2::CHILDREN,
+                      "non-leaf nodes with different numbers of children " \
+                      "are not allowed during simultaneous grid traversal");
         apply_to_children_pair<treePathType,N1::CHILDREN>::apply(n1,n2,v,tp);
         v.post(n1,n2,tp.view());
       }
@@ -759,9 +759,9 @@ namespace Dune {
       apply(const N1& n1, const N2& n2, V& v, TreePath tp)
       {
         v.pre(n1,n2,tp.view());
-        dune_static_assert(N1::CHILDREN == N2::CHILDREN,
-                           "non-leaf nodes with different numbers of children " \
-                           "are not allowed during simultaneous grid traversal");
+        static_assert(N1::CHILDREN == N2::CHILDREN,
+                      "non-leaf nodes with different numbers of children " \
+                      "are not allowed during simultaneous grid traversal");
         apply_to_children_pair<treePathType,N1::CHILDREN>::apply(n1,n2,v,tp);
         v.post(n1,n2,tp.view());
       }
@@ -771,9 +771,9 @@ namespace Dune {
       apply(N1& n1, N2& n2, const V& v, TreePath tp)
       {
         v.pre(n1,n2,tp.view());
-        dune_static_assert(N1::CHILDREN == N2::CHILDREN,
-                           "non-leaf nodes with different numbers of children " \
-                           "are not allowed during simultaneous grid traversal");
+        static_assert(N1::CHILDREN == N2::CHILDREN,
+                      "non-leaf nodes with different numbers of children " \
+                      "are not allowed during simultaneous grid traversal");
         apply_to_children_pair<treePathType,N1::CHILDREN>::apply(n1,n2,v,tp);
         v.post(n1,n2,tp.view());
       }
@@ -783,9 +783,9 @@ namespace Dune {
       apply(const N1& n1, const N2& n2, const V& v, TreePath tp)
       {
         v.pre(n1,n2,tp.view());
-        dune_static_assert(N1::CHILDREN == N2::CHILDREN,
-                           "non-leaf nodes with different numbers of children " \
-                           "are not allowed during simultaneous grid traversal");
+        static_assert(N1::CHILDREN == N2::CHILDREN,
+                      "non-leaf nodes with different numbers of children " \
+                      "are not allowed during simultaneous grid traversal");
         apply_to_children_pair<treePathType,N1::CHILDREN>::apply(n1,n2,v,tp);
         v.post(n1,n2,tp.view());
       }

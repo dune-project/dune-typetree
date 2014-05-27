@@ -191,9 +191,9 @@ namespace Dune {
         typedef typename remove_reference<N2>::type Node2;
         typedef typename Node1::template Child<0>::Type C1;
         typedef typename Node2::template Child<0>::Type C2;
-        dune_static_assert(Node1::CHILDREN == Node2::CHILDREN,
-                           "non-leaf nodes with different numbers of children " \
-                           "are not allowed during simultaneous grid traversal");
+        static_assert(Node1::CHILDREN == Node2::CHILDREN,
+                      "non-leaf nodes with different numbers of children " \
+                      "are not allowed during simultaneous grid traversal");
         const bool visit = std::remove_reference<V>::type
           ::template VisitChild<Node1,C1,Node2,C2,typename TreePath::ViewType>::value;
         for (std::size_t k = 0; k < Node1::CHILDREN; ++k)
@@ -223,9 +223,9 @@ namespace Dune {
         v.pre(n1,n2,tp.view());
         typedef typename N1::template Child<0>::Type C1;
         typedef typename N2::template Child<0>::Type C2;
-        dune_static_assert(N1::CHILDREN == N2::CHILDREN,
-                           "non-leaf nodes with different numbers of children " \
-                           "are not allowed during simultaneous grid traversal");
+        static_assert(N1::CHILDREN == N2::CHILDREN,
+                      "non-leaf nodes with different numbers of children " \
+                      "are not allowed during simultaneous grid traversal");
         const bool visit = V::template VisitChild<N1,C1,N2,C2,typename TreePath::ViewType>::value;
         for (std::size_t k = 0; k < N1::CHILDREN; ++k)
           {
@@ -252,7 +252,7 @@ namespace Dune {
         v.pre(n1,n2,tp.view());
         typedef typename N1::template Child<0>::Type C1;
         typedef typename N2::template Child<0>::Type C2;
-        dune_static_assert(N1::CHILDREN == N2::CHILDREN,
+        static_assert(N1::CHILDREN == N2::CHILDREN,
                            "non-leaf nodes with different numbers of children " \
                            "are not allowed during simultaneous grid traversal");
         const bool visit = V::template VisitChild<N1,C1,N2,C2,typename TreePath::ViewType>::value;
@@ -281,9 +281,9 @@ namespace Dune {
         v.pre(n1,n2,tp.view());
         typedef typename N1::template Child<0>::Type C1;
         typedef typename N2::template Child<0>::Type C2;
-        dune_static_assert(N1::CHILDREN == N2::CHILDREN,
-                           "non-leaf nodes with different numbers of children " \
-                           "are not allowed during simultaneous grid traversal");
+        static_assert(N1::CHILDREN == N2::CHILDREN,
+                      "non-leaf nodes with different numbers of children " \
+                      "are not allowed during simultaneous grid traversal");
         const bool visit = V::template VisitChild<N1,C1,N2,C2,typename TreePath::ViewType>::value;
         for (std::size_t k = 0; k < N1::CHILDREN; ++k)
           {
@@ -310,9 +310,9 @@ namespace Dune {
         v.pre(n1,n2,tp.view());
         typedef typename N1::template Child<0>::Type C1;
         typedef typename N2::template Child<0>::Type C2;
-        dune_static_assert(N1::CHILDREN == N2::CHILDREN,
-                           "non-leaf nodes with different numbers of children " \
-                           "are not allowed during simultaneous grid traversal");
+        static_assert(N1::CHILDREN == N2::CHILDREN,
+                      "non-leaf nodes with different numbers of children " \
+                      "are not allowed during simultaneous grid traversal");
         const bool visit = V::template VisitChild<N1,C1,N2,C2,typename TreePath::ViewType>::value;
         for (std::size_t k = 0; k < N1::CHILDREN; ++k)
           {

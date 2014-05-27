@@ -72,11 +72,11 @@ void testFilteredCompositeNode(Node& node, Filter filter)
 
   typedef Dune::TypeTree::TreeInfo<TFN> TTI;
 
-  dune_static_assert(TTI::depth == TI::depth, "error in transformation with filtered node");
+  static_assert(TTI::depth == TI::depth, "error in transformation with filtered node");
 
-  dune_static_assert(TTI::nodeCount == TI::nodeCount, "error in transformation with filtered node");
+  static_assert(TTI::nodeCount == TI::nodeCount, "error in transformation with filtered node");
 
-  dune_static_assert(TTI::leafCount == TI::leafCount, "error in transformation with filtered node");
+  static_assert(TTI::leafCount == TI::leafCount, "error in transformation with filtered node");
 
   Dune::TypeTree::applyToTree(tfn,TreePrinter());
 }
