@@ -25,3 +25,11 @@ check_cxx_source_compiles("
       return check_equal<decltype(foo()),const A&>::result;
   }"
   HAVE_STD_DECLTYPE)
+
+# Report success correctly in summary
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(
+  "CXXDecltype"
+  DEFAULT_MSG
+  HAVE_STD_DECLTYPE
+)
