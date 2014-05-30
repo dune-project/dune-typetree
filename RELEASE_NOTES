@@ -13,6 +13,13 @@ at least require GCC 4.5.
 Changes
 =======
 
+TypeTree 3.0
+------------
+
+- TypeTree has updated its minimum compiler requirements. You now need a compiler that is at
+  least compatible with GCC 4.5 in C++11 mode.
+
+
 TypeTree 2.3
 ------------
 

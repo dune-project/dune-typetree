@@ -43,16 +43,14 @@ Dependencies
 
 TypeTree depends on the following software packages:
 
-* The dune-common library from DUNE, version 2.3.x. The dependency is actually very
+* The dune-common library from DUNE, version 3.0-dev. The dependency is actually very
   weak, and you can easily use the library standalone by replacing the few convenience
   components reused from dune-common (and by replacing the build system, of course).
 
-* TypeTree uses lots and lots of templates, so you need a decent C++ compiler. This
-  initial release should still compile with GCC 4.2, but we plan to bump up the
-  requirements to the level of C++11 support provided by GCC 4.4 or 4.5 (not decided
-  yet). Even now, compile times are greatly reduced if the compiler supports the new
-  C++11 standard (GCC 4.3 and newer). PDELab is not regularly tested with ICC (it should
-  work with ICC 13.x), but we also support the clang compiler (3.1+).
+* TypeTree uses lots and lots of templates, so you need a decent C++ compiler.
+  This release requires a compiler that is at least compatible with GCC 4.5 in C++11
+  mode, so it whould work with all recent versions of GCC since version 4.5, modern versions
+  of the clang compiler (3.2+) and very recent versions of ICC (icpc 14.0.3+).
 
 For a full explanation of the DUNE installation process please read
 the installation notes [2] or the build system HOWTO [3].
