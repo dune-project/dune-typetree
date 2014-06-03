@@ -14,8 +14,11 @@ namespace Dune {
   // Tests whether the first template argument is a base class of the second one.
   using std::is_base_of;
 
+  template<typename... T>
+  struct first_type;
+
   template<typename T0, typename... T>
-  struct first_type
+  struct first_type<T0,T...>
   {
     typedef T0 type;
   };
