@@ -11,5 +11,5 @@ Version: @VERSION@
 Description: dune-typetree module
 URL: http://dune-project.org/
 Requires: ${DEPENDENCIES}
-Libs: -L${libdir}
+Libs: -L${libdir} -ldunetypetree
 Cflags: -I${includedir}
