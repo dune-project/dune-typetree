@@ -32,3 +32,11 @@ check_cxx_source_compiles("
     return 0;
   }"
   HAVE_TEMPLATE_ALIASES)
+
+# Report success correctly in summary
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(
+  "CXXTemplateAliases"
+  DEFAULT_MSG
+  HAVE_TEMPLATE_ALIASES
+)
