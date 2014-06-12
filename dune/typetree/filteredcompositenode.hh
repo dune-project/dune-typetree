@@ -4,17 +4,18 @@
 #ifndef DUNE_TYPETREE_FILTEREDCOMPOSITENODE_HH
 #define DUNE_TYPETREE_FILTEREDCOMPOSITENODE_HH
 
-#include <dune/common/shared_ptr.hh>
-
 #if !(HAVE_VARIADIC_TEMPLATES || DOXYGEN || HEADERCHECK)
 #error The class FilteredCompositeNode requires compiler support for variadic templates, which your compiler lacks.
 #endif
 
 #if (HAVE_VARIADIC_TEMPLATES || DOXYGEN)
-#include <dune/typetree/nodetags.hh>
-#include <dune/typetree/filters.hh>
+#include <dune/common/shared_ptr.hh>
+#include <dune/common/static_assert.hh>
 #include <dune/common/tuples.hh>
 #include <dune/common/typetraits.hh>
+
+#include <dune/typetree/filters.hh>
+#include <dune/typetree/nodetags.hh>
 
 namespace Dune {
   namespace TypeTree {

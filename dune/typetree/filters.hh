@@ -9,6 +9,7 @@
 #endif
 
 #if (HAVE_VARIADIC_TEMPLATES || DOXYGEN)
+#include <dune/common/static_assert.hh>
 #include <dune/common/tuples.hh>
 #include <dune/common/typetraits.hh>
 

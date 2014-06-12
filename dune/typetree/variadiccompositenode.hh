@@ -12,6 +12,7 @@
 #include <dune/typetree/nodetags.hh>
 #include <dune/common/tuples.hh>
 #include <dune/common/shared_ptr.hh>
+#include <dune/common/static_assert.hh>
 
 namespace Dune {
   namespace TypeTree {
