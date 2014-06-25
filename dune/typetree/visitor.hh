@@ -221,7 +221,7 @@ namespace Dune {
        * \param t1         The node of the first tree to visit.
        * \param child1     The child of t1 to visit.
        * \param t2         The node of the second tree to visit.
-       * \param child1     The child of t2 to visit.
+       * \param child2     The child of t2 to visit.
        * \param treePath   The position of the parent nodes within the TypeTree.
        * \param childIndex The index of the child nodes in relation to the parent nodes.
        */
@@ -237,7 +237,7 @@ namespace Dune {
        * \param t1         The node of the first tree to visit.
        * \param child1     The child of t1 to visit.
        * \param t2         The node of the second tree to visit.
-       * \param child1     The child of t2 to visit.
+       * \param child2     The child of t2 to visit.
        * \param treePath   The position of the parent nodes within the TypeTree.
        * \param childIndex The index of the child nodes in relation to the parent nodes.
        */

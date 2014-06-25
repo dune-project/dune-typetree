@@ -11,6 +11,9 @@
 #include <dune/common/tuples.hh>
 #include <dune/common/typetraits.hh>
 
+#include <dune/typetree/filters.hh>
+#include <dune/typetree/nodetags.hh>
+
 namespace Dune {
   namespace TypeTree {
 

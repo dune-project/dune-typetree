@@ -1,7 +1,7 @@
 TypeTree
 ========
 
-This is version 2.3.0-rc1 of the TypeTree library.
+This is version 3.0-dev of the TypeTree library.
 
 TypeTree is a template library for constructing and operating on statically
 typed trees of objects. It is based around the idea of defining loosely coupled,
