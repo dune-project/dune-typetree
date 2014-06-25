@@ -1,10 +1,10 @@
 TypeTree
 ========
 
-This is the 2.3.1-rc1 release of the TypeTree library for statically typed object trees.
+This is the 2.3.1 release of the TypeTree library for statically typed object trees.
 
 TypeTree 2.3 is compatible with the 2.3 release of the DUNE core modules, version 2.3.1+,
- and the 2.0 release of PDELab.
+and the 2.0 release of PDELab.
 
 This will be the last release with support for GCC 4.4 and older, future releases will
 at least require GCC 4.5.
@@ -26,6 +26,9 @@ bugs.
 - Resolved some compilation problems on older compilers.
 
 - Release history
+
+  TypeTree 2.3.1
+  - Release without further changes
 
   TypeTree 2.3.1-rc1
   - Small fixes to included headers and documentation

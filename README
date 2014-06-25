@@ -1,7 +1,7 @@
 TypeTree
 ========
 
-This is version 2.3.1-rc1 of the TypeTree library. Version 2.3.0 was skipped to
+This is version 2.3.1 of the TypeTree library. Version 2.3.0 was skipped to
 stay in sync with the DUNE core modules.
 
 TypeTree is a template library for constructing and operating on statically
