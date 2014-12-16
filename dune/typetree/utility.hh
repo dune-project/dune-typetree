@@ -266,6 +266,57 @@ namespace Dune {
     void discard(Args&&... args)
     {}
 
+    //! Policies for the function apply_to_tuple().
+    namespace apply_to_tuple_policy {
+
+      //! Do not pass the index of the current tuple to the functor
+      struct no_pass_index {};
+
+      //! Pass the index of the current tuple to the functor as its first argument in a std::integral_constant.
+      struct pass_index {};
+
+      //! Default policy.
+      typedef no_pass_index default_policy;
+
+    }
+
+    namespace {
+
+      // version that does not pass index
+      template<typename T, typename F, std::size_t... i>
+      void _apply_to_tuple(T&& t, F&& f, index_pack<i...> indices,apply_to_tuple_policy::no_pass_index)
+      {
+        discard((f(std::get<i>(std::forward<T>(t))),0)...);
+      }
+
+      // version that passes index
+      template<typename T, typename F, std::size_t... i>
+      void _apply_to_tuple(T&& t, F&& f, index_pack<i...> indices,apply_to_tuple_policy::pass_index)
+      {
+        discard((f(std::integral_constant<std::size_t,i>(),std::get<i>(std::forward<T>(t))),0)...);
+      }
+
+    }
+
+    //! Apply a functor to each element of a std::tuple.
+    /*
+     * This function applies the functor f to each element of the std::tuple t.
+     * It works for arbitrary combinations of const- and non const lvalues and rvalues.
+     * The function accepts an optional policy argument that can currently be used to make
+     * it pass the index of the current tuple argument to the functor as a compile time constant
+     * in addition to the tuple element itself.
+     */
+    template<typename T, typename F, typename Policy>
+    void apply_to_tuple(T&& t, F&& f, Policy = apply_to_tuple_policy::default_policy())
+    {
+      _apply_to_tuple(
+        std::forward<T>(t),
+        std::forward<F>(f),
+        tuple_indices(t),
+        Policy()
+        );
+    }
+
     //! \} group TypeTree
 
   } // namespace TypeTree
