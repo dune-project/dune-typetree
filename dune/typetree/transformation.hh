@@ -112,8 +112,9 @@ namespace Dune {
 #endif // DOXYGEN
 
       //! The type of the transformed tree.
-      typedef transformed_type Type;
+      typedef transformed_type type;
 
+      typedef type Type;
 
       //! Apply transformation to an existing tree s.
       static transformed_type transform(const SourceTree& s, const Transformation& t = Transformation())
