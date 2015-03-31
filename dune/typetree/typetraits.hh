@@ -43,6 +43,26 @@ namespace Dune {
       };
     };
 
+    template<typename T, typename V>
+    struct has_node_tag_value
+    {
+      template<int N>
+      struct maybe { char dummy[N+1]; };
+      struct yes { char dummy[2]; };
+      struct no  { char dummy[1]; };
+
+      template<typename X>
+      static maybe<is_base_of<V, typename X::NodeTag>::value>
+      test(typename X::NodeTag * a);
+      template<typename X>
+      static no test(...);
+
+      enum {
+        /** @brief True if class T defines a NodeTag of type V. */
+        value = sizeof(test<T>(0)) == sizeof(yes)
+      };
+    };
+
     template<typename T>
     struct has_implementation_tag
     {
@@ -56,6 +76,26 @@ namespace Dune {
 
       enum {
         /** @brief True if class T defines an ImplementationTag. */
+        value = sizeof(test<T>(0)) == sizeof(yes)
+      };
+    };
+
+    template<typename T, typename V>
+    struct has_implementation_tag_value
+    {
+      template<int N>
+      struct maybe { char dummy[N+1]; };
+      struct yes { char dummy[2]; };
+      struct no  { char dummy[1]; };
+
+      template<typename X>
+      static maybe<is_base_of<V, typename X::ImplementationTag>::value>
+      test(typename X::ImplementationTag * a);
+      template<typename X>
+      static no test(...);
+
+      enum {
+        /** @brief True if class T defines an ImplementationTag of type V. */
         value = sizeof(test<T>(0)) == sizeof(yes)
       };
     };
