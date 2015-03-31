@@ -4,6 +4,7 @@
 #ifndef DUNE_TYPETREE_TYPETRAITS_HH
 #define DUNE_TYPETREE_TYPETRAITS_HH
 
+#include <type_traits>
 #include <dune/common/typetraits.hh>
 
 namespace Dune {
