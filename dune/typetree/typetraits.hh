@@ -25,6 +25,40 @@ namespace Dune {
 
   namespace TypeTree {
 
+    template<typename T>
+    struct has_node_tag
+    {
+      struct yes { char dummy[1]; };
+      struct no  { char dummy[2]; };
+
+      template<typename X>
+      static yes test(typename X::NodeTag *);
+      template<typename X>
+      static no  test(...);
+
+      enum {
+        /** @brief True if Base is a base class of Derived. */
+        value = sizeof(test<T>(0)) == sizeof(yes)
+      };
+    };
+
+    template<typename T>
+    struct has_implementation_tag
+    {
+      struct yes { char dummy[1]; };
+      struct no  { char dummy[2]; };
+
+      template<typename X>
+      static yes test(typename X::ImplementationTag *);
+      template<typename X>
+      static no  test(...);
+
+      enum {
+        /** @brief True if Base is a base class of Derived. */
+        value = sizeof(test<T>(0)) == sizeof(yes)
+      };
+    };
+
     template<typename>
     struct AlwaysVoid
     {
