@@ -37,7 +37,7 @@ namespace Dune {
       static no  test(...);
 
       enum {
-        /** @brief True if Base is a base class of Derived. */
+        /** @brief True if class T defines a NodeTag. */
         value = sizeof(test<T>(0)) == sizeof(yes)
       };
     };
@@ -54,7 +54,7 @@ namespace Dune {
       static no  test(...);
 
       enum {
-        /** @brief True if Base is a base class of Derived. */
+        /** @brief True if class T defines an ImplementationTag. */
         value = sizeof(test<T>(0)) == sizeof(yes)
       };
     };
