@@ -336,7 +336,7 @@ namespace Dune {
         current_type,
         tree_path,
         start_type,
-        flattened_reduction
+        bottom_up_reduction
         >
       {
         typedef current_type type;
@@ -348,7 +348,7 @@ namespace Dune {
         current_type,
         tree_path,
         start_type,
-        bottom_up_reduction
+        flattened_reduction
         >
       {
         typedef typename Dune::conditional<
