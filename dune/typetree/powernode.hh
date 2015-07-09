@@ -5,8 +5,8 @@
 #define DUNE_TYPETREE_POWERNODE_HH
 
 #include <cassert>
+#include <array>
 
-#include <dune/common/array.hh>
 #include <dune/common/typetraits.hh>
 
 #include <dune/typetree/nodetags.hh>
@@ -37,7 +37,7 @@ namespace Dune {
       }
 
       template<typename T, std::size_t n, typename... Args>
-      void assign_reference_pack_to_shared_ptr_array(array<shared_ptr<T>,n>& res, Args&&... args)
+      void assign_reference_pack_to_shared_ptr_array(std::array<shared_ptr<T>,n>& res, Args&&... args)
       {
         static_assert(sizeof...(Args) == n, "invalid number of arguments");
         return assign_reference_pack_to_shared_ptr_array_unpack<T>(res.begin(),std::forward<Args>(args)...);
@@ -57,7 +57,7 @@ namespace Dune {
       }
 
       template<typename T, std::size_t n, typename... Args>
-      void assign_shared_ptr_pack_to_shared_ptr_array(array<shared_ptr<T>,n>& res, Args&&... args)
+      void assign_shared_ptr_pack_to_shared_ptr_array(std::array<shared_ptr<T>,n>& res, Args&&... args)
       {
         static_assert(sizeof...(Args) == n, "invalid number of arguments");
         return assign_shared_ptr_pack_to_shared_ptr_array_unpack<T>(res.begin(),args...);
@@ -117,7 +117,7 @@ namespace Dune {
       typedef shared_ptr<const T> ChildConstStorageType;
 
       //! The type used for storing the children.
-      typedef array<ChildStorageType,k> NodeStorage;
+      typedef std::array<ChildStorageType,k> NodeStorage;
 
 
       //! Access to the type and storage type of the i-th child.

@@ -4,7 +4,7 @@
 #ifndef DUNE_TYPETREE_FIXEDCAPACITYSTACK_HH
 #define DUNE_TYPETREE_FIXEDCAPACITYSTACK_HH
 
-#include <dune/common/array.hh>
+#include <array>
 #include <cassert>
 
 namespace Dune {
@@ -117,7 +117,7 @@ namespace Dune {
 
     template<typename T, std::size_t capacity>
     class FixedCapacityStack
-      : private array<T,capacity>
+      : private std::array<T,capacity>
       , private FixedCapacityStackView<T>::Impl
       , public FixedCapacityStackView<T>
     {
@@ -132,7 +132,7 @@ namespace Dune {
       using view_base::operator[];
 
       FixedCapacityStack()
-        : FixedCapacityStackView<T>::Impl(&(static_cast<array<T,capacity>&>(*this)[0]),capacity)
+        : FixedCapacityStackView<T>::Impl(&(static_cast<std::array<T,capacity>&>(*this)[0]),capacity)
         , FixedCapacityStackView<T>(static_cast<typename FixedCapacityStackView<T>::Impl&>(*this))
       {}
 

@@ -4,10 +4,11 @@
 #ifndef DUNE_TYPETREE_TRANSFORMATION_HH
 #define DUNE_TYPETREE_TRANSFORMATION_HH
 
+#include <array>
+
 #include <dune/common/exceptions.hh>
 #include <dune/common/typetraits.hh>
 #include <dune/common/shared_ptr.hh>
-#include <dune/common/array.hh>
 #include <dune/common/tuples.hh>
 #include <dune/typetree/typetraits.hh>
 #include <dune/typetree/nodetags.hh>
@@ -286,7 +287,7 @@ namespace Dune {
         typedef TransformTree<typename S::ChildType,T,typename S::ChildType::NodeTag,ChildNodeTransformation::recursive> ChildTreeTransformation;
         typedef typename ChildTreeTransformation::transformed_type transformed_child;
         const std::size_t child_count = S::CHILDREN;
-        array<shared_ptr<transformed_child>,child_count> children;
+        std::array<shared_ptr<transformed_child>,child_count> children;
         for (std::size_t k = 0; k < child_count; ++k) {
           children[k] = ChildTreeTransformation::transform_storage(s.childStorage(k),t);
         }
@@ -300,7 +301,7 @@ namespace Dune {
         typedef TransformTree<typename S::ChildType,T,typename S::ChildType::NodeTag,ChildNodeTransformation::recursive> ChildTreeTransformation;
         typedef typename ChildTreeTransformation::transformed_type transformed_child;
         const std::size_t child_count = S::CHILDREN;
-        array<shared_ptr<transformed_child>,child_count> children;
+        std::array<shared_ptr<transformed_child>,child_count> children;
         for (std::size_t k = 0; k < child_count; ++k) {
           children[k] = ChildTreeTransformation::transform_storage(s.childStorage(k),t);
         }
@@ -315,7 +316,7 @@ namespace Dune {
         typedef TransformTree<typename S::ChildType,T,typename S::ChildType::NodeTag,ChildNodeTransformation::recursive> ChildTreeTransformation;
         typedef typename ChildTreeTransformation::transformed_type transformed_child;
         const std::size_t child_count = S::CHILDREN;
-        array<shared_ptr<transformed_child>,child_count> children;
+        std::array<shared_ptr<transformed_child>,child_count> children;
         for (std::size_t k = 0; k < child_count; ++k) {
           children[k] = ChildTreeTransformation::transform_storage(sp->childStorage(k),t);
         }
@@ -329,7 +330,7 @@ namespace Dune {
         typedef TransformTree<typename S::ChildType,T,typename S::ChildType::NodeTag,ChildNodeTransformation::recursive> ChildTreeTransformation;
         typedef typename ChildTreeTransformation::transformed_type transformed_child;
         const std::size_t child_count = S::CHILDREN;
-        array<shared_ptr<transformed_child>,child_count> children;
+        std::array<shared_ptr<transformed_child>,child_count> children;
         for (std::size_t k = 0; k < child_count; ++k) {
           children[k] = ChildTreeTransformation::transform_storage(sp->childStorage(k),t);
         }
@@ -343,7 +344,7 @@ namespace Dune {
         typedef TransformTree<typename S::ChildType,T,typename S::ChildType::NodeTag,ChildNodeTransformation::recursive> ChildTreeTransformation;
         typedef typename ChildTreeTransformation::transformed_storage_type transformed_child_storage;
         const std::size_t child_count = S::CHILDREN;
-        array<transformed_child_storage,child_count> children;
+        std::array<transformed_child_storage,child_count> children;
         for (std::size_t k = 0; k < child_count; ++k) {
           children[k] = ChildTreeTransformation::transform_storage(sp->childStorage(k),t);
         }
@@ -356,7 +357,7 @@ namespace Dune {
         typedef TransformTree<typename S::ChildType,T,typename S::ChildType::NodeTag,ChildNodeTransformation::recursive> ChildTreeTransformation;
         typedef typename ChildTreeTransformation::transformed_storage_type transformed_child_storage;
         const std::size_t child_count = S::CHILDREN;
-        array<transformed_child_storage,child_count> children;
+        std::array<transformed_child_storage,child_count> children;
         for (std::size_t k = 0; k < child_count; ++k) {
           children[k] = ChildTreeTransformation::transform_storage(sp->childStorage(k),t);
         }

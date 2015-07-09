@@ -4,10 +4,11 @@
 #ifndef DUNE_TYPETREE_SIMPLETRANSFORMATIONDESCRIPTORS_HH
 #define DUNE_TYPETREE_SIMPLETRANSFORMATIONDESCRIPTORS_HH
 
+#include <array>
+
 #include <dune/typetree/nodetags.hh>
 #include <dune/common/exceptions.hh>
 #include <dune/common/shared_ptr.hh>
-#include <dune/common/array.hh>
 #include <dune/common/tuples.hh>
 
 
@@ -55,13 +56,13 @@ namespace Dune {
       };
 
       template<typename TC>
-      static typename result<TC>::type transform(const SourceNode& s, const Transformation& t, const array<shared_ptr<TC>,result<TC>::type::CHILDREN>& children)
+      static typename result<TC>::type transform(const SourceNode& s, const Transformation& t, const std::array<shared_ptr<TC>,result<TC>::type::CHILDREN>& children)
       {
         return typename result<TC>::type(children);
       }
 
       template<typename TC>
-      static typename result<TC>::storage_type transform_storage(shared_ptr<const SourceNode> s, const Transformation& t, const array<shared_ptr<TC>,result<TC>::type::CHILDREN>& children)
+      static typename result<TC>::storage_type transform_storage(shared_ptr<const SourceNode> s, const Transformation& t, const std::array<shared_ptr<TC>,result<TC>::type::CHILDREN>& children)
       {
         return make_shared<typename result<TC>::type>(children);
       }

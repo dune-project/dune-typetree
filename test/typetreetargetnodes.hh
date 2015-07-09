@@ -32,13 +32,13 @@ struct TargetPower
 {
 
   template<typename Transformation>
-  TargetPower(const S& sc, const Transformation& t, const Dune::array<Dune::shared_ptr<T>,k>& children)
+  TargetPower(const S& sc, const Transformation& t, const std::array<Dune::shared_ptr<T>,k>& children)
     : Dune::TypeTree::PowerNode<T,k>(children)
     , s(Dune::stackobject_to_shared_ptr(sc))
   {}
 
   template<typename Transformation>
-  TargetPower(Dune::shared_ptr<const S> sc, const Transformation& t, const Dune::array<Dune::shared_ptr<T>,k>& children)
+  TargetPower(Dune::shared_ptr<const S> sc, const Transformation& t, const std::array<Dune::shared_ptr<T>,k>& children)
     : Dune::TypeTree::PowerNode<T,k>(children)
     , s(sc)
   {}
