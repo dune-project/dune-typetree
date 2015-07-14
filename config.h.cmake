@@ -27,16 +27,16 @@
 
 /* end private */
 
-/* Define to the version of dune-pdelab */
+/* Define to the version of dune-typetree */
 #define DUNE_TYPETREE_VERSION "${DUNE_TYPETREE_VERSION}"
 
-/* Define to the major version of dune-pdelab */
+/* Define to the major version of dune-typetree */
 #define DUNE_TYPETREE_VERSION_MAJOR ${DUNE_TYPETREE_VERSION_MAJOR}
 
-/* Define to the minor version of dune-pdelab */
+/* Define to the minor version of dune-typetree */
 #define DUNE_TYPETREE_VERSION_MINOR ${DUNE_TYPETREE_VERSION_MINOR}
 
-/* Define to the revision of dune-pdelab */
+/* Define to the revision of dune-typetree */
 #define DUNE_TYPETREE_VERSION_REVISION ${DUNE_TYPETREE_VERSION_REVISION}
 
 /* Define to 1 if std::initializer_list is supported. */

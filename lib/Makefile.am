@@ -1,7 +1,7 @@
-#the dune-pdelab library
+#the dune-typetree library
 lib_LTLIBRARIES = libdunetypetree.la
 
-# this is just a renaming of libpdelabcommon to prevent name clashes
+# this is just a renaming of libtypetreecommon to prevent name clashes
 libdunetypetree_la_SOURCES =
 # This forces automake to use the C++ linker
 # (see the automake manual, section "Libtool Convenience Libraries")
