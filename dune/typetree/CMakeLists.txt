@@ -1,6 +1,8 @@
-set(typetreedir  ${CMAKE_INSTALL_INCLUDEDIR}/dune/typetree)
+dune_add_library(dunetypetree
+  utility.cc
+  ADD_LIBS ${DUNE_LIBS})
 
-set(typetree_HEADERS
+install(FILES
   accumulate_static.hh
   applytochildrensingletree.hh
   applytochildrentreepair.hh
@@ -27,14 +29,5 @@ set(typetree_HEADERS
   typetraits.hh
   typetree.hh
   utility.hh
-  visitor.hh)
-
-
-dune_add_library(dunetypetree
-  utility.cc
-  ADD_LIBS ${DUNE_LIBS})
-
-# include not needed for CMake
-# include $(top_srcdir)/am/global-rules
-
-install(FILES ${typetree_HEADERS} DESTINATION ${typetreedir})
+  visitor.hh
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/dune/typetree)

@@ -1,41 +1,32 @@
-#defined empty so we can add to it later
-set(MOSTLYCLEANFILES)
-
-set(noinst_HEADERS
-  typetreetargetnodes.hh
-  typetreetestswitch.hh
-  typetreetestutility.hh)
-
-
-set(noinst_SCRIPTS
-  make_pvd.sh)
-
 exclude_from_headercheck(
   typetreetargetnodes.hh
   typetreetestswitch.hh
   typetreetestutility.hh)
 
-# scripts are not distributed automatically
-# but since this is need for make all:
-set(EXTRA_DIST  make_pvd.sh)
+set(TESTS "")
 
 list(APPEND TESTS testtypetree)
-add_executable(testtypetree testtypetree.cc)
-set_property(TARGET testtypetree APPEND PROPERTY COMPILE_DEFINITIONS TEST_TYPETREE)
+add_executable(testtypetree EXCLUDE_FROM_ALL testtypetree.cc)
+set_property(TARGET testtypetree
+  APPEND PROPERTY
+  COMPILE_DEFINITIONS TEST_TYPETREE)
 
 list(APPEND TESTS testtypetreetransformation)
-add_executable(testtypetreetransformation testtypetreetransformation.cc)
-set_property(TARGET testtypetreetransformation APPEND PROPERTY
+add_executable(testtypetreetransformation EXCLUDE_FROM_ALL testtypetreetransformation.cc)
+set_property(TARGET testtypetreetransformation
+  APPEND PROPERTY
   COMPILE_DEFINITIONS TEST_TYPETREE)
 
 list(APPEND TESTS testfilteredcompositenode)
-add_executable(testfilteredcompositenode testfilteredcompositenode.cc)
-set_property(TARGET testfilteredcompositenode APPEND PROPERTY
+add_executable(testfilteredcompositenode EXCLUDE_FROM_ALL testfilteredcompositenode.cc)
+set_property(TARGET testfilteredcompositenode
+  APPEND PROPERTY
   COMPILE_DEFINITIONS TEST_TYPETREE)
 
 list(APPEND TESTS testproxynode)
-add_executable(testproxynode testproxynode.cc)
-set_property(TARGET testproxynode APPEND PROPERTY
+add_executable(testproxynode EXCLUDE_FROM_ALL testproxynode.cc)
+set_property(TARGET testproxynode
+  APPEND PROPERTY
   COMPILE_DEFINITIONS TEST_TYPETREE)
 
 foreach(_test ${TESTS})
