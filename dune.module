@@ -1,10 +1,5 @@
-#dune module information file#
-##############################
-
-#Name of the module
 Module: dune-typetree
-Version: 3.0-dev
+Version: 2.4-dev
 Maintainer: steffen.muething@iwr.uni-heidelberg.de
-#depending on
 Depends: dune-common (>= 2.4)
 Whitespace-Hook: Yes
