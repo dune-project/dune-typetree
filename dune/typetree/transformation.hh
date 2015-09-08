@@ -490,7 +490,7 @@ namespace Dune {
 
     };
 
-    // non-recursive version of the VariadicCompositeNode transformation.
+    // non-recursive version of the CompositeNode transformation.
     template<typename S, typename T>
     struct TransformTree<S,T,CompositeNodeTag,false>
       : public TransformTreeNonRecursive<S,T>

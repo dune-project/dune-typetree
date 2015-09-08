@@ -149,7 +149,7 @@ namespace Dune {
 
 
     // ********************************************************************************
-    // CompositeNode, VariadicCompositeNode
+    // CompositeNode
     // ********************************************************************************
 
     // Traverse CompositeNode - just forward to the generic algorithm

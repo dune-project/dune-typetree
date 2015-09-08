@@ -152,12 +152,12 @@ namespace Dune {
         : _children(convert_arg(std::forward<Args>(args))...)
       {}
 
-      //! Initialize the VariadicCompositeNode with copies of the passed in Storage objects.
+      //! Initialize the CompositeNode with copies of the passed in Storage objects.
       CompositeNode(shared_ptr<Children>... children)
         : _children(children...)
       {}
 
-      //! Initialize the VariadicCompositeNode with a copy of the passed-in storage type.
+      //! Initialize the CompositeNode with a copy of the passed-in storage type.
       CompositeNode(const NodeStorage& children)
         : _children(children)
       {}
