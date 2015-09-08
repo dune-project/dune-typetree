@@ -21,16 +21,6 @@ namespace Dune {
     //! Tag designating a composite node.
     struct CompositeNodeTag {};
 
-    //! Tag designating an empty child node in a non-variadic composite node.
-    struct EmptyNodeTag {};
-
-    //! This is a marker to fill empty spaces in composite nodes if support for variadic templates is missing.
-    struct EmptyNode
-    {
-      typedef EmptyNodeTag NodeTag;
-      typedef EmptyNodeTag ImplementationTag;
-    };
-
 #ifndef DOXYGEN
 
     //! Special tag used as start value in algorithms.

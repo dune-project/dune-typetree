@@ -38,13 +38,6 @@ namespace Dune {
       return t;
     }
 
-    // this partial specialization is required for the non-variadic case
-    template<typename BaseType>
-    TypeTree::EmptyNode assertGridViewType(TypeTree::EmptyNode e)
-    {
-      return e;
-    }
-
     // only bind to real rvalues
     template<typename T>
     typename enable_if<!std::is_lvalue_reference<T>::value,shared_ptr<T> >::type convert_arg(T&& t)
@@ -53,9 +46,6 @@ namespace Dune {
     }
 
 #endif // DOXYGEN
-
-    //! Reference to a pointer to an empty node that is used for all empty slots
-    const shared_ptr<EmptyNode>& emptyNodePtr();
 
     //! Struct for obtaining some basic structural information about a TypeTree.
     /**

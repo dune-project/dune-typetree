@@ -73,16 +73,6 @@ namespace Dune {
       static_assert((!is_same<type,void>::value), "Unable to find valid transformation descriptor");
     };
 
-    struct EmptyNodeTransformation;
-
-    // Specialization for EmptyNode. This is mainly here to save the user from possible
-    // ambiguities when looking up registerNodeTransformation().
-    template<typename S, typename T>
-    struct LookupNodeTransformation<S,T,EmptyNodeTag>
-    {
-      typedef EmptyNodeTransformation type;
-    };
-
 #endif // DOXYGEN
 
 
@@ -495,35 +485,6 @@ namespace Dune {
     struct TransformTree<S,T,CompositeNodeTag,false>
       : public TransformTreeNonRecursive<S,T>
     {};
-
-
-    // generic transformation descriptor for empty nodes
-    struct EmptyNodeTransformation
-    {
-      // there is nothing to recurse into here
-      static const bool recursive = false;
-    };
-
-    // handle empty nodes
-    template<typename T, bool recursive>
-    struct TransformTree<EmptyNode,T,EmptyNodeTag,recursive>
-    {
-      // get transformed type from specification
-      typedef EmptyNode transformed_type;
-      typedef shared_ptr<EmptyNode> transformed_storage_type;
-
-      // delegate instance transformation to per-node specification
-      static transformed_type transform(const EmptyNode& s, const T& t)
-      {
-        DUNE_THROW(NotImplemented,"this should never get called!");
-      }
-
-      static transformed_storage_type transform_storage(shared_ptr<const EmptyNode> en, const T& t)
-      {
-        //return const_pointer_cast<transformed_type>(en); // Dune built-in shared_ptr does not support this!
-        return emptyNodePtr();
-      }
-    };
 
 #endif // DOXYGEN
 

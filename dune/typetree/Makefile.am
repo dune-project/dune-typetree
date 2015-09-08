@@ -29,11 +29,6 @@ typetree_HEADERS =				\
   utility.hh					\
   visitor.hh
 
-noinst_LTLIBRARIES = libtypetree.la
-libtypetree_la_SOURCES =			\
-  utility.cc
-
-
 include $(top_srcdir)/am/global-rules
 
 EXTRA_DIST = CMakeLists.txt

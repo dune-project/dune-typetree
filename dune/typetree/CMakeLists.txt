@@ -1,7 +1,3 @@
-dune_add_library(dunetypetree
-  utility.cc
-  ADD_LIBS ${DUNE_LIBS})
-
 install(FILES
   accumulate_static.hh
   applytochildrensingletree.hh

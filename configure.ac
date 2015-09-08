@@ -17,7 +17,6 @@ DUNE_CHECK_ALL
 # implicitly set the Dune-flags everywhere
 AC_SUBST(AM_CPPFLAGS, '$(DUNE_CPPFLAGS) -I$(top_srcdir)')
 AC_SUBST(AM_LDFLAGS, $DUNE_LDFLAGS)
-AC_SUBST([LDADD], ['$(top_builddir)/lib/libdunetypetree.la $(DUNE_LIBS)'])
 
 AC_CONFIG_FILES([
   cmake/Makefile
@@ -29,7 +28,6 @@ AC_CONFIG_FILES([
   dune/Makefile
   dune/typetree/Makefile
   test/Makefile
-  lib/Makefile
   m4/Makefile
   Makefile
 ])
