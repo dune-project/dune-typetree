@@ -256,7 +256,7 @@ namespace Dune {
      * \return   index_pack<0,1,...,n-1>.
      **/
     template<std::size_t n>
-    typename index_pack_builder<n>::type index_range()
+    typename index_pack_builder<n>::type index_range(std::integral_constant<std::size_t,n> = {})
     {
       return typename index_pack_builder<n>::type();
     }
