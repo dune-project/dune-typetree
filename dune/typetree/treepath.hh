@@ -37,7 +37,7 @@ namespace Dune {
 
     template<std::size_t... i>
     struct TreePathSize<TreePath<i...> >
-      : public integral_constant<std::size_t, sizeof...(i)>
+      : public index_constant<sizeof...(i)>
     {};
 
     template<typename,std::size_t>
@@ -64,7 +64,7 @@ namespace Dune {
     // There is only a single element, so return that...
     template<std::size_t k>
     struct TreePathBack<TreePath<k> >
-      : public integral_constant<std::size_t,k>
+      : public index_constant<k>
     {};
 
     // We need to explicitly provide two elements here, as
@@ -82,7 +82,7 @@ namespace Dune {
 
     template<std::size_t k, std::size_t... i>
     struct TreePathFront<TreePath<k,i...> >
-      : public integral_constant<std::size_t,k>
+      : public index_constant<k>
     {};
 
     template<typename, std::size_t...>
