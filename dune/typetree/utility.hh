@@ -411,16 +411,16 @@ namespace Dune {
 
       // version that does not pass index
       template<typename T, typename F, std::size_t... i>
-      void _apply_to_tuple(T&& t, F&& f, index_pack<i...> indices,apply_to_tuple_policy::no_pass_index)
+      void _apply_to_tuple(T&& t, F&& f, Std::index_sequence<i...>,apply_to_tuple_policy::no_pass_index)
       {
         discard((f(std::get<i>(std::forward<T>(t))),0)...);
       }
 
       // version that passes index
       template<typename T, typename F, std::size_t... i>
-      void _apply_to_tuple(T&& t, F&& f, index_pack<i...> indices,apply_to_tuple_policy::pass_index)
+      void _apply_to_tuple(T&& t, F&& f, Std::index_sequence<i...>,apply_to_tuple_policy::pass_index)
       {
-        discard((f(std::integral_constant<std::size_t,i>(),std::get<i>(std::forward<T>(t))),0)...);
+        discard((f(index_constant<i>{},std::get<i>(std::forward<T>(t))),0)...);
       }
 
     }
@@ -439,7 +439,7 @@ namespace Dune {
       _apply_to_tuple(
         std::forward<T>(t),
         std::forward<F>(f),
-        tuple_indices(t),
+        T::index_sequence(),
         Policy()
         );
     }
