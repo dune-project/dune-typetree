@@ -4,8 +4,11 @@
 #ifndef DUNE_TYPETREE_UTILITY_HH
 #define DUNE_TYPETREE_UTILITY_HH
 
-#include <dune/common/shared_ptr.hh>
-#include <dune/common/tuples.hh>
+#include <memory>
+#include <tuple>
+#include <type_traits>
+
+#include <dune/common/std/utility.hh>
 #include <dune/typetree/nodetags.hh>
 
 namespace Dune {
@@ -18,13 +21,13 @@ namespace Dune {
 #ifndef DOXYGEN
 
     template<typename T>
-    shared_ptr<T> convert_arg(const T& t)
+    std::shared_ptr<T> convert_arg(const T& t)
     {
-      return make_shared<T>(t);
+      return std::make_shared<T>(t);
     }
 
     template<typename T>
-    shared_ptr<T> convert_arg(T& t)
+    std::shared_ptr<T> convert_arg(T& t)
     {
       return stackobject_to_shared_ptr(t);
     }
@@ -32,7 +35,7 @@ namespace Dune {
     template<typename BaseType, typename T>
     T& assertGridViewType(T& t)
     {
-      static_assert((is_same<typename BaseType::Traits::GridViewType,
+      static_assert((std::is_same<typename BaseType::Traits::GridViewType,
                      typename T::Traits::GridViewType>::value),
                     "GridViewType must be equal in all components of composite type");
       return t;
@@ -47,15 +50,15 @@ namespace Dune {
 
     // only bind to real rvalues
     template<typename T>
-    typename enable_if<!std::is_lvalue_reference<T>::value,shared_ptr<T> >::type convert_arg(T&& t)
+    typename std::enable_if<!std::is_lvalue_reference<T>::value,std::shared_ptr<T> >::type convert_arg(T&& t)
     {
-      return make_shared<T>(std::forward<T>(t));
+      return std::make_shared<T>(std::forward<T>(t));
     }
 
 #endif // DOXYGEN
 
     //! Reference to a pointer to an empty node that is used for all empty slots
-    const shared_ptr<EmptyNode>& emptyNodePtr();
+    const std::shared_ptr<EmptyNode>& emptyNodePtr();
 
     //! Struct for obtaining some basic structural information about a TypeTree.
     /**
@@ -200,7 +203,7 @@ namespace Dune {
      *   discard((f(get<i>(t)),0)...);
      * }
      *
-     * tuple<int,double,...,char> t;
+     * std::tuple<int,double,...,char> t;
      * apply_to_tuple(t,foo,tuple_indices(t));
      * \endcode
      *
@@ -237,7 +240,7 @@ namespace Dune {
     //! TMP to build an index_pack for all elements in the tuple.
     template<typename tuple>
     struct tuple_index_pack_builder
-      : public index_pack_builder<tuple_size<tuple>::value>
+      : public index_pack_builder<std::tuple_size<tuple>::value>
     {};
 
     //! Generate an index_pack for the tuple t.

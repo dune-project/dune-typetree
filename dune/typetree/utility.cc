@@ -6,10 +6,10 @@ namespace Dune {
   namespace TypeTree {
 
     namespace {
-      static const shared_ptr<EmptyNode> _emptyNodePtr(make_shared<EmptyNode>());
+      static const std::shared_ptr<EmptyNode> _emptyNodePtr(std::make_shared<EmptyNode>());
     }
 
-    const shared_ptr<EmptyNode>& emptyNodePtr()
+    const std::shared_ptr<EmptyNode>& emptyNodePtr()
     {
       return _emptyNodePtr;
     }
