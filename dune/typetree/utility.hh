@@ -261,6 +261,34 @@ namespace Dune {
       return typename index_pack_builder<n>::type();
     }
 
+    namespace Std {
+
+      //! Backport of C++14 std::integer_sequence.
+      /**
+       * This is just imported from Dune::Std because the version in Dune::Std
+       * does not implement the other parts of integer sequences correctly due
+       * to a lack of template aliases.
+       */
+      using Dune::Std::integer_sequence;
+
+      //! A sequence of indices, with each entry a std::size_t.
+      template<std::size_t... indices>
+      using index_sequence = integer_sequence<std::size_t,indices...>;
+
+      //! Create an integer_sequence [0,n-1] with entries of type T.
+      template<typename T, T n>
+      using make_integer_sequence = decltype(Dune::Std::make_integer_sequence<T,n>());
+
+      //! Create an index_sequence [0,n-1].
+      template<std::size_t n>
+      using make_index_sequence = make_integer_sequence<std::size_t,n>;
+
+      //! Create an index_sequence for the pack T..., i.e. [0,sizeof...(T)].
+      template<typename... T>
+      using index_sequence_for = make_index_sequence<sizeof...(T)>;
+
+    }
+
     //! No-op function to make calling a function on a variadic template argument pack legal C++.
     /**
      * \sa index_pack
