@@ -10,5 +10,4 @@ AC_DEFUN([DUNE_TYPETREE_CHECKS],
 AC_DEFUN([DUNE_TYPETREE_CHECK_MODULE],[
   AC_MSG_NOTICE([Searching for dune-typetree...])
   DUNE_CHECK_MODULES([dune-typetree], [typetree/utility.hh])
-  ])
 ])
