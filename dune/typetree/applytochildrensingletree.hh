@@ -207,7 +207,7 @@ namespace Dune {
     // Base class for composite node traversal
 
     // The traversal algorithm is identical for CompositeNode
-    // and PowerNode int the case of static traversal,
+    // and PowerNode in the case of static traversal,
     // so the implementation can be bundled
     // in a single base class.
     struct ApplyToGenericCompositeNode
