@@ -289,6 +289,19 @@ namespace Dune {
 
     }
 
+
+    //! An index constant with value i.
+    /**
+     * An index constant is a simple type alias for an integral_constant.
+     * Its main advantages are clarity (it is easier to see that code uses it
+     * as an index) and the fact that the integral type is fixed, reducing verbosity
+     * and avoiding the problem of maybe trying to overload / specialize using a different
+     * integral type.
+     */
+    template<std::size_t i>
+    using index_constant = std::integral_constant<std::size_t, i>;
+
+
     //! No-op function to make calling a function on a variadic template argument pack legal C++.
     /**
      * \sa index_pack
