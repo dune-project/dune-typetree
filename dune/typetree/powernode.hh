@@ -11,6 +11,7 @@
 
 #include <dune/typetree/nodetags.hh>
 #include <dune/typetree/utility.hh>
+#include <dune/typetree/childextraction.hh>
 
 namespace Dune {
   namespace TypeTree {
@@ -148,7 +149,7 @@ namespace Dune {
        * \returns a reference to the i-th child.
        */
       template<std::size_t i>
-      T& child ()
+      T& child (index_constant<i> = {})
       {
         static_assert((i < CHILDREN), "child index out of range");
         return *_children[i];
@@ -159,7 +160,7 @@ namespace Dune {
        * \returns a const reference to the i-th child.
        */
       template<std::size_t i>
-      const T& child () const
+      const T& child (index_constant<i> = {}) const
       {
         static_assert((i < CHILDREN), "child index out of range");
         return *_children[i];
@@ -170,7 +171,7 @@ namespace Dune {
        * \returns a copy of the object storing the i-th child.
        */
       template<std::size_t i>
-      ChildStorageType childStorage()
+      ChildStorageType childStorage(index_constant<i> = {})
       {
         static_assert((i < CHILDREN), "child index out of range");
         return _children[i];
@@ -184,7 +185,7 @@ namespace Dune {
        * \returns a copy of the object storing the i-th child.
        */
       template<std::size_t i>
-      ChildConstStorageType childStorage() const
+      ChildConstStorageType childStorage(index_constant<i> = {}) const
       {
         static_assert((i < CHILDREN), "child index out of range");
         return _children[i];
@@ -192,7 +193,7 @@ namespace Dune {
 
       //! Sets the i-th child to the passed-in value.
       template<std::size_t i>
-      void setChild (T& t)
+      void setChild (T& t, index_constant<i> = {})
       {
         static_assert((i < CHILDREN), "child index out of range");
         _children[i] = stackobject_to_shared_ptr(t);
@@ -200,7 +201,7 @@ namespace Dune {
 
       //! Sets the stored value representing the i-th child to the passed-in value.
       template<std::size_t i>
-      void setChild (ChildStorageType st)
+      void setChild (ChildStorageType st, index_constant<i> = {})
       {
         static_assert((i < CHILDREN), "child index out of range");
         _children[i] = st;
@@ -276,6 +277,68 @@ namespace Dune {
 
       //! @}
 
+      //! @name Nested Child Access
+      //! @{
+
+      // The following two methods require a little bit of SFINAE trickery to work correctly:
+      // We have to make sure that they don't shadow the methods for direct child access because
+      // those get called by the generic child() machinery. If that machinery picks up the methods
+      // defined below, we have an infinite recursion.
+      // So the methods make sure that either
+      //
+      // * there are more than one argument. In that case, we got multiple indices and can forward
+      //   to the general machine.
+      //
+      // * the first argument is not a valid flat index, i.e. either a std::size_t or an index_constant.
+      //   The argument thus has to be some kind of TreePath instance that we can also pass to the
+      //   generic machine.
+      //
+      // The above SFINAE logic works, but there is still a problem with the return type deduction.
+      // We have to do a lazy lookup of the return type after SFINAE has succeeded, otherwise the return
+      // type deduction will trigger the infinite recursion.
+
+      //! Returns the child given by the list of indices.
+      /**
+       * This method simply forwards to the freestanding function child(). See that
+       * function for further information.
+       */
+#ifdef DOXYGEN
+      template<typename... Indices>
+      ImplementationDefined& child(Indices... indices)
+#else
+      template<typename I0, typename... I>
+      auto child(I0 i0, I... i)
+        -> typename std::enable_if<
+             (sizeof...(I) > 0) || !is_flat_index<I0>{},
+             impl::_lazy_member_child_decltype<PowerNode>
+             >::type::template evaluate<I0,I...>
+#endif
+      {
+        return Dune::TypeTree::child(*this,i0,i...);
+      }
+
+      //! Returns the child given by the list of indices.
+      /**
+       * This method simply forwards to the freestanding function child(). See that
+       * function for further information.
+       */
+#ifdef DOXYGEN
+      template<typename... Indices>
+      const ImplementationDefined& child(Indices... indices)
+#else
+      template<typename I0, typename... I>
+      auto child(I0 i0, I... i) const
+        -> typename std::enable_if<
+             (sizeof...(I) > 0) || !is_flat_index<I0>{},
+             impl::_lazy_member_child_decltype<const PowerNode>
+             >::type::template evaluate<I0,I...>
+#endif
+      {
+        return Dune::TypeTree::child(*this,i0,i...);
+      }
+
+      //! @}
+
       //! @name Constructors
       //! @{
 
@@ -304,7 +367,7 @@ namespace Dune {
         if (distinct_objects)
           {
             for (typename NodeStorage::iterator it = _children.begin(); it != _children.end(); ++it)
-              *it = make_shared<T>(t);
+              *it = std::make_shared<T>(t);
           }
         else
           {

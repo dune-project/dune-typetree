@@ -4,8 +4,11 @@
 #ifndef DUNE_TYPETREE_UTILITY_HH
 #define DUNE_TYPETREE_UTILITY_HH
 
-#include <dune/common/shared_ptr.hh>
-#include <dune/common/tuples.hh>
+#include <memory>
+#include <tuple>
+#include <type_traits>
+
+#include <dune/common/std/utility.hh>
 #include <dune/typetree/nodetags.hh>
 
 namespace Dune {
@@ -18,13 +21,13 @@ namespace Dune {
 #ifndef DOXYGEN
 
     template<typename T>
-    shared_ptr<T> convert_arg(const T& t)
+    std::shared_ptr<T> convert_arg(const T& t)
     {
-      return make_shared<T>(t);
+      return std::make_shared<T>(t);
     }
 
     template<typename T>
-    shared_ptr<T> convert_arg(T& t)
+    std::shared_ptr<T> convert_arg(T& t)
     {
       return stackobject_to_shared_ptr(t);
     }
@@ -32,7 +35,7 @@ namespace Dune {
     template<typename BaseType, typename T>
     T& assertGridViewType(T& t)
     {
-      static_assert((is_same<typename BaseType::Traits::GridViewType,
+      static_assert((std::is_same<typename BaseType::Traits::GridViewType,
                      typename T::Traits::GridViewType>::value),
                     "GridViewType must be equal in all components of composite type");
       return t;
@@ -40,9 +43,9 @@ namespace Dune {
 
     // only bind to real rvalues
     template<typename T>
-    typename enable_if<!std::is_lvalue_reference<T>::value,shared_ptr<T> >::type convert_arg(T&& t)
+    typename std::enable_if<!std::is_lvalue_reference<T>::value,std::shared_ptr<T> >::type convert_arg(T&& t)
     {
-      return make_shared<T>(std::forward<T>(t));
+      return std::make_shared<T>(std::forward<T>(t));
     }
 
 #endif // DOXYGEN
@@ -190,7 +193,7 @@ namespace Dune {
      *   discard((f(get<i>(t)),0)...);
      * }
      *
-     * tuple<int,double,...,char> t;
+     * std::tuple<int,double,...,char> t;
      * apply_to_tuple(t,foo,tuple_indices(t));
      * \endcode
      *
@@ -227,7 +230,7 @@ namespace Dune {
     //! TMP to build an index_pack for all elements in the tuple.
     template<typename tuple>
     struct tuple_index_pack_builder
-      : public index_pack_builder<tuple_size<tuple>::value>
+      : public index_pack_builder<std::tuple_size<tuple>::value>
     {};
 
     //! Generate an index_pack for the tuple t.
@@ -243,10 +246,134 @@ namespace Dune {
      * \return   index_pack<0,1,...,n-1>.
      **/
     template<std::size_t n>
-    typename index_pack_builder<n>::type index_range()
+    typename index_pack_builder<n>::type index_range(std::integral_constant<std::size_t,n> = {})
     {
       return typename index_pack_builder<n>::type();
     }
+
+    namespace Std {
+
+      //! Backport of C++14 std::integer_sequence.
+      /**
+       * This is just imported from Dune::Std because the version in Dune::Std
+       * does not implement the other parts of integer sequences correctly due
+       * to a lack of template aliases.
+       */
+      using Dune::Std::integer_sequence;
+
+      //! A sequence of indices, with each entry a std::size_t.
+      template<std::size_t... indices>
+      using index_sequence = integer_sequence<std::size_t,indices...>;
+
+      //! Create an integer_sequence [0,n-1] with entries of type T.
+      template<typename T, T n>
+      using make_integer_sequence = decltype(Dune::Std::make_integer_sequence<T,n>());
+
+      //! Create an index_sequence [0,n-1].
+      template<std::size_t n>
+      using make_index_sequence = make_integer_sequence<std::size_t,n>;
+
+      //! Create an index_sequence for the pack T..., i.e. [0,sizeof...(T)].
+      template<typename... T>
+      using index_sequence_for = make_index_sequence<sizeof...(T)>;
+
+    }
+
+
+    //! An index constant with value i.
+    /**
+     * An index constant is a simple type alias for an integral_constant.
+     * Its main advantages are clarity (it is easier to see that code uses it
+     * as an index) and the fact that the integral type is fixed, reducing verbosity
+     * and avoiding the problem of maybe trying to overload / specialize using a different
+     * integral type.
+     */
+    template<std::size_t i>
+    using index_constant = std::integral_constant<std::size_t, i>;
+
+
+
+    //! Namespace with predefined compile time indices for the range [0,19].
+    /**
+     * The predefined index objects in this namespace are `constexpr`, which allows them to
+     * be used in situations where a compile time constant is needed, e.g. for a template
+     * parameter. Apart from that, `constexpr` implies internal linkage, which helps to avoid
+     * ODR problems.
+     *
+     * The constants implicitly convert to their contained value, so you can for example write
+     *
+     * \code{.cc}
+     * std::array<int,_10> a;
+     * // the above line is equivalent to
+     * std::array<int,10> b;
+     * \endcode
+     *
+     */
+    namespace Indices {
+
+      //! Compile time index with value 0.
+      constexpr index_constant< 0>  _0 = {};
+
+      //! Compile time index with value 1.
+      constexpr index_constant< 1>  _1 = {};
+
+      //! Compile time index with value 2.
+      constexpr index_constant< 2>  _2 = {};
+
+      //! Compile time index with value 3.
+      constexpr index_constant< 3>  _3 = {};
+
+      //! Compile time index with value 4.
+      constexpr index_constant< 4>  _4 = {};
+
+      //! Compile time index with value 5.
+      constexpr index_constant< 5>  _5 = {};
+
+      //! Compile time index with value 6.
+      constexpr index_constant< 6>  _6 = {};
+
+      //! Compile time index with value 7.
+      constexpr index_constant< 7>  _7 = {};
+
+      //! Compile time index with value 8.
+      constexpr index_constant< 8>  _8 = {};
+
+      //! Compile time index with value 9.
+      constexpr index_constant< 9>  _9 = {};
+
+      //! Compile time index with value 10.
+      constexpr index_constant<10> _10 = {};
+
+      //! Compile time index with value 11.
+      constexpr index_constant<11> _11 = {};
+
+      //! Compile time index with value 12.
+      constexpr index_constant<12> _12 = {};
+
+      //! Compile time index with value 13.
+      constexpr index_constant<13> _13 = {};
+
+      //! Compile time index with value 14.
+      constexpr index_constant<14> _14 = {};
+
+      //! Compile time index with value 15.
+      constexpr index_constant<15> _15 = {};
+
+      //! Compile time index with value 16.
+      constexpr index_constant<16> _16 = {};
+
+      //! Compile time index with value 17.
+      constexpr index_constant<17> _17 = {};
+
+      //! Compile time index with value 18.
+      constexpr index_constant<18> _18 = {};
+
+      //! Compile time index with value 19.
+      constexpr index_constant<19> _19 = {};
+
+    }
+
+
 
     //! No-op function to make calling a function on a variadic template argument pack legal C++.
     /**
@@ -274,16 +401,16 @@ namespace Dune {
 
       // version that does not pass index
       template<typename T, typename F, std::size_t... i>
-      void _apply_to_tuple(T&& t, F&& f, index_pack<i...> indices,apply_to_tuple_policy::no_pass_index)
+      void _apply_to_tuple(T&& t, F&& f, Std::index_sequence<i...>,apply_to_tuple_policy::no_pass_index)
       {
         discard((f(std::get<i>(std::forward<T>(t))),0)...);
       }
 
       // version that passes index
       template<typename T, typename F, std::size_t... i>
-      void _apply_to_tuple(T&& t, F&& f, index_pack<i...> indices,apply_to_tuple_policy::pass_index)
+      void _apply_to_tuple(T&& t, F&& f, Std::index_sequence<i...>,apply_to_tuple_policy::pass_index)
       {
-        discard((f(std::integral_constant<std::size_t,i>(),std::get<i>(std::forward<T>(t))),0)...);
+        discard((f(index_constant<i>{},std::get<i>(std::forward<T>(t))),0)...);
       }
 
     }
@@ -302,7 +429,7 @@ namespace Dune {
       _apply_to_tuple(
         std::forward<T>(t),
         std::forward<F>(f),
-        tuple_indices(t),
+        T::index_sequence(),
         Policy()
         );
     }

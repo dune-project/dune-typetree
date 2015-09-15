@@ -4,7 +4,8 @@
 #ifndef DUNE_TYPETREE_FILTERS_HH
 #define DUNE_TYPETREE_FILTERS_HH
 
-#include <dune/common/tuples.hh>
+#include <tuple>
+
 #include <dune/common/typetraits.hh>
 
 namespace Dune {
@@ -38,14 +39,14 @@ namespace Dune {
 
       static const std::size_t size = sizeof...(FilterEntries);
 
-      typedef tuple<FilterEntries...> IndexMap;
+      typedef std::tuple<FilterEntries...> IndexMap;
 
       template<typename Node>
       struct apply
       {
-        typedef tuple<typename Node::template Child<FilterEntries::original_index>...> Children;
-        typedef tuple<typename Node::template Child<FilterEntries::original_index>::Type...> ChildTypes;
-        typedef tuple<typename Node::template Child<FilterEntries::original_index>::Storage...> NodeStorage;
+        typedef std::tuple<typename Node::template Child<FilterEntries::original_index>...> Children;
+        typedef std::tuple<typename Node::template Child<FilterEntries::original_index>::Type...> ChildTypes;
+        typedef std::tuple<typename Node::template Child<FilterEntries::original_index>::Storage...> NodeStorage;
       };
 
     };

@@ -4,11 +4,11 @@
 #ifndef DUNE_TYPETREE_FILTEREDCOMPOSITENODE_HH
 #define DUNE_TYPETREE_FILTEREDCOMPOSITENODE_HH
 
-#include <dune/common/shared_ptr.hh>
+#include <memory>
+#include <tuple>
 
 #include <dune/typetree/nodetags.hh>
 #include <dune/typetree/filters.hh>
-#include <dune/common/tuples.hh>
 #include <dune/common/typetraits.hh>
 
 #include <dune/typetree/filters.hh>
@@ -38,7 +38,7 @@ namespace Dune {
       struct apply_filter_wrapper;
 
       template<typename Filter, typename Node, typename... Children>
-      struct apply_filter_wrapper<Filter,Node,tuple<Children...> >
+      struct apply_filter_wrapper<Filter,Node,std::tuple<Children...> >
         : public Filter::template apply<Node,Children...>
       {};
 
@@ -118,9 +118,9 @@ namespace Dune {
 
 #ifndef DOXYGEN
 
-        typedef typename tuple_element<k,typename mapped_children::Children>::type OriginalChild;
+        typedef typename std::tuple_element<k,typename mapped_children::Children>::type OriginalChild;
 
-        static const std::size_t mapped_index = tuple_element<k,typename filter_result::IndexMap>::type::original_index;
+        static const std::size_t mapped_index = std::tuple_element<k,typename filter_result::IndexMap>::type::original_index;
 
 #endif // DOXYGEN
 
