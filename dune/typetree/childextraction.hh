@@ -627,6 +627,22 @@ namespace Dune {
     template<typename T>
     using is_flat_index = typename impl::_is_flat_index<typename std::decay<T>::type>::type;
 
+#ifndef DOXYGEN
+
+    namespace impl {
+
+      // helper struct to perform lazy return type evaluation in the forwarding member child() methods
+      // of nodes
+      template<typename Node>
+      struct _lazy_member_child_decltype
+      {
+        template<typename... Indices>
+        using evaluate = decltype(Dune::TypeTree::child(std::declval<Node>(),std::declval<Indices>()...));
+      };
+
+    }
+
+#endif // DOXYGEN
 
     //! \} group TypeTree
 

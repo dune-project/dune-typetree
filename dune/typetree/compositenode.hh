@@ -132,6 +132,68 @@ namespace Dune {
 
       //! @}
 
+      //! @name Nested Child Access
+      //! @{
+
+      // The following two methods require a little bit of SFINAE trickery to work correctly:
+      // We have to make sure that they don't shadow the methods for direct child access because
+      // those get called by the generic child() machinery. If that machinery picks up the methods
+      // defined below, we have an infinite recursion.
+      // So the methods make sure that either
+      //
+      // * there are more than one argument. In that case, we got multiple indices and can forward
+      //   to the general machine.
+      //
+      // * the first argument is not a valid flat index, i.e. either a std::size_t or an index_constant.
+      //   The argument thus has to be some kind of TreePath instance that we can also pass to the
+      //   generic machine.
+      //
+      // The above SFINAE logic works, but there is still a problem with the return type deduction.
+      // We have to do a lazy lookup of the return type after SFINAE has succeeded, otherwise the return
+      // type deduction will trigger the infinite recursion.
+
+      //! Returns the child given by the list of indices.
+      /**
+       * This method simply forwards to the freestanding function child(). See that
+       * function for further information.
+       */
+#ifdef DOXYGEN
+      template<typename... Indices>
+      ImplementationDefined& child(Indices... indices)
+#else
+      template<typename I0, typename... I>
+      auto child(I0 i0, I... i)
+        -> typename std::enable_if<
+             (sizeof...(I) > 0) || !is_flat_index<I0>{},
+             impl::_lazy_member_child_decltype<CompositeNode>
+             >::type::template evaluate<I0,I...>
+#endif
+      {
+        return Dune::TypeTree::child(*this,i0,i...);
+      }
+
+      //! Returns the child given by the list of indices.
+      /**
+       * This method simply forwards to the freestanding function child(). See that
+       * function for further information.
+       */
+#ifdef DOXYGEN
+      template<typename... Indices>
+      const ImplementationDefined& child(Indices... indices)
+#else
+      template<typename I0, typename... I>
+      auto child(I0 i0, I... i) const
+        -> typename std::enable_if<
+             (sizeof...(I) > 0) || !is_flat_index<I0>{},
+             impl::_lazy_member_child_decltype<const CompositeNode>
+             >::type::template evaluate<I0,I...>
+#endif
+      {
+        return Dune::TypeTree::child(*this,i0,i...);
+      }
+
+      //! @}
+
     protected:
 
       //! @name Constructors
@@ -155,7 +217,7 @@ namespace Dune {
       {}
 
       //! Initialize the VariadicCompositeNode with copies of the passed in Storage objects.
-      CompositeNode(std::shared_ ptr<Children>... children)
+      CompositeNode(std::shared_ptr<Children>... children)
         : _children(children...)
       {}
 
