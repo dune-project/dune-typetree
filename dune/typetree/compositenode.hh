@@ -8,6 +8,7 @@
 #include <memory>
 
 #include <dune/typetree/nodetags.hh>
+#include <dune/typetree/childextraction.hh>
 
 namespace Dune {
   namespace TypeTree {
@@ -72,7 +73,7 @@ namespace Dune {
        * \returns a reference to the i-th child.
        */
       template<std::size_t k>
-      typename Child<k>::Type& child()
+      typename Child<k>::Type& child(index_constant<k> = {})
       {
         return *std::get<k>(_children);
       }
@@ -82,7 +83,7 @@ namespace Dune {
        * \returns a const reference to the i-th child.
        */
       template<std::size_t k>
-      const typename Child<k>::Type& child() const
+      const typename Child<k>::Type& child(index_constant<k> = {}) const
       {
         return *std::get<k>(_children);
       }
@@ -92,7 +93,7 @@ namespace Dune {
        * \returns a copy of the object storing the i-th child.
        */
       template<std::size_t k>
-      typename Child<k>::Storage childStorage()
+      typename Child<k>::Storage childStorage(index_constant<k> = {})
       {
         return std::get<k>(_children);
       }
@@ -105,21 +106,21 @@ namespace Dune {
        * \returns a copy of the object storing the i-th child.
        */
       template<std::size_t k>
-      typename Child<k>::ConstStorage childStorage() const
+      typename Child<k>::ConstStorage childStorage(index_constant<k> = {}) const
       {
         return std::get<k>(_children);
       }
 
       //! Sets the i-th child to the passed-in value.
       template<std::size_t k>
-      void setChild(typename Child<k>::Type& child)
+      void setChild(typename Child<k>::Type& child, index_constant<k> = {})
       {
         std::get<k>(_children) = stackobject_to_shared_ptr(child);
       }
 
       //! Sets the storage of the i-th child to the passed-in value.
       template<std::size_t k>
-      void setChild(typename Child<k>::Storage child)
+      void setChild(typename Child<k>::Storage child, index_constant<k> = {})
       {
         std::get<k>(_children) = child;
       }

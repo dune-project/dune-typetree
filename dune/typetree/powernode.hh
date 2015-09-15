@@ -11,6 +11,7 @@
 
 #include <dune/typetree/nodetags.hh>
 #include <dune/typetree/utility.hh>
+#include <dune/typetree/childextraction.hh>
 
 namespace Dune {
   namespace TypeTree {
@@ -148,7 +149,7 @@ namespace Dune {
        * \returns a reference to the i-th child.
        */
       template<std::size_t i>
-      T& child ()
+      T& child (index_constant<i> = {})
       {
         static_assert((i < CHILDREN), "child index out of range");
         return *_children[i];
@@ -159,7 +160,7 @@ namespace Dune {
        * \returns a const reference to the i-th child.
        */
       template<std::size_t i>
-      const T& child () const
+      const T& child (index_constant<i> = {}) const
       {
         static_assert((i < CHILDREN), "child index out of range");
         return *_children[i];
@@ -170,7 +171,7 @@ namespace Dune {
        * \returns a copy of the object storing the i-th child.
        */
       template<std::size_t i>
-      ChildStorageType childStorage()
+      ChildStorageType childStorage(index_constant<i> = {})
       {
         static_assert((i < CHILDREN), "child index out of range");
         return _children[i];
@@ -184,7 +185,7 @@ namespace Dune {
        * \returns a copy of the object storing the i-th child.
        */
       template<std::size_t i>
-      ChildConstStorageType childStorage() const
+      ChildConstStorageType childStorage(index_constant<i> = {}) const
       {
         static_assert((i < CHILDREN), "child index out of range");
         return _children[i];
@@ -192,7 +193,7 @@ namespace Dune {
 
       //! Sets the i-th child to the passed-in value.
       template<std::size_t i>
-      void setChild (T& t)
+      void setChild (T& t, index_constant<i> = {})
       {
         static_assert((i < CHILDREN), "child index out of range");
         _children[i] = stackobject_to_shared_ptr(t);
@@ -200,7 +201,7 @@ namespace Dune {
 
       //! Sets the stored value representing the i-th child to the passed-in value.
       template<std::size_t i>
-      void setChild (ChildStorageType st)
+      void setChild (ChildStorageType st, index_constant<i> = {})
       {
         static_assert((i < CHILDREN), "child index out of range");
         _children[i] = st;
