@@ -376,7 +376,10 @@ namespace Dune {
       struct _lazy_static_decltype
       {
         template<typename I, typename... J>
-        using evaluate = decltype(child(std::declval<Node>().template child<I::value>(),std::declval<J>()...));
+        struct evaluate
+        {
+          using type = decltype(child(std::declval<Node>().template child<I::value>(),std::declval<J>()...));
+        };
       };
 
       // The actual implementation is rather simple, we just use an overload that requires the first index
@@ -391,7 +394,7 @@ namespace Dune {
           _lazy_static_decltype<
             typename std::remove_reference<Node>::type
             >
-          >::type::template evaluate<index_constant<i>,J...>
+        >::type::template evaluate<index_constant<i>,J...>::type
       {
         return child(std::forward<Node>(node).template child<i>(),j...);
       }
@@ -406,7 +409,10 @@ namespace Dune {
       struct _lazy_dynamic_decltype
       {
         template<typename... J>
-        using evaluate = decltype(child(std::declval<Node>().child(0),std::declval<J>()...));
+        struct evaluate
+        {
+          using type = decltype(child(std::declval<Node>().child(0),std::declval<J>()...));
+        };
       };
 
       // The actual implemention here overloads on std::size_t. It is a little less ugly because it currently
@@ -422,7 +428,7 @@ namespace Dune {
           _lazy_dynamic_decltype<
             typename std::remove_reference<Node>::type
             >
-          >::type::template evaluate<J...>
+          >::type::template evaluate<J...>::type
       {
         return child(std::forward<Node>(node).template child(i),j...);
       }
@@ -637,7 +643,10 @@ namespace Dune {
       struct _lazy_member_child_decltype
       {
         template<typename... Indices>
-        using evaluate = decltype(Dune::TypeTree::child(std::declval<Node>(),std::declval<Indices>()...));
+        struct evaluate
+        {
+          using type = decltype(Dune::TypeTree::child(std::declval<Node>(),std::declval<Indices>()...));
+        };
       };
 
     }

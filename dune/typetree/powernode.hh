@@ -311,7 +311,7 @@ namespace Dune {
         -> typename std::enable_if<
              (sizeof...(I) > 0) || !is_flat_index<I0>{},
              impl::_lazy_member_child_decltype<PowerNode>
-             >::type::template evaluate<I0,I...>
+        >::type::template evaluate<I0,I...>::type
 #endif
       {
         return Dune::TypeTree::child(*this,i0,i...);
@@ -331,7 +331,7 @@ namespace Dune {
         -> typename std::enable_if<
              (sizeof...(I) > 0) || !is_flat_index<I0>{},
              impl::_lazy_member_child_decltype<const PowerNode>
-             >::type::template evaluate<I0,I...>
+        >::type::template evaluate<I0,I...>::type
 #endif
       {
         return Dune::TypeTree::child(*this,i0,i...);
