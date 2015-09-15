@@ -90,6 +90,10 @@ namespace Dune {
      * \tparam TreePath A TreePath instantiation which statically
      *                  encodes the path to the child.
      * \return          A reference to the child.
+     *
+     * \deprecated extract_child is deprecated and will be removed after TypeTree 2.4,
+     *             use the freestanding function child() or the enhanced child() methods
+     *             on the tree nodes instead.
      */
     template<typename Node, typename TreePath>
     ImplementationDefined& extract_child(Node& node, Treepath tp)
@@ -118,6 +122,10 @@ namespace Dune {
      * \tparam TreePath A TreePath instantiation which statically
      *                  encodes the path to the child.
      * \return          A reference to the child.
+     *
+     * \deprecated extract_child is deprecated and will be removed after TypeTree 2.4,
+     *             use the freestanding function child() or the enhanced child() methods
+     *             on the tree nodes instead.
      */
     template<typename Node, typename TreePath>
     const ImplementationDefined& extract_child(const Node& node, Treepath tp)
