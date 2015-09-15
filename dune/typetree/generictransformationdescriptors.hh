@@ -5,12 +5,11 @@
 #define DUNE_TYPETREE_GENERICTRANSFORMATIONDESCRIPTORS_HH
 
 #include <array>
+#include <memory>
 
 #include <dune/typetree/nodetags.hh>
 #include <dune/typetree/powercompositenodetransformationtemplates.hh>
 #include <dune/common/exceptions.hh>
-#include <dune/common/shared_ptr.hh>
-#include <dune/common/tuples.hh>
 
 
 namespace Dune {
@@ -28,21 +27,21 @@ namespace Dune {
       static const bool recursive = false;
 
       typedef TransformedNode transformed_type;
-      typedef shared_ptr<transformed_type> transformed_storage_type;
+      typedef std::shared_ptr<transformed_type> transformed_storage_type;
 
       static transformed_type transform(const SourceNode& s, const Transformation& t)
       {
         return transformed_type(s,t);
       }
 
-      static transformed_type transform(shared_ptr<const SourceNode> s, const Transformation& t)
+      static transformed_type transform(std::shared_ptr<const SourceNode> s, const Transformation& t)
       {
         return transformed_type(s,t);
       }
 
-      static transformed_storage_type transform_storage(shared_ptr<const SourceNode> s, const Transformation& t)
+      static transformed_storage_type transform_storage(std::shared_ptr<const SourceNode> s, const Transformation& t)
       {
-        return make_shared<transformed_type>(s,t);
+        return std::make_shared<transformed_type>(s,t);
       }
 
     };
@@ -58,25 +57,25 @@ namespace Dune {
       struct result
       {
         typedef typename TransformedNodeTemplate<TC>::type type;
-        typedef shared_ptr<type> storage_type;
+        typedef std::shared_ptr<type> storage_type;
       };
 
       template<typename TC>
-      static typename result<TC>::type transform(const SourceNode& s, const Transformation& t, const std::array<shared_ptr<TC>,result<TC>::type::CHILDREN>& children)
+      static typename result<TC>::type transform(const SourceNode& s, const Transformation& t, const std::array<std::shared_ptr<TC>,result<TC>::type::CHILDREN>& children)
       {
         return typename result<TC>::type(s,t,children);
       }
 
       template<typename TC>
-      static typename result<TC>::type transform(shared_ptr<const SourceNode> s, const Transformation& t, const std::array<shared_ptr<TC>,result<TC>::type::CHILDREN>& children)
+      static typename result<TC>::type transform(std::shared_ptr<const SourceNode> s, const Transformation& t, const std::array<std::shared_ptr<TC>,result<TC>::type::CHILDREN>& children)
       {
         return typename result<TC>::type(s,t,children);
       }
 
       template<typename TC>
-      static typename result<TC>::storage_type transform_storage(shared_ptr<const SourceNode> s, const Transformation& t, const std::array<shared_ptr<TC>,result<TC>::type::CHILDREN>& children)
+      static typename result<TC>::storage_type transform_storage(std::shared_ptr<const SourceNode> s, const Transformation& t, const std::array<std::shared_ptr<TC>,result<TC>::type::CHILDREN>& children)
       {
-        return make_shared<typename result<TC>::type>(s,t,children);
+        return std::make_shared<typename result<TC>::type>(s,t,children);
       }
 
     };
@@ -103,25 +102,25 @@ namespace Dune {
       struct result
       {
         typedef typename TransformedNodeTemplate<TC...>::type type;
-        typedef shared_ptr<type> storage_type;
+        typedef std::shared_ptr<type> storage_type;
       };
 
       template<typename... TC>
-      static typename result<TC...>::type transform(const SourceNode& s, const Transformation& t, shared_ptr<TC>... children)
+      static typename result<TC...>::type transform(const SourceNode& s, const Transformation& t, std::shared_ptr<TC>... children)
       {
         return typename result<TC...>::type(s,t,children...);
       }
 
       template<typename... TC>
-      static typename result<TC...>::type transform(shared_ptr<const SourceNode> s, const Transformation& t, shared_ptr<TC>... children)
+      static typename result<TC...>::type transform(std::shared_ptr<const SourceNode> s, const Transformation& t, std::shared_ptr<TC>... children)
       {
         return typename result<TC...>::type(s,t,children...);
       }
 
       template<typename... TC>
-      static typename result<TC...>::storage_type transform_storage(shared_ptr<const SourceNode> s, const Transformation& t, shared_ptr<TC>... children)
+      static typename result<TC...>::storage_type transform_storage(std::shared_ptr<const SourceNode> s, const Transformation& t, std::shared_ptr<TC>... children)
       {
-        return make_shared<typename result<TC...>::type>(s,t,children...);
+        return std::make_shared<typename result<TC...>::type>(s,t,children...);
       }
 
     };

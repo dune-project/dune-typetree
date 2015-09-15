@@ -304,7 +304,7 @@ namespace Dune {
         if (distinct_objects)
           {
             for (typename NodeStorage::iterator it = _children.begin(); it != _children.end(); ++it)
-              *it = make_shared<T>(t);
+              *it = std::make_shared<T>(t);
           }
         else
           {

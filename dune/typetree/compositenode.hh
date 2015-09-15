@@ -4,9 +4,10 @@
 #ifndef DUNE_TYPETREE_COMPOSITENODE_HH
 #define DUNE_TYPETREE_COMPOSITENODE_HH
 
+#include <tuple>
+#include <memory>
+
 #include <dune/typetree/nodetags.hh>
-#include <dune/common/tuples.hh>
-#include <dune/common/shared_ptr.hh>
 
 namespace Dune {
   namespace TypeTree {
@@ -27,10 +28,10 @@ namespace Dune {
       typedef CompositeNodeTag NodeTag;
 
       //! The type used for storing the children.
-      typedef tuple<shared_ptr<Children>... > NodeStorage;
+      typedef std::tuple<std::shared_ptr<Children>... > NodeStorage;
 
       //! A tuple storing the types of all children.
-      typedef tuple<Children...> ChildTypes;
+      typedef std::tuple<Children...> ChildTypes;
 
       //! Mark this class as non leaf in the \ref TypeTree.
       static const bool isLeaf = false;
@@ -51,16 +52,16 @@ namespace Dune {
         static_assert((k < CHILDREN), "child index out of range");
 
         //! The type of the child.
-        typedef typename tuple_element<k,ChildTypes>::type Type;
+        typedef typename std::tuple_element<k,ChildTypes>::type Type;
 
         //! The type of the child.
-        typedef typename tuple_element<k,ChildTypes>::type type;
+        typedef typename std::tuple_element<k,ChildTypes>::type type;
 
         //! The storage type of the child.
-        typedef typename tuple_element<k,NodeStorage>::type Storage;
+        typedef typename std::tuple_element<k,NodeStorage>::type Storage;
 
         //! The const storage type of the child.
-        typedef shared_ptr<const typename tuple_element<k,ChildTypes>::type> ConstStorage;
+        typedef std::shared_ptr<const typename std::tuple_element<k,ChildTypes>::type> ConstStorage;
       };
 
       //! @name Child Access
@@ -73,7 +74,7 @@ namespace Dune {
       template<std::size_t k>
       typename Child<k>::Type& child()
       {
-        return *get<k>(_children);
+        return *std::get<k>(_children);
       }
 
       //! Returns the i-th child (const version).
@@ -83,7 +84,7 @@ namespace Dune {
       template<std::size_t k>
       const typename Child<k>::Type& child() const
       {
-        return *get<k>(_children);
+        return *std::get<k>(_children);
       }
 
       //! Returns the storage of the i-th child.
@@ -93,7 +94,7 @@ namespace Dune {
       template<std::size_t k>
       typename Child<k>::Storage childStorage()
       {
-        return get<k>(_children);
+        return std::get<k>(_children);
       }
 
       //! Returns the storage of the i-th child (const version).
@@ -106,21 +107,21 @@ namespace Dune {
       template<std::size_t k>
       typename Child<k>::ConstStorage childStorage() const
       {
-        return get<k>(_children);
+        return std::get<k>(_children);
       }
 
       //! Sets the i-th child to the passed-in value.
       template<std::size_t k>
       void setChild(typename Child<k>::Type& child)
       {
-        get<k>(_children) = stackobject_to_shared_ptr(child);
+        std::get<k>(_children) = stackobject_to_shared_ptr(child);
       }
 
       //! Sets the storage of the i-th child to the passed-in value.
       template<std::size_t k>
       void setChild(typename Child<k>::Storage child)
       {
-        get<k>(_children) = child;
+        std::get<k>(_children) = child;
       }
 
       const NodeStorage& nodeStorage() const
@@ -153,7 +154,7 @@ namespace Dune {
       {}
 
       //! Initialize the VariadicCompositeNode with copies of the passed in Storage objects.
-      CompositeNode(shared_ptr<Children>... children)
+      CompositeNode(std::shared_ ptr<Children>... children)
         : _children(children...)
       {}
 
