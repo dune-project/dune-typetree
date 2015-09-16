@@ -40,6 +40,13 @@ namespace Dune {
       : public index_constant<sizeof...(i)>
     {};
 
+     //! Returns the size (number of components) of the given `TreePath`.
+    template<std::size_t... i>
+    constexpr std::size_t treePathSize(const TreePath<i...>&)
+    {
+      return sizeof...(i);
+    }
+
     template<typename,std::size_t>
     struct TreePathPushBack;
 
