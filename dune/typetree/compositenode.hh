@@ -169,6 +169,9 @@ namespace Dune {
         >::type::template evaluate<I0,I...>::type
 #endif
       {
+        static_assert(sizeof...(I) > 0 || treePathSize(i0) > 0,
+          "You cannot use the member function child() with an empty TreePath, use the freestanding version child(node,treePath) instead."
+          );
         return Dune::TypeTree::child(*this,i0,i...);
       }
 
@@ -189,6 +192,9 @@ namespace Dune {
         >::type::template evaluate<I0,I...>::type
 #endif
       {
+        static_assert(sizeof...(I) > 0 || treePathSize(i0) > 0,
+          "You cannot use the member function child() with an empty TreePath, use the freestanding version child(node,treePath) instead."
+          );
         return Dune::TypeTree::child(*this,i0,i...);
       }
 
