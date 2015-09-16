@@ -599,18 +599,11 @@ namespace Dune {
 
     namespace impl {
 
-      // By default, types are not flat indices
+      // By default, types are flat indices if they are integral
       template<typename T>
       struct _is_flat_index
       {
-        using type = std::false_type;
-      };
-
-      // But std::size_t is
-      template<>
-      struct _is_flat_index<std::size_t>
-      {
-        using type = std::true_type;
+        using type = std::is_integral<T>;
       };
 
       // And so is any index_constant
