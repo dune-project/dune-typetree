@@ -642,6 +642,29 @@ namespace Dune {
         };
       };
 
+      // helper function for check in member child() functions that tolerates being passed something that
+      // isn't a TreePath. It will just return 0 in that case
+
+      template<typename T>
+      constexpr typename std::enable_if<
+        is_flat_index<T>{},
+        bool
+        >::type
+      _non_empty_tree_path(T)
+      {
+        return false;
+      }
+
+      template<typename T>
+      constexpr typename std::enable_if<
+        !is_flat_index<T>{},
+        bool
+        >::type
+      _non_empty_tree_path(T t)
+      {
+        return treePathSize(t) > 0;
+      }
+
     }
 
 #endif // DOXYGEN
