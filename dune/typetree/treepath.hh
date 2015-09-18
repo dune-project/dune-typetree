@@ -325,14 +325,17 @@ namespace Dune {
       constexpr HybridTreePath()
       {}
 
+      constexpr HybridTreePath(const HybridTreePath& tp) = default;
+      constexpr HybridTreePath(HybridTreePath&& tp) = default;
+
       //! Constructor from a `std::tuple`
-      constexpr HybridTreePath(std::tuple<T...> t)
+      explicit constexpr HybridTreePath(std::tuple<T...> t)
         : _data(t)
       {}
 
       //! Constructor from arguments
       template<typename... U, typename std::enable_if<(sizeof...(T) > 0 && sizeof...(U) == sizeof...(T)),bool>::type = true>
-      constexpr HybridTreePath(U... t)
+      explicit constexpr HybridTreePath(U... t)
         : _data(t...)
       {}
 
