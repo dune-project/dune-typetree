@@ -273,9 +273,28 @@ namespace Dune {
       template<std::size_t n>
       using make_index_sequence = make_integer_sequence<std::size_t,n>;
 
+#ifndef DOXYGEN
+
+      namespace impl {
+
+        // This is a workaround for clang bug 14858 (https://llvm.org/bugs/show_bug.cgi?id=14858)
+        // in a template alias declaration, clang always deduces sizeof...(T) as 1, if the template
+        // alias is evaluated with an unpacked template parameter pack (instead of one that is explicitly
+        // constructed as a list of types at the call site. This is slightly braindead (and has been around
+        // since at least clang 3.0).
+        // As a workaround, we lift the computation into a struct definition.
+        template<typename... T>
+        struct _get_pack_length
+          : public std::integral_constant<std::size_t,sizeof...(T)>
+        {};
+
+      }
+
+#endif
+
       //! Create an index_sequence for the pack T..., i.e. [0,sizeof...(T)].
       template<typename... T>
-      using index_sequence_for = make_index_sequence<sizeof...(T)>;
+      using index_sequence_for = make_index_sequence<impl::_get_pack_length<T...>{}>;
 
     }
 
