@@ -27,6 +27,11 @@ namespace Dune {
 
     template<std::size_t... i>
     struct TreePath {
+
+      constexpr TreePath() = default;
+      constexpr TreePath(const TreePath&) = default;
+      constexpr TreePath(TreePath&&) = default;
+
       typedef TreePath ViewType;
       TreePath view() { return *this; }
       TreePath mutablePath() { return *this; }
