@@ -232,7 +232,7 @@ namespace Dune {
        * \returns A shared_ptr to the original, unfiltered node.
        */
       template<bool enabled = !nodeIsConst>
-      typename enable_if<enabled,shared_ptr<Node> >::type
+      typename enable_if<enabled,std::shared_ptr<Node> >::type
       unfilteredStorage()
       {
         return _node;
@@ -242,7 +242,7 @@ namespace Dune {
       /**
        * \returns A shared_ptr to the original, unfiltered node.
        */
-      shared_ptr<const Node> unfilteredStorage() const
+      std::shared_ptr<const Node> unfilteredStorage() const
       {
         return _node;
       }
@@ -255,7 +255,7 @@ namespace Dune {
       //! @{
 
       //! Initialize the CompositeNode with copies of the passed in Storage objects.
-      FilteredCompositeNode(shared_ptr<Node> node)
+      FilteredCompositeNode(std::shared_ptr<Node> node)
         : _node(node)
       {}
 
@@ -267,7 +267,7 @@ namespace Dune {
       //! @}
 
     private:
-      shared_ptr<Node> _node;
+      std::shared_ptr<Node> _node;
     };
 
     //! \} group Nodes
