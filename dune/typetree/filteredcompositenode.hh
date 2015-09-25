@@ -9,6 +9,7 @@
 
 #include <dune/typetree/nodetags.hh>
 #include <dune/typetree/filters.hh>
+#include <dune/common/shared_ptr.hh>
 #include <dune/common/typetraits.hh>
 
 #include <dune/typetree/filters.hh>
