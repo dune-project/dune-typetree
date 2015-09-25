@@ -5,6 +5,7 @@
 #define DUNE_TYPETREE_TREEPATH_HH
 
 #include <cstddef>
+#include <iostream>
 
 #include <dune/common/documentation.hh>
 #include <dune/common/typetraits.hh>
