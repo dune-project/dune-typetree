@@ -118,6 +118,13 @@ namespace Dune {
         std::get<k>(_children) = stackobject_to_shared_ptr(child);
       }
 
+      //! Store the passed value in k-th child.
+      template<std::size_t k>
+      void setChild(typename Child<k>::Type&& child, index_constant<k> = {})
+      {
+        std::get<k>(_children) = convert_arg(std::move(child));
+      }
+
       //! Sets the storage of the i-th child to the passed-in value.
       template<std::size_t k>
       void setChild(typename Child<k>::Storage child, index_constant<k> = {})

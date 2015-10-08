@@ -199,6 +199,14 @@ namespace Dune {
         _children[i] = stackobject_to_shared_ptr(t);
       }
 
+      //! Store the passed value in i-th child.
+      template<std::size_t i>
+      void setChild(T&& t, index_constant<i> = {})
+      {
+        static_assert((i < CHILDREN), "child index out of range");
+        _children[i] = convert_arg(std::move(t));
+      }
+
       //! Sets the stored value representing the i-th child to the passed-in value.
       template<std::size_t i>
       void setChild (ChildStorageType st, index_constant<i> = {})
@@ -261,6 +269,13 @@ namespace Dune {
       {
         assert(i < CHILDREN && "child index out of range");
         _children[i] = stackobject_to_shared_ptr(t);
+      }
+
+      //! Store the passed value in i-th child.
+      void setChild(std::size_t i, T&& t)
+      {
+        assert(i < CHILDREN && "child index out of range");
+        _children[i] = convert_arg(std::move(t));
       }
 
       //! Sets the stored value representing the i-th child to the passed-in value.
