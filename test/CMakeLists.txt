@@ -31,7 +31,7 @@ set_property(TARGET testproxynode
 
 foreach(_test ${TESTS})
   add_test(${_test} ${_test})
-  target_link_libraries(${_test} dunetypetree ${DUNE_LIBS})
+  target_link_libraries(${_test} ${DUNE_LIBS})
 endforeach()
 
 # We do not want want to build the tests during make all
