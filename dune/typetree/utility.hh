@@ -446,10 +446,11 @@ namespace Dune {
     template<typename T, typename F, typename Policy>
     void apply_to_tuple(T&& t, F&& f, Policy = apply_to_tuple_policy::default_policy())
     {
+      const std::size_t size = std::tuple_size<typename std::decay<T>::type>::value;
       _apply_to_tuple(
         std::forward<T>(t),
         std::forward<F>(f),
-        T::index_sequence(),
+        Std::make_index_sequence<size>{},
         Policy()
         );
     }
