@@ -1,7 +1,7 @@
 TypeTree
 ========
 
-This is version 3.0-dev of the TypeTree library.
+This is version 2.4-dev of the TypeTree library.
 
 TypeTree is a template library for constructing and operating on statically
 typed trees of objects. It is based around the idea of defining loosely coupled,
@@ -37,40 +37,36 @@ API documentation in doc/doxygen/html. Otherwise, you can build this documentati
 yourself by calling "make doc". Note that you need Doxygen and GraphViz available at
 configure time to be able to build the documentation.
 
-If you need help, please ask on the PDELab mailinglist for now [5]. Bugs can also be
-submitted to the PDELab bugtracker at [6] instead.
+If you need help, please ask on the PDELab mailinglist for now [5]. Bugs can be
+submitted to the bugtracker at [6] instead.
 
 Dependencies
 ------------
 
 TypeTree depends on the following software packages:
 
-* The dune-common library from DUNE, version 3.0-dev. The dependency is actually very
+* The dune-common library from DUNE, version 2.4-dev. The dependency is actually very
   weak, and you can easily use the library standalone by replacing the few convenience
   components reused from dune-common (and by replacing the build system, of course).
 
 * TypeTree uses lots and lots of templates, so you need a decent C++ compiler.
-  This release requires a compiler that is at least compatible with GCC 4.5 in C++11
-  mode, so it whould work with all recent versions of GCC since version 4.5, modern versions
-  of the clang compiler (3.2+) and very recent versions of ICC (icpc 14.0.3+).
-
-For a full explanation of the DUNE installation process please read
-the installation notes [2] or the build system HOWTO [3].
+  This release requires a compiler that is at least compatible with GCC 4.7 in C++11
+  mode, so it whould work with all recent versions of GCC since version 4.7, modern versions
+  of the clang compiler (3.2+) and very recent versions of ICC (icpc 15.0.0+).
 
 License
 -------
 
-The PDELab library, headers and test programs are free open-source software,
+The TypeTree library, headers and test programs are free open-source software,
 dual-licensed under version 3 or later of the GNU Lesser General Public License
 and version 2 of the GNU General Public License with a special run-time exception.
 
-See the file COPYING for full copying permissions.
+See the file COPYING.md for full copying permissions.
 
 Installation
 ------------
 
-Short installation instructions can be found in file INSTALL. For the
-full instructions please see [1].
+For installation instructions please see [1].
 
 Links
 -----
@@ -78,7 +74,6 @@ Links
 0. http://www.dune-project.org/pdelab/
 1. http://www.dune-project.org
 2. http://www.dune-project.org/doc/installation-notes.html
-3. http://dune-project.org/doc/buildsystem/buildsystem.pdf
 4. http://gcc.gnu.org/onlinedocs/libstdc++/faq.html#faq.license
 5. http://lists.dune-project.org/mailman/listinfo/dune-pdelab
-6. http://users.dune-project.org/projects/dune-pdelab/issues
+6. http://gitlab.dune-project.org/pdelab/dune-typetree/issues
