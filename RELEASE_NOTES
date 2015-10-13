@@ -13,7 +13,39 @@ TypeTree 2.4
 ------------
 
 - TypeTree has updated its minimum compiler requirements. You now need a compiler that is at
-  least compatible with GCC 4.5 in C++11 mode.
+  least compatible with GCC 4.7 in C++11 mode.
+
+- A lot of compatibility code for older compilers has been removed. In particular, the old
+  CompositeNode with a fixed number of children has been removed and the old VariadicCompositeNode
+  has been renamed to CompositeNode.
+
+- As part of these changes, we were able to remove libdunetypetree, so TypeTree is now a header-only
+  library. Thanks, Ansgar!
+
+- In addition to the `DynamicTreePath` and the fully static `TreePath`, there is now a `HybridTreePath`,
+  which allows users to use a runtime index in some places of the path and a compile time index at others.
+
+- As part of this new `HybridTreePath`, there is a backport of the C++14 index_sequence to C++11 in the namespace
+  `Dune::TypeTree::Std`. Moreover, there is an `index_constant<i>`, which is an alias template for
+  `std::integral_constant<std::size_t,i>`, and a number of predefined `constexpr` objects `Dune::TypeTree::Indices::_0`
+  etc, which are just `index_constant`s of the specified value. These exist up to the index 19 for now.
+
+- Based on the new `HybridTreePath` and those `index_constant`s, there is now a much more user-friendly way of
+  extracting child nodes: All interior nodes now have a method `child()` which accepts either
+  - a sequence of integers and `index_constant`s
+  - a `HybridTreePath`
+  - a `TreePath`
+  and returns the subtree rooted at that path. There is also a freestanding function `child(node,path)`, which should be
+  used in generic algorithm code as it is more robust (it can e.g. deal correctly with an empty path).
+
+- The old child extraction using `extract_child()` has been deprecated.
+
+- Lots of smaller fixes
+
+- Release history
+
+  - TypeTree 2.4.0-rc1
+    - Initial release candidate
 
 
 TypeTree 2.3
