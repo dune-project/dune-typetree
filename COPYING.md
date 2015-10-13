@@ -6,6 +6,7 @@ Copyright holders:
 2014          Ansgar Burchardt
 2009--2013    Christian Engwer
 2009--2013    Jorrit Fahlke
+2015          Carsten Gräser
 2013--2014    Christoph Grüninger
 2013          Dominic Kempf
 2010--2014    Steffen Müthing
