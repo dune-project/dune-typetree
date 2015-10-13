@@ -44,6 +44,9 @@ TypeTree 2.4
 
 - Release history
 
+  - TypeTree 2.4.0
+    - Fix rendering of links in README
+
   - TypeTree 2.4.0-rc1
     - Initial release candidate
 

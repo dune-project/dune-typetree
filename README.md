@@ -24,7 +24,7 @@ use patterns, the library also contains generic implementations of proxy nodes
 and, on top of that functionality, filtered nodes that can reorder and / or
 restrict access to some of their children.
 
-The TypeTree library was originally developed as part of PDELab[0] to support its
+The TypeTree library was originally developed as part of [PDELab][0] to support its
 tree-based abstraction of function spaces, but has attracted wider-spread interest.
 To facility integration with other projects, we have extracted the code from
 PDELab into this standalone library
@@ -37,8 +37,10 @@ API documentation in doc/doxygen/html. Otherwise, you can build this documentati
 yourself by calling "make doc". Note that you need Doxygen and GraphViz available at
 configure time to be able to build the documentation.
 
-If you need help, please ask on the PDELab mailinglist for now [5]. Bugs can be
-submitted to the bugtracker at [6] instead.
+If you need help, please ask on the [PDELab mailinglist][5] for now. Bugs can be
+submitted to the [bugtracker][6] instead.
+
+See the file [CHANGELOG.md][8] for recent changes to the library.
 
 Dependencies
 ------------
@@ -61,19 +63,21 @@ The TypeTree library, headers and test programs are free open-source software,
 dual-licensed under version 3 or later of the GNU Lesser General Public License
 and version 2 of the GNU General Public License with a special run-time exception.
 
-See the file COPYING.md for full copying permissions.
+See the file [LICENSE.md][7] for full copying permissions.
 
 Installation
 ------------
 
-For installation instructions please see [1].
+For installation instructions please see the [DUNE website][2].
 
 Links
 -----
 
-0. http://www.dune-project.org/pdelab/
-1. http://www.dune-project.org
-2. http://www.dune-project.org/doc/installation-notes.html
-4. http://gcc.gnu.org/onlinedocs/libstdc++/faq.html#faq.license
-5. http://lists.dune-project.org/mailman/listinfo/dune-pdelab
-6. http://gitlab.dune-project.org/pdelab/dune-typetree/issues
+[0]: http://www.dune-project.org/pdelab/
+[1]: http://www.dune-project.org
+[2]: http://www.dune-project.org/doc/installation-notes.html
+[4]: http://gcc.gnu.org/onlinedocs/libstdc++/faq.html#faq.license
+[5]: http://lists.dune-project.org/mailman/listinfo/dune-pdelab
+[6]: http://gitlab.dune-project.org/pdelab/dune-typetree/issues
+[7]: LICENSE.md
+[8]: CHANGELOG.md
