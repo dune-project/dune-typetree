@@ -1,17 +1,26 @@
-Copyright holders:
+Licensing Information
+=====================
 
-2009          Peter Bastian
-2009--2014    Markus Blatt
-2013          Andreas Buhr
-2014          Ansgar Burchardt
-2009--2013    Christian Engwer
-2009--2013    Jorrit Fahlke
-2015          Carsten Gräser
-2013--2014    Christoph Grüninger
-2013          Dominic Kempf
-2010--2014    Steffen Müthing
-2012          Rebecca Neumann
-2013          Bård Skaflestad
+Copyright holders
+-----------------
+
+| Year       | Name                       |
+|------------|----------------------------|
+| 2009       | Peter Bastian              |
+| 2009--2014 | Markus Blatt               |
+| 2013       | Andreas Buhr               |
+| 2014       | Ansgar Burchardt           |
+| 2009--2013 | Christian Engwer           |
+| 2009--2013 | Jorrit Fahlke              |
+| 2015       | Carsten Gräser             |
+| 2013--2014 | Christoph Grüninger        |
+| 2013       | Dominic Kempf              |
+| 2010--2014 | Steffen Müthing            |
+| 2012       | Rebecca Neumann            |
+| 2013       | Bård Skaflestad            |
+
+License
+-------
 
 The TypeTree library, headers and test programs are copyrighted free software. You
 can use, modify and/or redistribute it under the terms of either one of the two
@@ -20,7 +29,7 @@ following licenses:
 * The GNU Lesser General Public License as published by the Free Software
   Foundation, either Version 3 of the license or (at your option) any later
   version. You can find a copy of the GNU Lesser General Public License, Version
-  3, in the files GPL-3 and LGPL-3 or at <http://www.gnu.org/licenses/lgpl-3.0>.
+  3, in the files GPL-3 and LGPL-3 or at http://www.gnu.org/licenses/lgpl-3.0.
 
 * Version 2 of the GNU General Public License as published by the Free Software
   Foundation, with the following special exception for linking and compiling
@@ -39,4 +48,4 @@ following licenses:
   This license is intended to be similar to the GNU Lesser General Public
   License, Version 2, which by itself isn't suitable for a template library. You
   can find a copy of the GNU General Public License, Version 2, in the file
-  GPL-2 or at <http://www.gnu.org/licenses/gpl-2.0>.
+  GPL-2 or at http://www.gnu.org/licenses/gpl-2.0.
