@@ -437,7 +437,11 @@ namespace Dune {
      */
     template<typename... T, typename std::enable_if<(sizeof...(T) > 0),bool>::type = true>
     auto back(const HybridTreePath<T...>& tp)
+#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 5 && __GNUC_MINOR__ < 8
+      -> decltype(treePathEntry<treePathSize(std::declval<HybridTreePath<T...>())-1>(std::declval<HybridTreePath<T...>()))
+#else
       -> decltype(treePathEntry<treePathSize(tp)-1>(tp))
+#endif
     {
       return treePathEntry<treePathSize(tp)-1>(tp);
     }
