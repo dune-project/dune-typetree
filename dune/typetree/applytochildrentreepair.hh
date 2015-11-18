@@ -230,7 +230,7 @@ namespace Dune {
 
       // one node is a leaf -> treat node pair as a leaf
       template<typename N1, typename N2, typename V, typename TreePath>
-      static typename enable_if<(remove_reference<N1>::type::isLeaf || remove_reference<N2>::type::isLeaf)>::type
+      static typename std::enable_if<(remove_reference<N1>::type::isLeaf || remove_reference<N2>::type::isLeaf)>::type
       apply(N1&& n1, N2&& n2, V&& v, TreePath tp)
       {
         v.leaf(std::forward<N1>(n1),std::forward<N2>(n2),tp.view());
@@ -238,7 +238,7 @@ namespace Dune {
 
       // both nodes contain children -> iterate over them
       template<typename N1, typename N2, typename V, typename TreePath>
-      static typename enable_if<!(remove_reference<N1>::type::isLeaf || remove_reference<N2>::type::isLeaf)>::type
+      static typename std::enable_if<!(remove_reference<N1>::type::isLeaf || remove_reference<N2>::type::isLeaf)>::type
       apply(N1&& n1, N2&& n2, V&& v, TreePath tp)
       {
         v.pre(std::forward<N1>(n1),std::forward<N2>(n2),tp.view());

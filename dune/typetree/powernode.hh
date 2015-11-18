@@ -73,7 +73,7 @@ namespace Dune {
     //! Helper struct to make constructor enabling mechanism in PowerNode more readable.
     template<typename PowerNode, typename T, std::size_t k>
     struct AssertPowerNodeChildCount
-      : public enable_if<is_same<
+      : public std::enable_if<is_same<
                            typename PowerNode::ChildType,
                            T>::value &&
     PowerNode::CHILDREN == k,

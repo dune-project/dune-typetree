@@ -147,7 +147,7 @@ namespace Dune {
        * \returns a reference to the i-th child.
        */
       template<std::size_t k>
-      typename enable_if<lazy_enable<k>::value,typename Child<k>::Type&>::type
+      typename std::enable_if<lazy_enable<k>::value,typename Child<k>::Type&>::type
       child()
       {
         return _node->template child<Child<k>::mapped_index>();
@@ -168,7 +168,7 @@ namespace Dune {
        * \returns a copy of the object storing the i-th child.
        */
       template<std::size_t k>
-      typename enable_if<lazy_enable<k>::value,typename Child<k>::Storage>::type
+      typename std::enable_if<lazy_enable<k>::value,typename Child<k>::Storage>::type
       childStorage()
       {
         return _node->template childStorage<Child<k>::mapped_index>();
@@ -189,14 +189,14 @@ namespace Dune {
 
       //! Sets the i-th child to the passed-in value.
       template<std::size_t k>
-      void setChild(typename Child<k>::type& child, typename enable_if<lazy_enable<k>::value,void*>::type = 0)
+      void setChild(typename Child<k>::type& child, typename std::enable_if<lazy_enable<k>::value,void*>::type = 0)
       {
         _node->template childStorage<Child<k>::mapped_index>() = stackobject_to_shared_ptr(child);
       }
 
       //! Sets the storage of the i-th child to the passed-in value.
       template<std::size_t k>
-      void setChild(typename Child<k>::storage_type child, typename enable_if<lazy_enable<k>::value,void*>::type = 0)
+      void setChild(typename Child<k>::storage_type child, typename std::enable_if<lazy_enable<k>::value,void*>::type = 0)
       {
         _node->template childStorage<Child<k>::mapped_index>() = child;
       }
@@ -213,7 +213,7 @@ namespace Dune {
        * \returns A reference to the original, unfiltered node.
        */
       template<bool enabled = !nodeIsConst>
-      typename enable_if<enabled,Node&>::type
+      typename std::enable_if<enabled,Node&>::type
       unfiltered()
       {
         return *_node;
@@ -233,7 +233,7 @@ namespace Dune {
        * \returns A shared_ptr to the original, unfiltered node.
        */
       template<bool enabled = !nodeIsConst>
-      typename enable_if<enabled,std::shared_ptr<Node> >::type
+      typename std::enable_if<enabled,std::shared_ptr<Node> >::type
       unfilteredStorage()
       {
         return _node;

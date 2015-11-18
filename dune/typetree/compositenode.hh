@@ -224,7 +224,7 @@ namespace Dune {
       {}
 
       //! Initialize all children with the passed-in objects.
-      template<typename... Args, typename = typename enable_if<(sizeof...(Args) == CHILDREN)>::type>
+      template<typename... Args, typename = typename std::enable_if<(sizeof...(Args) == CHILDREN)>::type>
       CompositeNode(Args&&... args)
         : _children(convert_arg(std::forward<Args>(args))...)
       {}

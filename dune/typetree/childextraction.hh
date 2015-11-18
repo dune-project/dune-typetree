@@ -138,7 +138,7 @@ namespace Dune {
     // ********************************************************************************
 
     template<typename Node, typename TreePath>
-    typename enable_if<
+    typename std::enable_if<
       (TypeTree::TreePathSize<TreePath>::value > 1),
       typename extract_child_type<Node,TreePath>::type&
       >::type
@@ -149,7 +149,7 @@ namespace Dune {
     }
 
     template<typename Node, typename TreePath>
-    typename enable_if<
+    typename std::enable_if<
       TypeTree::TreePathSize<TreePath>::value == 1,
       typename Node::template Child<TypeTree::TreePathFront<TreePath>::value>::Type&
       >::type
@@ -159,7 +159,7 @@ namespace Dune {
     }
 
     template<typename Node, typename TreePath>
-    typename enable_if<
+    typename std::enable_if<
       TypeTree::TreePathSize<TreePath>::value == 0,
       Node&
       >::type
@@ -173,7 +173,7 @@ namespace Dune {
     // ********************************************************************************
 
     template<typename Node, typename TreePath>
-    typename enable_if<
+    typename std::enable_if<
       (TypeTree::TreePathSize<TreePath>::value > 1),
       const typename extract_child_type<Node,TreePath>::type&
       >::type
@@ -184,7 +184,7 @@ namespace Dune {
     }
 
     template<typename Node, typename TreePath>
-    typename enable_if<
+    typename std::enable_if<
       TypeTree::TreePathSize<TreePath>::value == 1,
       const typename Node::template Child<TypeTree::TreePathFront<TreePath>::value>::Type&
       >::type
@@ -194,7 +194,7 @@ namespace Dune {
     }
 
     template<typename Node, typename TreePath>
-    typename enable_if<
+    typename std::enable_if<
       TypeTree::TreePathSize<TreePath>::value == 0,
       const Node&
       >::type
@@ -275,7 +275,7 @@ namespace Dune {
     // ********************************************************************************
 
     template<typename Node, typename TreePath>
-    typename enable_if<
+    typename std::enable_if<
       (TypeTree::TreePathSize<TreePath>::value > 1),
       typename extract_child_type<Node,TreePath>::storage_type
       >::type
@@ -286,7 +286,7 @@ namespace Dune {
     }
 
     template<typename Node, typename TreePath>
-    typename enable_if<
+    typename std::enable_if<
       TypeTree::TreePathSize<TreePath>::value == 1,
       typename Node::template Child<TypeTree::TreePathFront<TreePath>::value>::Storage&
       >::type
@@ -296,7 +296,7 @@ namespace Dune {
     }
 
     template<typename Node, typename TreePath>
-    typename enable_if<
+    typename std::enable_if<
       TypeTree::TreePathSize<TreePath>::value == 0
       >::type
     extract_child_storage(Node& node, TreePath tp)
@@ -310,7 +310,7 @@ namespace Dune {
     // ********************************************************************************
 
     template<typename Node, typename TreePath>
-    typename enable_if<
+    typename std::enable_if<
       (TypeTree::TreePathSize<TreePath>::value > 1),
       typename extract_child_type<Node,TreePath>::const_storage_type
       >::type
@@ -321,7 +321,7 @@ namespace Dune {
     }
 
     template<typename Node, typename TreePath>
-    typename enable_if<
+    typename std::enable_if<
       TypeTree::TreePathSize<TreePath>::value == 1,
       typename Node::template Child<TypeTree::TreePathFront<TreePath>::value>::ConstStorage
       >::type
@@ -331,7 +331,7 @@ namespace Dune {
     }
 
     template<typename Node, typename TreePath>
-    typename enable_if<
+    typename std::enable_if<
       TypeTree::TreePathSize<TreePath>::value == 0
       >::type
     extract_child_storage(const Node& node, TreePath tp)
@@ -370,8 +370,8 @@ namespace Dune {
       // level succeeds; otherwise, we would swamp the user with error messages as the algorithm
       // walks down the remaining indices
       //
-      // This struct gets created inside an enable_if, but the nested alias template that triggers
-      // the recursion is only instantiated if the enable_if was successful.
+      // This struct gets created inside an std::enable_if, but the nested alias template that triggers
+      // the recursion is only instantiated if the std::enable_if was successful.
       template<typename Node>
       struct _lazy_static_decltype
       {
@@ -384,7 +384,7 @@ namespace Dune {
 
       // The actual implementation is rather simple, we just use an overload that requires the first index
       // to be an index_constant, get the child and then recurse.
-      // It only gets ugly due to the enable_if, but without that trick, the error messages for the user
+      // It only gets ugly due to the std::enable_if, but without that trick, the error messages for the user
       // can get *very* obscure (they are bad enough as it is, concepts where are you?).
       template<typename Node, std::size_t i, typename... J>
       auto child(Node&& node, index_constant<i>, J... j) ->
