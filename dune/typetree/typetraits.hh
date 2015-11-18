@@ -164,7 +164,7 @@ namespace Dune {
     template<typename F>
     struct evaluate_if_meta_function
     {
-      typedef typename conditional<
+      typedef typename std::conditional<
         is_base_of<meta_function,F>::value,
         lazy_evaluate<F>,
         lazy_identity<F>
