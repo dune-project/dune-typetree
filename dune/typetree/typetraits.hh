@@ -14,9 +14,6 @@ namespace Dune {
   // Provide some more C++11 TMP helpers.
   // These should be upstreamed to dune-common ASAP.
 
-  // Tests whether the first template argument is a base class of the second one.
-  using std::is_base_of;
-
   template<typename... T>
   struct first_type;
 
@@ -54,7 +51,7 @@ namespace Dune {
       struct no  { char dummy[1]; };
 
       template<typename X>
-      static maybe<is_base_of<V, typename X::NodeTag>::value>
+      static maybe<std::is_base_of<V, typename X::NodeTag>::value>
       test(typename X::NodeTag * a);
       template<typename X>
       static no test(...);
@@ -91,7 +88,7 @@ namespace Dune {
       struct no  { char dummy[1]; };
 
       template<typename X>
-      static maybe<is_base_of<V, typename X::ImplementationTag>::value>
+      static maybe<std::is_base_of<V, typename X::ImplementationTag>::value>
       test(typename X::ImplementationTag * a);
       template<typename X>
       static no test(...);
@@ -165,7 +162,7 @@ namespace Dune {
     struct evaluate_if_meta_function
     {
       typedef typename std::conditional<
-        is_base_of<meta_function,F>::value,
+        std::is_base_of<meta_function,F>::value,
         lazy_evaluate<F>,
         lazy_identity<F>
         >::type::type type;
