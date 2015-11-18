@@ -6,6 +6,7 @@
 
 #include <memory>
 #include <tuple>
+#include <type_traits>
 
 #include <dune/typetree/nodetags.hh>
 #include <dune/typetree/filters.hh>
@@ -82,7 +83,7 @@ namespace Dune {
       typedef typename filter::template apply<Node,typename Node::ChildTypes>::type filter_result;
       typedef typename filter_result::template apply<Node> mapped_children;
 
-      static const bool nodeIsConst = IsConst<typename remove_reference<Node>::type>::value;
+      static const bool nodeIsConst = std::is_const<typename std::remove_reference<Node>::type>::value;
 
       template<std::size_t k>
       struct lazy_enable

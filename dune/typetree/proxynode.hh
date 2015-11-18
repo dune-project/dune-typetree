@@ -4,6 +4,7 @@
 #ifndef DUNE_TYPETREE_PROXYNODE_HH
 #define DUNE_TYPETREE_PROXYNODE_HH
 
+#include <type_traits>
 #include <dune/typetree/nodetags.hh>
 #include <dune/common/shared_ptr.hh>
 
@@ -23,7 +24,7 @@ namespace Dune {
     class StaticChildAccessors
     {
 
-      static const bool proxiedNodeIsConst = IsConst<typename remove_reference<ProxiedNode>::type>::value;
+      static const bool proxiedNodeIsConst = std::is_const<typename std::remove_reference<ProxiedNode>::type>::value;
 
       template<std::size_t k>
       struct lazy_enabled
@@ -135,7 +136,7 @@ namespace Dune {
 
       typedef ProxyNode<ProxiedNode> Node;
 
-      static const bool proxiedNodeIsConst = IsConst<typename remove_reference<ProxiedNode>::type>::value;
+      static const bool proxiedNodeIsConst = std::is_const<typename std::remove_reference<ProxiedNode>::type>::value;
 
       template<bool enabled = !proxiedNodeIsConst>
       typename enable_if<enabled,Node&>::type
@@ -254,7 +255,7 @@ namespace Dune {
       : public ProxyNodeBase<Node,typename Node::NodeTag>
     {
 
-      static const bool proxiedNodeIsConst = IsConst<typename remove_reference<Node>::type>::value;
+      static const bool proxiedNodeIsConst = std::is_const<typename std::remove_reference<Node>::type>::value;
 
       // accessor mixins need to be friends for access to proxiedNode()
       friend class StaticChildAccessors<Node>;
