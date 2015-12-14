@@ -4,6 +4,7 @@
 #ifndef DUNE_TYPETREE_CHILDEXTRACTION_HH
 #define DUNE_TYPETREE_CHILDEXTRACTION_HH
 
+#include <dune/common/concept.hh>
 #include <dune/common/documentation.hh>
 #include <dune/common/typetraits.hh>
 #include <dune/common/shared_ptr.hh>
@@ -357,13 +358,12 @@ namespace Dune {
       // next index is a compile-time constant
       // ********************************************************************************
 
-      // we need a little helper trait to make sure that the node has a templated child()
+      // we need a concept to make sure that the node has a templated child()
       // method
-      template<typename Node, typename _ = decltype(std::declval<Node>().template child<0>())>
-      static constexpr auto _has_template_child_method(Node*) -> std::true_type;
-
-      template<typename Node>
-      static constexpr auto _has_template_child_method(void*) -> std::false_type;
+      struct HasTemplateChildMethod {
+        template <class Node>
+        auto require(const Node& node) -> decltype(node.template child<0>());
+      };
 
       // This struct lazily evaluates the return type by recursively calling child. This has
       // to happen lazily because we only want to do it if the child access at the current
@@ -385,11 +385,11 @@ namespace Dune {
       // The actual implementation is rather simple, we just use an overload that requires the first index
       // to be an index_constant, get the child and then recurse.
       // It only gets ugly due to the enable_if, but without that trick, the error messages for the user
-      // can get *very* obscure (they are bad enough as it is, concepts where are you?).
+      // can get *very* obscure (they are bad enough as it is).
       template<typename Node, std::size_t i, typename... J>
       auto child(Node&& node, index_constant<i>, J... j) ->
         typename std::enable_if<
-          decltype(_has_template_child_method(std::declval<typename std::remove_reference<Node>::type*>()))::value &&
+          Dune::models<HasTemplateChildMethod, Node>() &&
           (i < std::decay<Node>::type::CHILDREN),
           _lazy_static_decltype<
             typename std::remove_reference<Node>::type
