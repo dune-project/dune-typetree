@@ -399,6 +399,21 @@ namespace Dune {
         return child(std::forward<Node>(node).template child<i>(),j...);
       }
 
+      // This overload is only present to give usefull compiler
+      // error messages via static_assert in case the other overloads
+      // fail.
+      template<typename Node, std::size_t i, typename... J>
+      auto child(Node&& node, index_constant<i>, J... j) ->
+        typename std::enable_if<
+          (!Dune::models<HasTemplateChildMethod, Node>()) ||
+          (i >= std::decay<Node>::type::CHILDREN),
+        void
+        >::type
+      {
+        static_assert(Dune::models<HasTemplateChildMethod, Node>(), "Node does not have a template method child()");
+        static_assert(i < std::decay<Node>::type::CHILDREN, "Child index out of range");
+      }
+
       // ********************************************************************************
       // next index is a run-time value
       // ********************************************************************************
