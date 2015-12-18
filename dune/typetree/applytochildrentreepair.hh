@@ -49,7 +49,7 @@ namespace Dune {
                                   ChildTreePath>::value;
           v.beforeChild(std::forward<N1>(n1),n1.template child<count-inverse_k>(),
                         std::forward<N2>(n2),n2.template child<count-inverse_k>(),
-                        tp,integral_constant<std::size_t,count-inverse_k>());
+                        tp,std::integral_constant<std::size_t,count-inverse_k>());
           ApplyToTreePair<std::remove_reference<V>::type::treePathType,
                           typename C1::NodeTag,
                           typename C2::NodeTag,
@@ -59,7 +59,7 @@ namespace Dune {
                                         ChildTreePath());
           v.afterChild(std::forward<N1>(n1),n1.template child<count-inverse_k>(),
                        std::forward<N2>(n2),n2.template child<count-inverse_k>(),
-                       tp,integral_constant<std::size_t,count-inverse_k>());
+                       tp,std::integral_constant<std::size_t,count-inverse_k>());
           v.in(std::forward<N1>(n1),std::forward<N2>(n2),tp);
           apply_to_children_pair_fully_static<inverse_k-1,count>::apply(std::forward<N1>(n1),
                                                                         std::forward<N2>(n2),
@@ -89,7 +89,7 @@ namespace Dune {
                                   ChildTreePath>::value;
           v.beforeChild(std::forward<N1>(n1),n1.template child<count-1>(),
                         std::forward<N2>(n2),n2.template child<count-1>(),
-                        tp,integral_constant<std::size_t,count-1>());
+                        tp,std::integral_constant<std::size_t,count-1>());
           ApplyToTreePair<std::remove_reference<V>::type::treePathType,
                           typename C1::NodeTag,
                           typename C2::NodeTag,
@@ -99,7 +99,7 @@ namespace Dune {
                                         ChildTreePath());
           v.afterChild(std::forward<N1>(n1),n1.template child<count-1>(),
                        std::forward<N2>(n2),n2.template child<count-1>(),
-                       tp,integral_constant<std::size_t,count-1>());
+                       tp,std::integral_constant<std::size_t,count-1>());
         }
 
       };

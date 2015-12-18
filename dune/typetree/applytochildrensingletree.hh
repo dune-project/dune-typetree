@@ -62,7 +62,7 @@ namespace Dune {
           const bool visit = Visitor::template VisitChild<Node,C,ChildTreePath>::value;
 
           // beforeChild() gets called regardless of the value of visit
-          v.beforeChild(std::forward<N>(n),n.template child<count-inverse_k>(),tp,integral_constant<std::size_t,count-inverse_k>());
+          v.beforeChild(std::forward<N>(n),n.template child<count-inverse_k>(),tp,std::integral_constant<std::size_t,count-inverse_k>());
 
           // traverse to child
           ApplyToTree<Visitor::treePathType,typename C::NodeTag,visit>::apply(n.template child<count-inverse_k>(),
@@ -70,7 +70,7 @@ namespace Dune {
                                                                               ChildTreePath());
 
           // afterChild() gets called regardless of the value of visit
-          v.afterChild(std::forward<N>(n),n.template child<count-inverse_k>(),tp,integral_constant<std::size_t,count-inverse_k>());
+          v.afterChild(std::forward<N>(n),n.template child<count-inverse_k>(),tp,std::integral_constant<std::size_t,count-inverse_k>());
 
           // we are not at the last child (that is specialized), so call infix visitor callback
           v.in(std::forward<N>(n),tp);
@@ -97,11 +97,11 @@ namespace Dune {
           typedef typename Node::template Child<count-1>::Type C;
           typedef typename TreePathPushBack<TreePath,count-1>::type ChildTreePath;
           const bool visit = Visitor::template VisitChild<Node,C,ChildTreePath>::value;
-          v.beforeChild(std::forward<N>(n),n.template child<count-1>(),tp,integral_constant<std::size_t,count-1>());
+          v.beforeChild(std::forward<N>(n),n.template child<count-1>(),tp,std::integral_constant<std::size_t,count-1>());
           ApplyToTree<Visitor::treePathType,typename C::NodeTag,visit>::apply(n.template child<count-1>(),
                                                                               std::forward<V>(v),
                                                                               ChildTreePath());
-          v.afterChild(std::forward<N>(n),n.template child<count-1>(),tp,integral_constant<std::size_t,count-1>());
+          v.afterChild(std::forward<N>(n),n.template child<count-1>(),tp,std::integral_constant<std::size_t,count-1>());
         }
 
       };
