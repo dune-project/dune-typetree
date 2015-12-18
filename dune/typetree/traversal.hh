@@ -38,7 +38,7 @@ namespace Dune {
       template<typename Node, typename Visitor>
       static void apply(Node&& node, Visitor&& visitor)
       {
-        ApplyToTree<tpType,typename remove_reference<Node>::type::NodeTag>::apply(std::forward<Node>(node),
+        ApplyToTree<tpType,typename std::remove_reference<Node>::type::NodeTag>::apply(std::forward<Node>(node),
                                                                                   std::forward<Visitor>(visitor),
                                                                                   TreePathFactory<tpType>::create(node).mutablePath());
       }
@@ -106,8 +106,8 @@ namespace Dune {
         v.pre(std::forward<N>(n),tp.view());
 
         // strip types of possible references
-        typedef typename remove_reference<N>::type Node;
-        typedef typename remove_reference<V>::type Visitor;
+        typedef typename std::remove_reference<N>::type Node;
+        typedef typename std::remove_reference<V>::type Visitor;
 
         // get child type
         typedef typename Node::template Child<0>::Type C;

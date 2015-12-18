@@ -32,7 +32,7 @@ namespace Dune {
       template<typename T, typename It, typename Arg, typename... Args>
       void assign_reference_pack_to_shared_ptr_array_unpack(It it, Arg&& arg, Args&&... args)
       {
-        static_assert(is_same<T,typename remove_const<typename remove_reference<Arg>::type>::type>::value,"type mismatch during array conversion");
+        static_assert(is_same<T,typename std::remove_const<typename std::remove_reference<Arg>::type>::type>::value,"type mismatch during array conversion");
         *it = convert_arg(std::forward<Arg>(arg));
         assign_reference_pack_to_shared_ptr_array_unpack<T>(++it,std::forward<Args>(args)...);
       }

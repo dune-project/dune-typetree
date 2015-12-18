@@ -38,13 +38,13 @@ namespace Dune {
         template<typename N1, typename N2, typename V, typename TreePath>
         static void apply(N1&& n1, N2&& n2, V&& v, TreePath tp)
         {
-          typedef typename remove_reference<N1>::type::template Child<count-inverse_k>::Type C1;
-          typedef typename remove_reference<N2>::type::template Child<count-inverse_k>::Type C2;
+          typedef typename std::remove_reference<N1>::type::template Child<count-inverse_k>::Type C1;
+          typedef typename std::remove_reference<N2>::type::template Child<count-inverse_k>::Type C2;
           typedef typename TreePathPushBack<TreePath,count-inverse_k>::type ChildTreePath;
           const bool visit = std::remove_reference<V>::type
-            ::template VisitChild<typename remove_reference<N1>::type,
+            ::template VisitChild<typename std::remove_reference<N1>::type,
                                   C1,
-                                  typename remove_reference<N2>::type,
+                                  typename std::remove_reference<N2>::type,
                                   C2,
                                   ChildTreePath>::value;
           v.beforeChild(std::forward<N1>(n1),n1.template child<count-inverse_k>(),
@@ -78,13 +78,13 @@ namespace Dune {
         template<typename N1, typename N2, typename V, typename TreePath>
         static void apply(N1&& n1, N2&& n2, V&& v, TreePath tp)
         {
-          typedef typename remove_reference<N1>::type::template Child<count-1>::Type C1;
-          typedef typename remove_reference<N2>::type::template Child<count-1>::Type C2;
+          typedef typename std::remove_reference<N1>::type::template Child<count-1>::Type C1;
+          typedef typename std::remove_reference<N2>::type::template Child<count-1>::Type C2;
           typedef typename TreePathPushBack<TreePath,count-1>::type ChildTreePath;
           const bool visit = std::remove_reference<V>::type
-            ::template VisitChild<typename remove_reference<N1>::type,
+            ::template VisitChild<typename std::remove_reference<N1>::type,
                                   C1,
-                                  typename remove_reference<N2>::type,
+                                  typename std::remove_reference<N2>::type,
                                   C2,
                                   ChildTreePath>::value;
           v.beforeChild(std::forward<N1>(n1),n1.template child<count-1>(),
@@ -126,12 +126,12 @@ namespace Dune {
         template<typename N1, typename N2, typename V, typename TreePath>
         static void apply(N1&& n1, N2&& n2, V&& v, TreePath tp)
         {
-          typedef typename remove_reference<N1>::type::template Child<count-inverse_k>::Type C1;
-          typedef typename remove_reference<N2>::type::template Child<count-inverse_k>::Type C2;
+          typedef typename std::remove_reference<N1>::type::template Child<count-inverse_k>::Type C1;
+          typedef typename std::remove_reference<N2>::type::template Child<count-inverse_k>::Type C2;
           const bool visit = std::remove_reference<V>::type
-            ::template VisitChild<typename remove_reference<N1>::type,
+            ::template VisitChild<typename std::remove_reference<N1>::type,
                                   C1,
-                                  typename remove_reference<N2>::type,
+                                  typename std::remove_reference<N2>::type,
                                   C2,
                                   typename TreePath::ViewType>::value;
           v.beforeChild(std::forward<N1>(n1),n1.template child<count-inverse_k>(),
@@ -167,12 +167,12 @@ namespace Dune {
         template<typename N1, typename N2, typename V, typename TreePath>
         static void apply(N1&& n1, N2&& n2, V&& v, TreePath tp)
         {
-          typedef typename remove_reference<N1>::type::template Child<count-1>::Type C1;
-          typedef typename remove_reference<N2>::type::template Child<count-1>::Type C2;
+          typedef typename std::remove_reference<N1>::type::template Child<count-1>::Type C1;
+          typedef typename std::remove_reference<N2>::type::template Child<count-1>::Type C2;
           const bool visit = std::remove_reference<V>::type
-            ::template VisitChild<typename remove_reference<N1>::type,
+            ::template VisitChild<typename std::remove_reference<N1>::type,
                                   C1,
-                                  typename remove_reference<N2>::type,
+                                  typename std::remove_reference<N2>::type,
                                   C2,
                                   typename TreePath::ViewType>::value;
           v.beforeChild(std::forward<N1>(n1),n1.template child<count-1>(),
@@ -230,7 +230,7 @@ namespace Dune {
 
       // one node is a leaf -> treat node pair as a leaf
       template<typename N1, typename N2, typename V, typename TreePath>
-      static typename std::enable_if<(remove_reference<N1>::type::isLeaf || remove_reference<N2>::type::isLeaf)>::type
+      static typename std::enable_if<(std::remove_reference<N1>::type::isLeaf || std::remove_reference<N2>::type::isLeaf)>::type
       apply(N1&& n1, N2&& n2, V&& v, TreePath tp)
       {
         v.leaf(std::forward<N1>(n1),std::forward<N2>(n2),tp.view());
@@ -238,12 +238,12 @@ namespace Dune {
 
       // both nodes contain children -> iterate over them
       template<typename N1, typename N2, typename V, typename TreePath>
-      static typename std::enable_if<!(remove_reference<N1>::type::isLeaf || remove_reference<N2>::type::isLeaf)>::type
+      static typename std::enable_if<!(std::remove_reference<N1>::type::isLeaf || std::remove_reference<N2>::type::isLeaf)>::type
       apply(N1&& n1, N2&& n2, V&& v, TreePath tp)
       {
         v.pre(std::forward<N1>(n1),std::forward<N2>(n2),tp.view());
-        typedef typename remove_reference<N1>::type Node1;
-        typedef typename remove_reference<N2>::type Node2;
+        typedef typename std::remove_reference<N1>::type Node1;
+        typedef typename std::remove_reference<N2>::type Node2;
         // make sure both nodes have the same number of children - otherwise, it
         // would be difficult to match the children to each other.
         static_assert(Node1::CHILDREN == Node2::CHILDREN,

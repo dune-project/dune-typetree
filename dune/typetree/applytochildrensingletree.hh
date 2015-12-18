@@ -49,8 +49,8 @@ namespace Dune {
         static void apply(N&& n, V&& v, TreePath tp)
         {
           // make sure we do not try to work with references to the actual types
-          typedef typename remove_reference<N>::type Node;
-          typedef typename remove_reference<V>::type Visitor;
+          typedef typename std::remove_reference<N>::type Node;
+          typedef typename std::remove_reference<V>::type Visitor;
 
           // get child type
           typedef typename Node::template Child<count-inverse_k>::Type C;
@@ -92,8 +92,8 @@ namespace Dune {
         template<typename N, typename V, typename TreePath>
         static void apply(N&& n, V&& v, TreePath tp)
         {
-          typedef typename remove_reference<N>::type Node;
-          typedef typename remove_reference<V>::type Visitor;
+          typedef typename std::remove_reference<N>::type Node;
+          typedef typename std::remove_reference<V>::type Visitor;
           typedef typename Node::template Child<count-1>::Type C;
           typedef typename TreePathPushBack<TreePath,count-1>::type ChildTreePath;
           const bool visit = Visitor::template VisitChild<Node,C,ChildTreePath>::value;
@@ -130,8 +130,8 @@ namespace Dune {
         template<typename N, typename V, typename TreePath>
         static void apply(N&& n, V&& v, TreePath tp)
         {
-          typedef typename remove_reference<N>::type Node;
-          typedef typename remove_reference<V>::type Visitor;
+          typedef typename std::remove_reference<N>::type Node;
+          typedef typename std::remove_reference<V>::type Visitor;
           typedef typename Node::template Child<count-inverse_k>::Type C;
           const bool visit = Visitor::template VisitChild<Node,C,typename TreePath::ViewType>::value;
           v.beforeChild(std::forward<N>(n),n.template child<count-inverse_k>(),tp.view(),count-inverse_k);
@@ -158,8 +158,8 @@ namespace Dune {
         template<typename N, typename V, typename TreePath>
         static void apply(N&& n, V&& v, TreePath tp)
         {
-          typedef typename remove_reference<N>::type Node;
-          typedef typename remove_reference<V>::type Visitor;
+          typedef typename std::remove_reference<N>::type Node;
+          typedef typename std::remove_reference<V>::type Visitor;
           typedef typename Node::template Child<count-1>::Type C;
           const bool visit = Visitor::template VisitChild<Node,C,typename TreePath::ViewType>::value;
           v.beforeChild(std::forward<N>(n),n.template child<count-1>(),tp.view(),count-1);
@@ -217,8 +217,8 @@ namespace Dune {
       static void apply(N&& n, V&& v, TreePath tp)
       {
         v.pre(std::forward<N>(n),tp);
-        typedef typename remove_reference<N>::type Node;
-        typedef typename remove_reference<V>::type Visitor;
+        typedef typename std::remove_reference<N>::type Node;
+        typedef typename std::remove_reference<V>::type Visitor;
         apply_to_children<Visitor::treePathType,Node::CHILDREN>::apply(std::forward<N>(n),
                                                                        std::forward<V>(v),
                                                                        tp);
