@@ -156,6 +156,34 @@ int main(int argc, char** argv)
                  0>::result == TI::depth),
                 "Error in AccumulateValue");
 
+  // Test valid and invalid child access. Invalid access should be caught at compile time
+  auto const _0 = Dune::TypeTree::index_constant<0>();
+  auto const _1 = Dune::TypeTree::index_constant<1>();
+  auto const _2 = Dune::TypeTree::index_constant<2>();
+  auto const _3 = Dune::TypeTree::index_constant<3>();
+
+  // 1: valid access
+  auto x1 = child(sp1_1, _0);
+#ifdef FAILURE2
+  // 2: invalid access (too few children)
+  auto x2 = child(sp1_1, _3);
+#endif
+#ifdef FAILURE3
+  // 3: invalid access (child has no children)
+  auto x3 = child(sp1_1, _0, _0);
+#endif
+
+  // 4: valid access
+  auto x4 = child(sc1_1, _1, _2);
+#ifdef FAILURE5
+  // 5: invalid access (too few children)
+  auto x5 = child(sc1_1, _3);
+#endif
+#ifdef FAILURE6
+  // 6: invalid access (child has no children)
+  auto x6 = child(sc1_1, _0, _0);
+#endif
+
   return 0;
 }
 

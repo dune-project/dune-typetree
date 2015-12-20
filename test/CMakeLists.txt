@@ -6,6 +6,13 @@ exclude_from_headercheck(
 dune_add_test(SOURCES testtypetree.cc
               COMPILE_DEFINITIONS TEST_TYPETREE)
 
+foreach(TEST_FAILURE 2 3 5 6)
+  dune_add_test(NAME testtypetree_fail${TEST_FAILURE}
+                SOURCES testtypetree.cc
+                COMPILE_DEFINITIONS TEST_TYPETREE;FAILURE${TEST_FAILURE}
+                EXPECT_COMPILE_FAIL)
+endforeach()
+
 dune_add_test(SOURCES testtypetreetransformation.cc
               COMPILE_DEFINITIONS TEST_TYPETREE)
 
