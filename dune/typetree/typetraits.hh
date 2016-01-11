@@ -105,22 +105,6 @@ namespace Dune {
       typedef void type;
     };
 
-#ifndef DOXYGEN
-
-// Make sure we have decltype or a compatible fall back
-
-#if HAVE_STD_DECLTYPE
-#define DUNE_DECLTYPE decltype
-#elif HAVE_GCC___TYPEOF__
-#define DUNE_DECLTYPE __typeof__
-#else
-#error The TypeTree library requires support for
-#error C++11 decltype or a compatible fallback in your compiler.
-#error Neither of those was found, aborting!!!!
-#endif
-
-#endif // DOXYGEN
-
 
     //! Helper function for generating a pointer to a value of type T in an unevaluated operand setting.
     template<typename T>

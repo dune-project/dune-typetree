@@ -64,7 +64,7 @@ namespace Dune {
     struct LookupNodeTransformation
     {
 
-      typedef DUNE_DECLTYPE(registerNodeTransformation(declptr<S>(),declptr<T>(),declptr<Tag>())) lookup_type;
+      typedef decltype(registerNodeTransformation(declptr<S>(),declptr<T>(),declptr<Tag>())) lookup_type;
 
       typedef typename evaluate_if_meta_function<
         lookup_type
