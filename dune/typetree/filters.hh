@@ -194,10 +194,10 @@ namespace Dune {
 
         template<typename... FilterDescriptors>
         struct apply
-          : public Dune::conditional<Filter::template apply<child,new_k,old_k>::value,
-                                     typename filter_helper<Filter,new_k+1,old_k+1,tail...>::template apply<FilterDescriptors...,FilterEntry<new_k,old_k> >,
-                                     typename filter_helper<Filter,new_k,old_k+1,tail...>::template apply<FilterDescriptors...>
-                                    >::type
+          : public std::conditional<Filter::template apply<child,new_k,old_k>::value,
+                                    typename filter_helper<Filter,new_k+1,old_k+1,tail...>::template apply<FilterDescriptors...,FilterEntry<new_k,old_k> >,
+                                    typename filter_helper<Filter,new_k,old_k+1,tail...>::template apply<FilterDescriptors...>
+                                   >::type
         {};
 
       };

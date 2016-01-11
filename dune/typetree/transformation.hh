@@ -70,7 +70,7 @@ namespace Dune {
         lookup_type
         >::type type;
 
-      static_assert((!is_same<type,void>::value), "Unable to find valid transformation descriptor");
+      static_assert((!std::is_same<type,void>::value), "Unable to find valid transformation descriptor");
     };
 
 #endif // DOXYGEN

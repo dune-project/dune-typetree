@@ -27,8 +27,8 @@ namespace Dune {
       static void apply(Node1&& node1, Node2&& node2, Visitor&& visitor)
       {
         ApplyToTreePair<tpType,
-                        typename remove_reference<Node1>::type::NodeTag,
-                        typename remove_reference<Node2>::type::NodeTag
+                        typename std::remove_reference<Node1>::type::NodeTag,
+                        typename std::remove_reference<Node2>::type::NodeTag
                         >::apply(std::forward<Node1>(node1),
                                  std::forward<Node2>(node2),
                                  std::forward<Visitor>(visitor),
@@ -116,8 +116,8 @@ namespace Dune {
       static void apply(N1&& n1, N2&& n2, V&& v, TreePath tp)
       {
         v.pre(std::forward<N1>(n1),std::forward<N2>(n2),tp.view());
-        typedef typename remove_reference<N1>::type Node1;
-        typedef typename remove_reference<N2>::type Node2;
+        typedef typename std::remove_reference<N1>::type Node1;
+        typedef typename std::remove_reference<N2>::type Node2;
         typedef typename Node1::template Child<0>::Type C1;
         typedef typename Node2::template Child<0>::Type C2;
         static_assert(Node1::CHILDREN == Node2::CHILDREN,

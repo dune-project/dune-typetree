@@ -32,7 +32,7 @@ namespace Dune {
       template<typename T, typename It, typename Arg, typename... Args>
       void assign_reference_pack_to_shared_ptr_array_unpack(It it, Arg&& arg, Args&&... args)
       {
-        static_assert(is_same<T,typename remove_const<typename remove_reference<Arg>::type>::type>::value,"type mismatch during array conversion");
+        static_assert(std::is_same<T,typename std::remove_const<typename std::remove_reference<Arg>::type>::type>::value,"type mismatch during array conversion");
         *it = convert_arg(std::forward<Arg>(arg));
         assign_reference_pack_to_shared_ptr_array_unpack<T>(++it,std::forward<Args>(args)...);
       }
@@ -52,7 +52,7 @@ namespace Dune {
       template<typename T, typename It, typename Arg, typename... Args>
       void assign_shared_ptr_pack_to_shared_ptr_array_unpack(It it, Arg&& arg, Args&&... args)
       {
-        static_assert(is_same<T,typename std::remove_reference<Arg>::type::element_type>::value,"type mismatch during array conversion");
+        static_assert(std::is_same<T,typename std::remove_reference<Arg>::type::element_type>::value,"type mismatch during array conversion");
         *it = arg;
         assign_shared_ptr_pack_to_shared_ptr_array_unpack<T>(++it,args...);
       }
@@ -73,7 +73,7 @@ namespace Dune {
     //! Helper struct to make constructor enabling mechanism in PowerNode more readable.
     template<typename PowerNode, typename T, std::size_t k>
     struct AssertPowerNodeChildCount
-      : public enable_if<is_same<
+      : public std::enable_if<std::is_same<
                            typename PowerNode::ChildType,
                            T>::value &&
     PowerNode::CHILDREN == k,

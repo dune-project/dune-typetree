@@ -351,7 +351,7 @@ namespace Dune {
         flattened_reduction
         >
       {
-        typedef typename Dune::conditional<
+        typedef typename std::conditional<
           TreePathBack<tree_path>::value == 0,
           start_type,
           current_type

@@ -4,6 +4,7 @@
 #ifndef DUNE_TYPETREE_PROXYNODE_HH
 #define DUNE_TYPETREE_PROXYNODE_HH
 
+#include <type_traits>
 #include <dune/typetree/nodetags.hh>
 #include <dune/common/shared_ptr.hh>
 
@@ -23,7 +24,7 @@ namespace Dune {
     class StaticChildAccessors
     {
 
-      static const bool proxiedNodeIsConst = IsConst<typename remove_reference<ProxiedNode>::type>::value;
+      static const bool proxiedNodeIsConst = std::is_const<typename std::remove_reference<ProxiedNode>::type>::value;
 
       template<std::size_t k>
       struct lazy_enabled
@@ -34,7 +35,7 @@ namespace Dune {
       typedef ProxyNode<ProxiedNode> Node;
 
       template<bool enabled = !proxiedNodeIsConst>
-      typename enable_if<enabled,Node&>::type
+      typename std::enable_if<enabled,Node&>::type
       node()
       {
         return static_cast<Node&>(*this);
@@ -61,7 +62,7 @@ namespace Dune {
        * \returns a reference to the i-th child.
        */
       template<std::size_t k>
-      typename enable_if<lazy_enabled<k>::value,typename Child<k>::Type&>::type
+      typename std::enable_if<lazy_enabled<k>::value,typename Child<k>::Type&>::type
       child()
       {
         return node().proxiedNode().template child<k>();
@@ -82,7 +83,7 @@ namespace Dune {
        * \returns a copy of the object storing the i-th child.
        */
       template<std::size_t k>
-      typename enable_if<lazy_enabled<k>::value,typename Child<k>::Storage>::type
+      typename std::enable_if<lazy_enabled<k>::value,typename Child<k>::Storage>::type
       childStorage()
       {
         return node().proxiedNode().template childStorage<k>();
@@ -103,14 +104,14 @@ namespace Dune {
 
       //! Sets the i-th child to the passed-in value.
       template<std::size_t k>
-      void setChild(typename Child<k>::type& child, typename enable_if<lazy_enabled<k>::value,void*>::type = 0)
+      void setChild(typename Child<k>::type& child, typename std::enable_if<lazy_enabled<k>::value,void*>::type = 0)
       {
         node().proxiedNode().template childStorage<k>() = stackobject_to_shared_ptr(child);
       }
 
       //! Sets the storage of the i-th child to the passed-in value.
       template<std::size_t k>
-      void setChild(typename Child<k>::storage_type child, typename enable_if<lazy_enabled<k>::value,void*>::type = 0)
+      void setChild(typename Child<k>::storage_type child, typename std::enable_if<lazy_enabled<k>::value,void*>::type = 0)
       {
         node().proxiedNode().template childStorage<k>() = child;
       }
@@ -135,10 +136,10 @@ namespace Dune {
 
       typedef ProxyNode<ProxiedNode> Node;
 
-      static const bool proxiedNodeIsConst = IsConst<typename remove_reference<ProxiedNode>::type>::value;
+      static const bool proxiedNodeIsConst = std::is_const<typename std::remove_reference<ProxiedNode>::type>::value;
 
       template<bool enabled = !proxiedNodeIsConst>
-      typename enable_if<enabled,Node&>::type
+      typename std::enable_if<enabled,Node&>::type
       node()
       {
         return static_cast<Node&>(*this);
@@ -159,7 +160,7 @@ namespace Dune {
        * \returns a reference to the i-th child.
        */
       template<bool enabled = !proxiedNodeIsConst>
-      typename enable_if<enabled,typename ProxiedNode::ChildType&>::type
+      typename std::enable_if<enabled,typename ProxiedNode::ChildType&>::type
       child (std::size_t i)
       {
         return node().proxiedNode().child(i);
@@ -179,7 +180,7 @@ namespace Dune {
        * \returns a copy of the object storing the i-th child.
        */
       template<bool enabled = !proxiedNodeIsConst>
-      typename enable_if<enabled,typename ProxiedNode::ChildStorageType>::type
+      typename std::enable_if<enabled,typename ProxiedNode::ChildStorageType>::type
       childStorage(std::size_t i)
       {
         return node().proxiedNode().childStorage(i);
@@ -199,14 +200,14 @@ namespace Dune {
 
       //! Sets the i-th child to the passed-in value.
       template<bool enabled = !proxiedNodeIsConst>
-      void setChild (std::size_t i, typename ProxiedNode::ChildType& t, typename enable_if<enabled,void*>::type = 0)
+      void setChild (std::size_t i, typename ProxiedNode::ChildType& t, typename std::enable_if<enabled,void*>::type = 0)
       {
         node().proxiedNode().childStorage(i) = stackobject_to_shared_ptr(t);
       }
 
       //! Sets the stored value representing the i-th child to the passed-in value.
       template<bool enabled = !proxiedNodeIsConst>
-      void setChild (std::size_t i, typename ProxiedNode::ChildStorageType st, typename enable_if<enabled,void*>::type = 0)
+      void setChild (std::size_t i, typename ProxiedNode::ChildStorageType st, typename std::enable_if<enabled,void*>::type = 0)
       {
         node().proxiedNode().childStorage(i) = st;
       }
@@ -254,7 +255,7 @@ namespace Dune {
       : public ProxyNodeBase<Node,typename Node::NodeTag>
     {
 
-      static const bool proxiedNodeIsConst = IsConst<typename remove_reference<Node>::type>::value;
+      static const bool proxiedNodeIsConst = std::is_const<typename std::remove_reference<Node>::type>::value;
 
       // accessor mixins need to be friends for access to proxiedNode()
       friend class StaticChildAccessors<Node>;
@@ -286,7 +287,7 @@ namespace Dune {
 
       //! Returns the proxied node.
       template<bool enabled = !proxiedNodeIsConst>
-      typename enable_if<enabled,Node&>::type
+      typename std::enable_if<enabled,Node&>::type
       proxiedNode()
       {
         return *_node;
@@ -300,7 +301,7 @@ namespace Dune {
 
       //! Returns the storage of the proxied node.
       template<bool enabled = !proxiedNodeIsConst>
-      typename enable_if<enabled,shared_ptr<Node> >::type
+      typename std::enable_if<enabled,shared_ptr<Node> >::type
       proxiedNodeStorage()
       {
         return _node;
