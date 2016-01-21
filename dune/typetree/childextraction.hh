@@ -4,6 +4,7 @@
 #ifndef DUNE_TYPETREE_CHILDEXTRACTION_HH
 #define DUNE_TYPETREE_CHILDEXTRACTION_HH
 
+#include <dune/common/concept.hh>
 #include <dune/common/documentation.hh>
 #include <dune/common/typetraits.hh>
 #include <dune/common/shared_ptr.hh>
@@ -357,46 +358,37 @@ namespace Dune {
       // next index is a compile-time constant
       // ********************************************************************************
 
-      // we need a little helper trait to make sure that the node has a templated child()
+      // we need a concept to make sure that the node has a templated child()
       // method
-      template<typename Node, typename _ = decltype(std::declval<Node>().template child<0>())>
-      static constexpr auto _has_template_child_method(Node*) -> std::true_type;
-
-      template<typename Node>
-      static constexpr auto _has_template_child_method(void*) -> std::false_type;
-
-      // This struct lazily evaluates the return type by recursively calling child. This has
-      // to happen lazily because we only want to do it if the child access at the current
-      // level succeeds; otherwise, we would swamp the user with error messages as the algorithm
-      // walks down the remaining indices
-      //
-      // This struct gets created inside an std::enable_if, but the nested alias template that triggers
-      // the recursion is only instantiated if the std::enable_if was successful.
-      template<typename Node>
-      struct _lazy_static_decltype
-      {
-        template<typename I, typename... J>
-        struct evaluate
-        {
-          using type = decltype(child(std::declval<Node>().template child<I::value>(),std::declval<J>()...));
-        };
+      struct HasTemplateChildMethod {
+        template <class Node>
+        auto require(const Node& node) -> decltype(node.template child<0>());
       };
 
       // The actual implementation is rather simple, we just use an overload that requires the first index
       // to be an index_constant, get the child and then recurse.
-      // It only gets ugly due to the std::enable_if, but without that trick, the error messages for the user
-      // can get *very* obscure (they are bad enough as it is, concepts where are you?).
-      template<typename Node, std::size_t i, typename... J>
-      auto child(Node&& node, index_constant<i>, J... j) ->
+      // It only gets ugly due to the enable_if, but without that trick, the error messages for the user
+      // can get *very* obscure (they are bad enough as it is).
+      template<typename Node, std::size_t i, typename... J,
         typename std::enable_if<
-          decltype(_has_template_child_method(std::declval<typename std::remove_reference<Node>::type*>()))::value &&
-          (i < std::decay<Node>::type::CHILDREN),
-          _lazy_static_decltype<
-            typename std::remove_reference<Node>::type
-            >
-        >::type::template evaluate<index_constant<i>,J...>::type
+          Dune::models<HasTemplateChildMethod, Node>() &&
+          (i < std::decay<Node>::type::CHILDREN), int>::type = 0>
+      decltype(auto) child(Node&& node, index_constant<i>, J... j)
       {
         return child(std::forward<Node>(node).template child<i>(),j...);
+      }
+
+      // This overload is only present to give usefull compiler
+      // error messages via static_assert in case the other overloads
+      // fail.
+      template<typename Node, std::size_t i, typename... J,
+        typename std::enable_if<
+          (!Dune::models<HasTemplateChildMethod, Node>()) ||
+          (i >= std::decay<Node>::type::CHILDREN), int>::type = 0>
+      void child(Node&& node, index_constant<i>, J... j)
+      {
+        static_assert(Dune::models<HasTemplateChildMethod, Node>(), "Node does not have a template method child()");
+        static_assert(i < std::decay<Node>::type::CHILDREN, "Child index out of range");
       }
 
       // ********************************************************************************
@@ -404,7 +396,13 @@ namespace Dune {
       // ********************************************************************************
 
 
-      // again, a lazy struct for the recursion to further child nodes (see above for further explanation)
+      // This struct lazily evaluates the return type by recursively calling child. This has
+      // to happen lazily because we only want to do it if the child access at the current
+      // level succeeds; otherwise, we would swamp the user with error messages as the algorithm
+      // walks down the remaining indices
+      //
+      // This struct gets created inside an enable_if, but the nested alias template that triggers
+      // the recursion is only instantiated if the enable_if was successful.
       template<typename Node>
       struct _lazy_dynamic_decltype
       {
