@@ -360,10 +360,10 @@ namespace Dune {
       // we need a little helper trait to make sure that the node has a templated child()
       // method
       template<typename Node, typename _ = decltype(std::declval<Node>().template child<0>())>
-      static constexpr auto _has_template_child_method(Node*) -> std::true_type;
+      static auto _has_template_child_method(Node*) -> std::true_type;
 
       template<typename Node>
-      static constexpr auto _has_template_child_method(void*) -> std::false_type;
+      static auto _has_template_child_method(void*) -> std::false_type;
 
       // This struct lazily evaluates the return type by recursively calling child. This has
       // to happen lazily because we only want to do it if the child access at the current
