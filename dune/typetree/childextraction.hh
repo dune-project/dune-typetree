@@ -378,7 +378,7 @@ namespace Dune {
         return child(std::forward<Node>(node).template child<i>(),j...);
       }
 
-      // This overload is only present to give usefull compiler
+      // This overload is only present to give useful compiler
       // error messages via static_assert in case the other overloads
       // fail.
       template<typename Node, std::size_t i, typename... J,
