@@ -1,10 +1,10 @@
 TypeTree
 ========
 
-This is the 2.4.0-rc1 version of the TypeTree library for statically typed object trees.
+This is the 2.4.1 version of the TypeTree library for statically typed object trees.
 
-TypeTree 2.4.0-rc1 is compatible with the 2.4.0 release of the DUNE core modules and
-the 2.4.0 release of PDELab.
+TypeTree 2.4.1 is compatible with the 2.4.1 release of the DUNE core modules and
+the 2.4.1 release of PDELab.
 
 Changes
 =======
@@ -44,8 +44,14 @@ TypeTree 2.4
 
 - Release history
 
-  - TypeTree 2.4.0
+  - TypeTree 2.4.1
+    - No further changes
+
+  - TypeTree 2.4.1-rc1
     - Fix rendering of links in README
+    - Fix some warnings
+    - Clean up LICENSE.md and update list of authors
+    - Remove some fallback code
 
   - TypeTree 2.4.0-rc1
     - Initial release candidate
