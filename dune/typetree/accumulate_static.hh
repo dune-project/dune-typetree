@@ -97,7 +97,7 @@ namespace Dune {
 
     namespace {
 
-      // implementation of the traversal algoritm
+      // implementation of the traversal algorithm
 
       //! helper struct to decide whether or not to perform the per-node calculation on the current node. Default case: ignore the node.
       template<typename Node, typename Functor, typename Reduction, typename Functor::result_type current_value, typename TreePath, bool doVisit>
@@ -275,7 +275,7 @@ namespace Dune {
 
     namespace {
 
-      // implementation of the traversal algoritm
+      // implementation of the traversal algorithm
 
       //! helper struct to decide whether or not to perform the per-node calculation on the current node. Default case: ignore the node.
       //! The helper cannot use the Policy parameter, as we want to invoke it with different reductions.

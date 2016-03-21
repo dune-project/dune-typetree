@@ -214,7 +214,7 @@ namespace Dune {
 
     };
 
-    //! Tag-based dispatch to appropiate base class that provides necessary functionality.
+    //! Tag-based dispatch to appropriate base class that provides necessary functionality.
     template<typename Node, typename NodeTag>
     struct ProxyNodeBase;
 
