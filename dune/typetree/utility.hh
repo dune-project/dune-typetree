@@ -7,9 +7,9 @@
 #include <memory>
 #include <tuple>
 #include <type_traits>
+#include <utility>
 
 #include <dune/common/shared_ptr.hh>
-#include <dune/common/std/utility.hh>
 #include <dune/common/indices.hh>
 #include <dune/typetree/nodetags.hh>
 
@@ -253,53 +253,6 @@ namespace Dune {
       return typename index_pack_builder<n>::type();
     }
 
-    namespace Std {
-
-      //! Backport of C++14 std::integer_sequence.
-      /**
-       * This is just imported from Dune::Std because the version in Dune::Std
-       * does not implement the other parts of integer sequences correctly due
-       * to a lack of template aliases.
-       */
-      using Dune::Std::integer_sequence;
-
-      //! A sequence of indices, with each entry a std::size_t.
-      template<std::size_t... indices>
-      using index_sequence = integer_sequence<std::size_t,indices...>;
-
-      //! Create an integer_sequence [0,n-1] with entries of type T.
-      template<typename T, T n>
-      using make_integer_sequence = decltype(Dune::Std::make_integer_sequence<T,n>());
-
-      //! Create an index_sequence [0,n-1].
-      template<std::size_t n>
-      using make_index_sequence = make_integer_sequence<std::size_t,n>;
-
-#ifndef DOXYGEN
-
-      namespace impl {
-
-        // This is a workaround for clang bug 14858 (https://llvm.org/bugs/show_bug.cgi?id=14858)
-        // in a template alias declaration, clang always deduces sizeof...(T) as 1, if the template
-        // alias is evaluated with an unpacked template parameter pack (instead of one that is explicitly
-        // constructed as a list of types at the call site. This is slightly braindead (and has been around
-        // since at least clang 3.0).
-        // As a workaround, we lift the computation into a struct definition.
-        template<typename... T>
-        struct _get_pack_length
-          : public std::integral_constant<std::size_t,sizeof...(T)>
-        {};
-
-      }
-
-#endif
-
-      //! Create an index_sequence for the pack T..., i.e. [0,sizeof...(T)].
-      template<typename... T>
-      using index_sequence_for = make_index_sequence<impl::_get_pack_length<T...>{}>;
-
-    }
-
     using Dune::index_constant;
     namespace Indices = Dune::Indices;
 
@@ -329,14 +282,14 @@ namespace Dune {
 
       // version that does not pass index
       template<typename T, typename F, std::size_t... i>
-      void _apply_to_tuple(T&& t, F&& f, Std::index_sequence<i...>,apply_to_tuple_policy::no_pass_index)
+      void _apply_to_tuple(T&& t, F&& f, std::index_sequence<i...>,apply_to_tuple_policy::no_pass_index)
       {
         discard((f(std::get<i>(std::forward<T>(t))),0)...);
       }
 
       // version that passes index
       template<typename T, typename F, std::size_t... i>
-      void _apply_to_tuple(T&& t, F&& f, Std::index_sequence<i...>,apply_to_tuple_policy::pass_index)
+      void _apply_to_tuple(T&& t, F&& f, std::index_sequence<i...>,apply_to_tuple_policy::pass_index)
       {
         discard((f(index_constant<i>{},std::get<i>(std::forward<T>(t))),0)...);
       }
@@ -358,7 +311,7 @@ namespace Dune {
       _apply_to_tuple(
         std::forward<T>(t),
         std::forward<F>(f),
-        Std::make_index_sequence<size>{},
+        std::make_index_sequence<size>{},
         Policy()
         );
     }

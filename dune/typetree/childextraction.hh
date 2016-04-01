@@ -4,6 +4,8 @@
 #ifndef DUNE_TYPETREE_CHILDEXTRACTION_HH
 #define DUNE_TYPETREE_CHILDEXTRACTION_HH
 
+#include <utility>
+
 #include <dune/common/concept.hh>
 #include <dune/common/documentation.hh>
 #include <dune/common/typetraits.hh>
@@ -432,7 +434,7 @@ namespace Dune {
       }
 
       template<typename Node, typename... Indices, std::size_t... i>
-      auto child(Node&& node, HybridTreePath<Indices...> tp, Std::index_sequence<i...>) -> decltype(child(std::forward<Node>(node),treePathEntry<i>(tp)...))
+      auto child(Node&& node, HybridTreePath<Indices...> tp, std::index_sequence<i...>) -> decltype(child(std::forward<Node>(node),treePathEntry<i>(tp)...))
       {
         return child(std::forward<Node>(node),treePathEntry<i>(tp)...);
       }
@@ -537,7 +539,7 @@ namespace Dune {
     auto child(Node&& node, HybridTreePath<Indices...> tp) -> decltype(impl::child(std::forward<Node>(node),tp,tp.enumerate()))
 #endif
     {
-      return impl::child(std::forward<Node>(node),tp,Std::index_sequence_for<Indices...>{});
+      return impl::child(std::forward<Node>(node),tp,std::index_sequence_for<Indices...>{});
     }
 
 #ifndef DOXYGEN

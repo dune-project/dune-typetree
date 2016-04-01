@@ -325,7 +325,7 @@ namespace Dune {
     public:
 
       //! An `index_sequence` for the entries in this `HybridTreePath`.
-      using index_sequence = Std::index_sequence_for<T...>;
+      using index_sequence = std::index_sequence_for<T...>;
 
       //! Default constructor
       constexpr HybridTreePath()
