@@ -23,6 +23,8 @@ namespace Dune {
     //! \ingroup TypeTree
     //! \{
 
+#ifndef DOXYGEN
+
     namespace impl {
 
       // ********************************************************************************
