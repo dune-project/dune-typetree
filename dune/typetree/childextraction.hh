@@ -288,7 +288,7 @@ namespace Dune {
       template<typename Node, std::size_t... indices>
       struct _Child
       {
-        using type = typename std::decay<decltype(child(std::declval<Node>(),index_constant<indices>{}...))>::type;
+        using type = std::decay_t<decltype(child(std::declval<Node>(),index_constant<indices>{}...))>;
       };
 
     }
@@ -363,7 +363,7 @@ namespace Dune {
      * work correctly for references and cv-qualified types.
      */
     template<typename T>
-    using is_flat_index = typename impl::_is_flat_index<typename std::decay<T>::type>::type;
+    using is_flat_index = typename impl::_is_flat_index<std::decay_t<T>>::type;
 
 #ifndef DOXYGEN
 
