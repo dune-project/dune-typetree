@@ -105,6 +105,11 @@ namespace Dune {
       //! The number of children.
       static const std::size_t CHILDREN = k;
 
+      static constexpr std::size_t degree()
+      {
+        return k;
+      }
+
       //! The type tag that describes a PowerNode.
       typedef PowerNodeTag NodeTag;
 

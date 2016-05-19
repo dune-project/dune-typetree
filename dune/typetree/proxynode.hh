@@ -5,6 +5,7 @@
 #define DUNE_TYPETREE_PROXYNODE_HH
 
 #include <type_traits>
+#include <dune/typetree/nodeinterface.hh>
 #include <dune/typetree/nodetags.hh>
 #include <dune/common/shared_ptr.hh>
 
@@ -277,7 +278,12 @@ namespace Dune {
       static const bool isComposite = Node::isComposite;
 
       //! The number of children.
-      static const std::size_t CHILDREN = Node::CHILDREN;
+      static const std::size_t CHILDREN = staticDegree<Node>;
+
+      static constexpr std::size_t degree()
+      {
+        return staticDegree<Node>;
+      }
 
 
     protected:
