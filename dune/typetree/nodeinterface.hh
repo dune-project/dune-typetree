@@ -5,6 +5,7 @@
 #define DUNE_TYPETREE_NODEINTERFACE_HH
 
 #include <cstddef>
+#include <type_traits>
 
 #include <dune/common/documentation.hh>
 
@@ -55,6 +56,14 @@ namespace Dune {
        */
       typedef ImplementationDefined NodeStorage;
     };
+
+    //! Returns the node tag of the given Node.
+    template<typename Node>
+    using NodeTag = typename std::decay_t<Node>::NodeTag;
+
+    //! Returns the implementation tag of the given Node.
+    template<typename T>
+    using ImplementationTag = typename std::decay_t<T>::ImplementationTag;
 
     //! \} group Nodes
 
