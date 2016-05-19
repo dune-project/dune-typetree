@@ -5,6 +5,7 @@
 #define DUNE_TYPETREE_NODEINTERFACE_HH
 
 #include <cstddef>
+#include <type_traits>
 
 #include <dune/common/documentation.hh>
 
@@ -55,6 +56,58 @@ namespace Dune {
        */
       typedef ImplementationDefined NodeStorage;
     };
+
+    //! Returns the node tag of the given Node.
+    template<typename Node>
+    using NodeTag = typename std::decay_t<Node>::NodeTag;
+
+    //! Returns the implementation tag of the given Node.
+    template<typename T>
+    using ImplementationTag = typename std::decay_t<T>::ImplementationTag;
+
+
+    //! Returns the degree of node as run time information.
+    template<typename Node>
+    std::size_t degree(const Node& node)
+    {
+      return degree(&node,NodeTag<Node>());
+    }
+
+#ifndef DOXYGEN
+
+    //! Default implementation of degree dispatch function.
+    /**
+     * This dispatches using a pointer to the node instead of a reference,
+     * as we can easily create a constexpr pointer to the node, while a constexpr
+     * reference might not even be possible to manufacture (std::declval is not
+     * constexpr).
+     */
+    template<typename Node, typename NodeTag>
+    constexpr std::size_t degree(const Node* node, NodeTag)
+    {
+      return Node::degree();
+    }
+
+#endif DOXYGEN
+
+    //! Returns the statically known degree of the given Node type as a std::integral_constant.
+    /**
+     * \note If you are only interested in the numeric value, take a look at staticDegree<Node>
+     *       instead.
+     */
+    template<typename Node>
+    using StaticDegree = std::integral_constant<
+      std::size_t,
+      degree(
+        static_cast<std::decay_t<Node>*>(nullptr),
+        NodeTag<std::decay_t<Node>>()
+        )
+      >;
+
+    //! Returns the statically known degree of the given Node type as a constant value.
+    template<typename Node>
+    constexpr std::size_t staticDegree = StaticDegree<Node>::value;
+
 
     //! \} group Nodes
 

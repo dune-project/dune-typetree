@@ -7,6 +7,7 @@
 #include <array>
 #include <memory>
 
+#include <dune/typetree/nodeinterface.hh>
 #include <dune/typetree/nodetags.hh>
 #include <dune/common/exceptions.hh>
 
@@ -50,18 +51,18 @@ namespace Dune {
       template<typename TC>
       struct result
       {
-        typedef TransformedNode<TC, SourceNode::CHILDREN> type;
+        typedef TransformedNode<TC, staticDegree<SourceNode>> type;
         typedef std::shared_ptr<type> storage_type;
       };
 
       template<typename TC>
-      static typename result<TC>::type transform(const SourceNode& s, const Transformation& t, const std::array<std::shared_ptr<TC>,result<TC>::type::CHILDREN>& children)
+      static typename result<TC>::type transform(const SourceNode& s, const Transformation& t, const std::array<std::shared_ptr<TC>,staticDegree<typename result<TC>::type>>& children)
       {
         return typename result<TC>::type(children);
       }
 
       template<typename TC>
-      static typename result<TC>::storage_type transform_storage(std::shared_ptr<const SourceNode> s, const Transformation& t, const std::array<std::shared_ptr<TC>,result<TC>::type::CHILDREN>& children)
+      static typename result<TC>::storage_type transform_storage(std::shared_ptr<const SourceNode> s, const Transformation& t, const std::array<std::shared_ptr<TC>,staticDegree<result<TC>::type>>& children)
       {
         return std::make_shared<typename result<TC>::type>(children);
       }

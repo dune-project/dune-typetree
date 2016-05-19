@@ -6,6 +6,8 @@
 
 #include <cstddef>
 
+#include <dune/typetree/nodeinterface.hh>
+
 namespace Dune {
   namespace TypeTree {
 
@@ -20,7 +22,7 @@ namespace Dune {
       template<typename TC>
       struct result
       {
-        typedef TransformedNode<SourceNode,TC,SourceNode::CHILDREN> type;
+        typedef TransformedNode<SourceNode,TC,staticDegree<SourceNode>> type;
       };
     };
 

@@ -6,6 +6,7 @@
 
 #include <dune/common/typetraits.hh>
 
+#include <dune/typetree/nodeinterface.hh>
 #include <dune/typetree/nodetags.hh>
 #include <dune/typetree/treepath.hh>
 #include <dune/typetree/visitor.hh>
@@ -51,8 +52,8 @@ namespace Dune {
                         std::forward<N2>(n2),n2.template child<count-inverse_k>(),
                         tp,std::integral_constant<std::size_t,count-inverse_k>());
           ApplyToTreePair<std::remove_reference<V>::type::treePathType,
-                          typename C1::NodeTag,
-                          typename C2::NodeTag,
+                          NodeTag<C1>,
+                          NodeTag<C2>,
                           visit>::apply(n1.template child<count-inverse_k>(),
                                         n2.template child<count-inverse_k>(),
                                         std::forward<V>(v),
@@ -91,8 +92,8 @@ namespace Dune {
                         std::forward<N2>(n2),n2.template child<count-1>(),
                         tp,std::integral_constant<std::size_t,count-1>());
           ApplyToTreePair<std::remove_reference<V>::type::treePathType,
-                          typename C1::NodeTag,
-                          typename C2::NodeTag,
+                          NodeTag<C1>,
+                          NodeTag<C2>,
                           visit>::apply(n1.template child<count-1>(),
                                         n2.template child<count-1>(),
                                         std::forward<V>(v),
@@ -139,8 +140,8 @@ namespace Dune {
                         tp.view(),count-inverse_k);
           tp.push_back(count-inverse_k);
           ApplyToTreePair<std::remove_reference<V>::type::treePathType,
-                          typename C1::NodeTag,
-                          typename C2::NodeTag,
+                          NodeTag<C1>,
+                          NodeTag<C2>,
                           visit>::apply(n1.template child<count-inverse_k>(),
                                         n2.template child<count-inverse_k>(),
                                         std::forward<V>(v),
@@ -180,8 +181,8 @@ namespace Dune {
                         tp.view(),count-1);
           tp.push_back(count-1);
           ApplyToTreePair<std::remove_reference<V>::type::treePathType,
-                          typename C1::NodeTag,
-                          typename C2::NodeTag,
+                          NodeTag<C1>,
+                          NodeTag<C2>,
                           visit>::apply(n1.template child<count-1>(),
                                         n2.template child<count-1>(),
                                         std::forward<V>(v),
@@ -242,17 +243,15 @@ namespace Dune {
       apply(N1&& n1, N2&& n2, V&& v, TreePath tp)
       {
         v.pre(std::forward<N1>(n1),std::forward<N2>(n2),tp.view());
-        typedef typename std::remove_reference<N1>::type Node1;
-        typedef typename std::remove_reference<N2>::type Node2;
         // make sure both nodes have the same number of children - otherwise, it
         // would be difficult to match the children to each other.
-        static_assert(Node1::CHILDREN == Node2::CHILDREN,
+        static_assert(staticDegree<N1> == staticDegree<N2>,
                       "non-leaf nodes with different numbers of children " \
                       "are not allowed during simultaneous grid traversal");
-        apply_to_children_pair<treePathType,Node1::CHILDREN>::apply(std::forward<N1>(n1),
-                                                                    std::forward<N2>(n2),
-                                                                    std::forward<V>(v),
-                                                                    tp);
+        apply_to_children_pair<treePathType,staticDegree<N1>>::apply(std::forward<N1>(n1),
+                                                                     std::forward<N2>(n2),
+                                                                     std::forward<V>(v),
+                                                                     tp);
         v.post(std::forward<N1>(n1),std::forward<N2>(n2),tp.view());
       }
 

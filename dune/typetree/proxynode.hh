@@ -5,6 +5,7 @@
 #define DUNE_TYPETREE_PROXYNODE_HH
 
 #include <type_traits>
+#include <dune/typetree/nodeinterface.hh>
 #include <dune/typetree/nodetags.hh>
 #include <dune/common/shared_ptr.hh>
 
@@ -252,7 +253,7 @@ namespace Dune {
      */
     template<typename Node>
     class ProxyNode
-      : public ProxyNodeBase<Node,typename Node::NodeTag>
+      : public ProxyNodeBase<Node,NodeTag<Node>>
     {
 
       static const bool proxiedNodeIsConst = std::is_const<typename std::remove_reference<Node>::type>::value;
@@ -265,7 +266,7 @@ namespace Dune {
 
       typedef Node ProxiedNode;
 
-      typedef typename Node::NodeTag NodeTag;
+      typedef Dune::TypeTree::NodeTag<Node> NodeTag;
 
       //! Mark this class as non leaf in the \ref TypeTree.
       static const bool isLeaf = Node::isLeaf;
@@ -277,7 +278,12 @@ namespace Dune {
       static const bool isComposite = Node::isComposite;
 
       //! The number of children.
-      static const std::size_t CHILDREN = Node::CHILDREN;
+      static const std::size_t CHILDREN = staticDegree<Node>;
+
+      static constexpr std::size_t degree()
+      {
+        return staticDegree<Node>;
+      }
 
 
     protected:

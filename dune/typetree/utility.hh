@@ -11,6 +11,7 @@
 
 #include <dune/common/shared_ptr.hh>
 #include <dune/common/indices.hh>
+#include <dune/typetree/nodeinterface.hh>
 #include <dune/typetree/nodetags.hh>
 
 namespace Dune {
@@ -66,7 +67,7 @@ namespace Dune {
 
     private:
       // Start the tree traversal
-      typedef TreeInfo<Tree,typename Tree::NodeTag> NodeInfo;
+      typedef TreeInfo<Tree,NodeTag<Tree>> NodeInfo;
 
     public:
 
@@ -108,13 +109,13 @@ namespace Dune {
     struct TreeInfo<Node,PowerNodeTag>
     {
 
-      typedef TreeInfo<typename Node::ChildType,typename Node::ChildType::NodeTag> ChildInfo;
+      typedef TreeInfo<typename Node::ChildType,NodeTag<typename Node::ChildType>> ChildInfo;
 
       static const std::size_t depth = 1 + ChildInfo::depth;
 
-      static const std::size_t nodeCount = 1 + Node::CHILDREN * ChildInfo::nodeCount;
+      static const std::size_t nodeCount = 1 + staticDegree<Node> * ChildInfo::nodeCount;
 
-      static const std::size_t leafCount = Node::CHILDREN * ChildInfo::leafCount;
+      static const std::size_t leafCount = staticDegree<Node> * ChildInfo::leafCount;
 
     };
 
@@ -131,7 +132,7 @@ namespace Dune {
 
         // extract child info
         typedef typename Node::template Child<k>::Type Child;
-        typedef typename Child::NodeTag ChildTag;
+        typedef NodeTag<Child> ChildTag;
         typedef TreeInfo<Child,ChildTag> ChildInfo;
 
         // combine information of current child with info about following children
@@ -162,7 +163,7 @@ namespace Dune {
     struct GenericCompositeNodeInfo
     {
 
-      typedef generic_compositenode_children_info<Node,0,Node::CHILDREN> Children;
+      typedef generic_compositenode_children_info<Node,0,staticDegree<Node>> Children;
 
       static const std::size_t depth = 1 + Children::maxDepth;
 

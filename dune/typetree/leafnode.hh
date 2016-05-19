@@ -41,6 +41,11 @@ namespace Dune {
       //! The type tag that describes a LeafNode.
       typedef LeafNodeTag NodeTag;
 
+      static constexpr std::size_t degree()
+      {
+        return 0;
+      }
+
     protected:
 
       //! Default constructor.

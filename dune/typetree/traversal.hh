@@ -38,9 +38,9 @@ namespace Dune {
       template<typename Node, typename Visitor>
       static void apply(Node&& node, Visitor&& visitor)
       {
-        ApplyToTree<tpType,typename std::remove_reference<Node>::type::NodeTag>::apply(std::forward<Node>(node),
-                                                                                  std::forward<Visitor>(visitor),
-                                                                                  TreePathFactory<tpType>::create(node).mutablePath());
+        ApplyToTree<tpType,NodeTag<Node>>::apply(std::forward<Node>(node),
+                                                 std::forward<Visitor>(visitor),
+                                                 TreePathFactory<tpType>::create(node).mutablePath());
       }
 
     };
@@ -118,7 +118,7 @@ namespace Dune {
         const bool visit = Visitor::template VisitChild<Node,C,typename TreePath::ViewType>::value;
 
         // iterate over children
-        for (std::size_t k = 0; k < Node::CHILDREN; ++k)
+        for (std::size_t k = 0; k < degree(n); ++k)
           {
             // always call beforeChild(), regardless of the value of visit
             v.beforeChild(std::forward<N>(n),n.child(k),tp.view(),k);
@@ -127,7 +127,7 @@ namespace Dune {
             tp.push_back(k);
 
             // descend to child
-            ApplyToTree<Visitor::treePathType,typename C::NodeTag,visit>::apply(n.child(k),std::forward<V>(v),tp);
+            ApplyToTree<Visitor::treePathType,NodeTag<C>,visit>::apply(n.child(k),std::forward<V>(v),tp);
 
             // restore TreePath
             tp.pop_back();
@@ -136,7 +136,7 @@ namespace Dune {
             v.afterChild(std::forward<N>(n),n.child(k),tp.view(),k);
 
             // if this is not the last child, call infix callback
-            if (k < Node::CHILDREN-1)
+            if (k < degree(n) - 1)
               v.in(std::forward<N>(n),tp.view());
           }
 
