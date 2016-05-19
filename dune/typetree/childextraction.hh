@@ -11,12 +11,12 @@
 #include <dune/common/typetraits.hh>
 #include <dune/common/shared_ptr.hh>
 
+#include <dune/typetree/nodeinterface.hh>
 #include <dune/typetree/treepath.hh>
 
 
 namespace Dune {
   namespace TypeTree {
-
 
     //! \addtogroup TypeTreeChildExtraction Child Extraction
     //! Utility functions and metafunctions for extracting children from a TypeTree.
@@ -31,8 +31,21 @@ namespace Dune {
       // end of the recursion, there are no child indices, so just return the node itself
       // ********************************************************************************
 
+      struct IsPointerLike {
+        template <class Node>
+        auto require(const Node& node) -> decltype(*node);
+      };
+
       template<typename Node>
       auto child(Node&& node) -> decltype(std::forward<Node>(node))
+      {
+        return std::forward<Node>(node);
+      }
+
+      // for now, this wants the passed-in object to be pointer-like. I don't know how clever
+      // that is in the long run, though.
+      template<typename Node, typename std::enable_if_t<Dune::models<IsPointerLike,Node>(),int> = 0>
+      auto childStorage(Node&& node)
       {
         return std::forward<Node>(node);
       }
@@ -55,10 +68,19 @@ namespace Dune {
       template<typename Node, std::size_t i, typename... J,
         typename std::enable_if<
           Dune::models<HasTemplateChildMethod, Node>() &&
-          (i < std::decay<Node>::type::CHILDREN), int>::type = 0>
+          (i < staticDegree<Node>), int>::type = 0>
       decltype(auto) child(Node&& node, index_constant<i>, J... j)
       {
         return child(std::forward<Node>(node).template child<i>(),j...);
+      }
+
+      template<typename Node, std::size_t i, typename... J,
+        typename std::enable_if<
+          Dune::models<HasTemplateChildMethod, decltype(*std::declval<std::decay_t<Node>>())>() &&
+        (i < staticDegree<decltype(*std::declval<Node>())>), int>::type = 0>
+      decltype(auto) childStorage(Node&& node, index_constant<i>, J... j)
+      {
+        return childStorage(std::forward<Node>(node)->template childStorage<i>(),j...);
       }
 
       // This overload is only present to give useful compiler
@@ -67,59 +89,63 @@ namespace Dune {
       template<typename Node, std::size_t i, typename... J,
         typename std::enable_if<
           (!Dune::models<HasTemplateChildMethod, Node>()) ||
-          (i >= std::decay<Node>::type::CHILDREN), int>::type = 0>
+          (i >= staticDegree<Node>), int>::type = 0>
       void child(Node&& node, index_constant<i>, J... j)
       {
         static_assert(Dune::models<HasTemplateChildMethod, Node>(), "Node does not have a template method child()");
-        static_assert(i < std::decay<Node>::type::CHILDREN, "Child index out of range");
+        static_assert(i < staticDegree<Node>, "Child index out of range");
       }
 
       // ********************************************************************************
       // next index is a run-time value
       // ********************************************************************************
 
-
-      // This struct lazily evaluates the return type by recursively calling child. This has
-      // to happen lazily because we only want to do it if the child access at the current
-      // level succeeds; otherwise, we would swamp the user with error messages as the algorithm
-      // walks down the remaining indices
-      //
-      // This struct gets created inside an enable_if, but the nested alias template that triggers
-      // the recursion is only instantiated if the enable_if was successful.
-      template<typename Node>
-      struct _lazy_dynamic_decltype
-      {
-        template<typename... J>
-        struct evaluate
-        {
-          using type = decltype(child(std::declval<Node>().child(0),std::declval<J>()...));
-        };
-      };
-
       // The actual implemention here overloads on std::size_t. It is a little less ugly because it currently
       // has a hard requirement on the PowerNode Tag (although only using is_convertible, as tags can be
       // inherited (important!).
       template<typename Node, typename... J>
-      auto child(Node&& node, std::size_t i, J... j) ->
-        typename std::enable_if<
+      decltype(auto)
+      child(
+        Node&& node,
+        std::enable_if_t<
           std::is_convertible<
-            typename std::remove_reference<Node>::type::NodeTag,
+            NodeTag<Node>,
             PowerNodeTag
-            >::value,
-          _lazy_dynamic_decltype<
-            typename std::remove_reference<Node>::type
-            >
-          >::type::template evaluate<J...>::type
+          >{},
+          std::size_t> i,
+        J... j
+        )
       {
-        return child(std::forward<Node>(node).template child(i),j...);
+        return child(std::forward<Node>(node).child(i),j...);
+      }
+
+      template<typename Node, typename... J>
+      decltype(auto)
+      childStorage(
+        Node&& node,
+        std::enable_if_t<
+          std::is_convertible<
+            NodeTag<decltype(*std::declval<Node>())>,
+            PowerNodeTag
+          >{},
+          std::size_t> i,
+        J... j
+        )
+      {
+        return childStorage(std::forward<Node>(node)->childStorage(i),j...);
       }
 
       template<typename Node, typename... Indices, std::size_t... i>
-      auto child(Node&& node, HybridTreePath<Indices...> tp, std::index_sequence<i...>) -> decltype(child(std::forward<Node>(node),treePathEntry<i>(tp)...))
+      decltype(auto) child(Node&& node, HybridTreePath<Indices...> tp, std::index_sequence<i...>)
       {
         return child(std::forward<Node>(node),treePathEntry<i>(tp)...);
       }
 
+      template<typename Node, typename... Indices, std::size_t... i>
+      decltype(auto) childStorage(Node&& node, HybridTreePath<Indices...> tp, std::index_sequence<i...>)
+      {
+        return childStorage(std::forward<Node>(node),treePathEntry<i>(tp)...);
+      }
 
     } // namespace imp
 
@@ -152,12 +178,22 @@ namespace Dune {
 #ifdef DOXYGEN
     ImplementationDefined child(Node&& node, Indices... indices)
 #else
-    auto child(Node&& node, Indices... indices) -> decltype(impl::child(std::forward<Node>(node),indices...))
+    decltype(auto) child(Node&& node, Indices... indices)
 #endif
     {
       return impl::child(std::forward<Node>(node),indices...);
     }
 
+    template<typename Node, typename... Indices>
+#ifdef DOXYGEN
+    ImplementationDefined child(Node&& node, Indices... indices)
+#else
+    auto childStorage(Node&& node, Indices... indices)
+#endif
+    {
+      //static_assert(sizeof...(Indices) > 0, "childStorage() cannot be called with an empty list of child indices");
+      return impl::childStorage(&node,indices...);
+    }
 
     //! Extracts the child of a node given by a static TreePath object.
     /**
@@ -182,12 +218,22 @@ namespace Dune {
 #ifdef DOXYGEN
     ImplementationDefined child(Node&& node, TreePath<Indices...> treePath)
 #else
-    auto child(Node&& node, TreePath<Indices...>) -> decltype(child(std::forward<Node>(node),index_constant<Indices>()...))
+    decltype(auto) child(Node&& node, TreePath<Indices...>)
 #endif
     {
       return child(std::forward<Node>(node),index_constant<Indices>{}...);
     }
 
+    template<typename Node, std::size_t... Indices>
+#ifdef DOXYGEN
+    ImplementationDefined childStorage(Node&& node, TreePath<Indices...> treePath)
+#else
+    auto childStorage(Node&& node, TreePath<Indices...>)
+#endif
+    {
+      static_assert(sizeof...(Indices) > 0, "childStorage() cannot be called with an empty TreePath");
+      return impl::childStorage(&node,index_constant<Indices>{}...);
+    }
 
     //! Extracts the child of a node given by a HybridTreePath object.
     /**
@@ -217,11 +263,23 @@ namespace Dune {
 #ifdef DOXYGEN
     ImplementationDefined child(Node&& node, HybridTreePath<Indices...> treePath)
 #else
-    auto child(Node&& node, HybridTreePath<Indices...> tp) -> decltype(impl::child(std::forward<Node>(node),tp,tp.enumerate()))
+    decltype(auto) child(Node&& node, HybridTreePath<Indices...> tp)
 #endif
     {
       return impl::child(std::forward<Node>(node),tp,std::index_sequence_for<Indices...>{});
     }
+
+    template<typename Node, typename... Indices>
+#ifdef DOXYGEN
+    ImplementationDefined child(Node&& node, HybridTreePath<Indices...> treePath)
+#else
+    auto childStorage(Node&& node, HybridTreePath<Indices...> tp)
+#endif
+    {
+      static_assert(sizeof...(Indices) > 0, "childStorage() cannot be called with an empty TreePath");
+      return impl::childStorage(&node,tp,std::index_sequence_for<Indices...>{});
+    }
+
 
 #ifndef DOXYGEN
 
