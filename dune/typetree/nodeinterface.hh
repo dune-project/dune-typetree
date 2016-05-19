@@ -88,7 +88,7 @@ namespace Dune {
       return Node::degree();
     }
 
-#endif DOXYGEN
+#endif // DOXYGEN
 
     //! Returns the statically known degree of the given Node type as a std::integral_constant.
     /**
