@@ -6,6 +6,7 @@
 
 #include <dune/common/typetraits.hh>
 
+#include <dune/typetree/nodeinterface.hh>
 #include <dune/typetree/nodetags.hh>
 #include <dune/typetree/treepath.hh>
 #include <dune/typetree/visitor.hh>
@@ -219,9 +220,9 @@ namespace Dune {
         v.pre(std::forward<N>(n),tp);
         typedef typename std::remove_reference<N>::type Node;
         typedef typename std::remove_reference<V>::type Visitor;
-        apply_to_children<Visitor::treePathType,Node::CHILDREN>::apply(std::forward<N>(n),
-                                                                       std::forward<V>(v),
-                                                                       tp);
+        apply_to_children<Visitor::treePathType,staticDegree<Node>>::apply(std::forward<N>(n),
+                                                                           std::forward<V>(v),
+                                                                           tp);
         v.post(std::forward<N>(n),tp);
       }
 

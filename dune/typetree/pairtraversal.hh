@@ -4,6 +4,7 @@
 #ifndef DUNE_TYPETREE_PAIRTRAVERSAL_HH
 #define DUNE_TYPETREE_PAIRTRAVERSAL_HH
 
+#include <dune/typetree/nodeinterface.hh>
 #include <dune/typetree/nodetags.hh>
 #include <dune/typetree/treepath.hh>
 #include <dune/typetree/visitor.hh>
@@ -120,12 +121,12 @@ namespace Dune {
         typedef typename std::remove_reference<N2>::type Node2;
         typedef typename Node1::template Child<0>::Type C1;
         typedef typename Node2::template Child<0>::Type C2;
-        static_assert(Node1::CHILDREN == Node2::CHILDREN,
+        static_assert(staticDegree<Node1> == staticDegree<Node2>,
                       "non-leaf nodes with different numbers of children " \
                       "are not allowed during simultaneous grid traversal");
         const bool visit = std::remove_reference<V>::type
           ::template VisitChild<Node1,C1,Node2,C2,typename TreePath::ViewType>::value;
-        for (std::size_t k = 0; k < Node1::CHILDREN; ++k)
+        for (std::size_t k = 0; k < degree(n1); ++k)
           {
             v.beforeChild(std::forward<N1>(n1),n1.child(k),std::forward<N2>(n2),n2.child(k),tp.view(),k);
             tp.push_back(k);
@@ -138,7 +139,7 @@ namespace Dune {
                                           tp);
             tp.pop_back();
             v.afterChild(std::forward<N1>(n1),n1.child(k),std::forward<N2>(n2),n2.child(k),tp.view(),k);
-            if (k < Node1::CHILDREN-1)
+            if (k < degree(n1) - 1)
               v.in(std::forward<N1>(n1),std::forward<N2>(n2),tp.view());
           }
         v.post(std::forward<N1>(n1),std::forward<N2>(n2),tp.view());

@@ -5,6 +5,7 @@
 #define DUNE_TYPETREE_ACCUMULATE_STATIC_HH
 
 #include <dune/common/typetraits.hh>
+#include <dune/typetree/nodeinterface.hh>
 #include <dune/typetree/nodetags.hh>
 #include <dune/typetree/treepath.hh>
 
@@ -149,7 +150,7 @@ namespace Dune {
 
         typedef typename Node::template Child<i>::Type child;
 
-        static const result_type child_result = accumulate_value<child,Functor,Reduction,ParentChildReduction,current_value,child_tree_path,typename child::NodeTag>::result;
+        static const result_type child_result = accumulate_value<child,Functor,Reduction,ParentChildReduction,current_value,child_tree_path,NodeTag<child>>::result;
 
         static const result_type result = accumulate_over_children<Node,Functor,Reduction,ParentChildReduction,child_result,TreePath,i+1,n>::result;
 
@@ -174,7 +175,7 @@ namespace Dune {
 
         typedef typename Functor::result_type result_type;
 
-        static const result_type child_result = accumulate_over_children<Node,Functor,Reduction,ParentChildReduction,current_value,TreePath,0,Node::CHILDREN>::result;
+        static const result_type child_result = accumulate_over_children<Node,Functor,Reduction,ParentChildReduction,current_value,TreePath,0,staticDegree<Node>>::result;
 
         static const result_type result =
           accumulate_node_helper<Node,Functor,ParentChildReduction,child_result,TreePath,Functor::template doVisit<Node,TreePath>::value>::result;
@@ -261,7 +262,7 @@ namespace Dune {
       typedef typename Functor::result_type result_type;
 
       //! The accumulated result of the computation.
-      static const result_type result = accumulate_value<Tree,Functor,Reduction,ParentChildReduction,startValue,TreePath<>,typename Tree::NodeTag>::result;
+      static const result_type result = accumulate_value<Tree,Functor,Reduction,ParentChildReduction,startValue,TreePath<>,NodeTag<Tree>>::result;
 
     };
 
@@ -415,7 +416,7 @@ namespace Dune {
           current_type,
           TreePath,
           0,
-          Node::CHILDREN
+          staticDegree<Node>
           >::type children_result_type;
 
         typedef typename accumulate_type_node_helper<

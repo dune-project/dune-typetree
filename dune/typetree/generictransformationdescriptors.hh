@@ -7,6 +7,7 @@
 #include <array>
 #include <memory>
 
+#include <dune/typetree/nodeinterface.hh>
 #include <dune/typetree/nodetags.hh>
 #include <dune/typetree/powercompositenodetransformationtemplates.hh>
 #include <dune/common/exceptions.hh>
@@ -61,19 +62,19 @@ namespace Dune {
       };
 
       template<typename TC>
-      static typename result<TC>::type transform(const SourceNode& s, const Transformation& t, const std::array<std::shared_ptr<TC>,result<TC>::type::CHILDREN>& children)
+      static typename result<TC>::type transform(const SourceNode& s, const Transformation& t, const std::array<std::shared_ptr<TC>,staticDegree<typename result<TC>::type>>& children)
       {
         return typename result<TC>::type(s,t,children);
       }
 
       template<typename TC>
-      static typename result<TC>::type transform(std::shared_ptr<const SourceNode> s, const Transformation& t, const std::array<std::shared_ptr<TC>,result<TC>::type::CHILDREN>& children)
+      static typename result<TC>::type transform(std::shared_ptr<const SourceNode> s, const Transformation& t, const std::array<std::shared_ptr<TC>,staticDegree<typename result<TC>::type>>& children)
       {
         return typename result<TC>::type(s,t,children);
       }
 
       template<typename TC>
-      static typename result<TC>::storage_type transform_storage(std::shared_ptr<const SourceNode> s, const Transformation& t, const std::array<std::shared_ptr<TC>,result<TC>::type::CHILDREN>& children)
+      static typename result<TC>::storage_type transform_storage(std::shared_ptr<const SourceNode> s, const Transformation& t, const std::array<std::shared_ptr<TC>,staticDegree<typename result<TC>::type>>& children)
       {
         return std::make_shared<typename result<TC>::type>(s,t,children);
       }

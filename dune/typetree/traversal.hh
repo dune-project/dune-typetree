@@ -118,7 +118,7 @@ namespace Dune {
         const bool visit = Visitor::template VisitChild<Node,C,typename TreePath::ViewType>::value;
 
         // iterate over children
-        for (std::size_t k = 0; k < Node::CHILDREN; ++k)
+        for (std::size_t k = 0; k < degree(n); ++k)
           {
             // always call beforeChild(), regardless of the value of visit
             v.beforeChild(std::forward<N>(n),n.child(k),tp.view(),k);
@@ -136,7 +136,7 @@ namespace Dune {
             v.afterChild(std::forward<N>(n),n.child(k),tp.view(),k);
 
             // if this is not the last child, call infix callback
-            if (k < Node::CHILDREN-1)
+            if (k < degree(n) - 1)
               v.in(std::forward<N>(n),tp.view());
           }
 
