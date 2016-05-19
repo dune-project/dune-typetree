@@ -8,6 +8,7 @@
 #include <dune/common/typetraits.hh>
 
 #include <dune/typetree/treepath.hh>
+#include <dune/typetree/nodeinterface.hh>
 
 namespace Dune {
 
@@ -32,7 +33,7 @@ namespace Dune {
       struct no  { char dummy[2]; };
 
       template<typename X>
-      static yes test(typename X::NodeTag *);
+      static yes test(NodeTag<X> *);
       template<typename X>
       static no  test(...);
 
@@ -51,8 +52,8 @@ namespace Dune {
       struct no  { char dummy[1]; };
 
       template<typename X>
-      static maybe<std::is_base_of<V, typename X::NodeTag>::value>
-      test(typename X::NodeTag * a);
+      static maybe<std::is_base_of<V, NodeTag<X>>::value>
+      test(NodeTag<X> * a);
       template<typename X>
       static no test(...);
 
@@ -69,7 +70,7 @@ namespace Dune {
       struct no  { char dummy[2]; };
 
       template<typename X>
-      static yes test(typename X::ImplementationTag *);
+      static yes test(ImplementationTag<X> *);
       template<typename X>
       static no  test(...);
 
@@ -88,8 +89,8 @@ namespace Dune {
       struct no  { char dummy[1]; };
 
       template<typename X>
-      static maybe<std::is_base_of<V, typename X::ImplementationTag>::value>
-      test(typename X::ImplementationTag * a);
+      static maybe<std::is_base_of<V, ImplementationTag<X>>::value>
+      test(ImplementationTag<X> * a);
       template<typename X>
       static no test(...);
 

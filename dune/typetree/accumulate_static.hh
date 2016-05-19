@@ -380,7 +380,7 @@ namespace Dune {
             typename Policy::reduction_strategy
             >::type,
           child_tree_path,
-          typename child::NodeTag
+          NodeTag<child>
           >::type child_result_type;
 
         typedef typename accumulate_type_over_children<
@@ -558,7 +558,7 @@ namespace Dune {
         Policy,
         typename Policy::start_type,
         TreePath<>,
-        typename Tree::NodeTag
+        NodeTag<Tree>
         >::type type;
 
     };

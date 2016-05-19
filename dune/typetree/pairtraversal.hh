@@ -28,8 +28,8 @@ namespace Dune {
       static void apply(Node1&& node1, Node2&& node2, Visitor&& visitor)
       {
         ApplyToTreePair<tpType,
-                        typename std::remove_reference<Node1>::type::NodeTag,
-                        typename std::remove_reference<Node2>::type::NodeTag
+                        NodeTag<Node1>,
+                        NodeTag<Node2>
                         >::apply(std::forward<Node1>(node1),
                                  std::forward<Node2>(node2),
                                  std::forward<Visitor>(visitor),
@@ -131,8 +131,8 @@ namespace Dune {
             v.beforeChild(std::forward<N1>(n1),n1.child(k),std::forward<N2>(n2),n2.child(k),tp.view(),k);
             tp.push_back(k);
             ApplyToTreePair<TreePathType::dynamic, // we know that due to the specialization
-                            typename C1::NodeTag,
-                            typename C2::NodeTag,
+                            NodeTag<C1>,
+                            NodeTag<C2>,
                             visit>::apply(n1.child(k),
                                           n2.child(k),
                                           std::forward<V>(v),

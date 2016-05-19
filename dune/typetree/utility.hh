@@ -67,7 +67,7 @@ namespace Dune {
 
     private:
       // Start the tree traversal
-      typedef TreeInfo<Tree,typename Tree::NodeTag> NodeInfo;
+      typedef TreeInfo<Tree,NodeTag<Tree>> NodeInfo;
 
     public:
 
@@ -109,7 +109,7 @@ namespace Dune {
     struct TreeInfo<Node,PowerNodeTag>
     {
 
-      typedef TreeInfo<typename Node::ChildType,typename Node::ChildType::NodeTag> ChildInfo;
+      typedef TreeInfo<typename Node::ChildType,NodeTag<typename Node::ChildType>> ChildInfo;
 
       static const std::size_t depth = 1 + ChildInfo::depth;
 
@@ -132,7 +132,7 @@ namespace Dune {
 
         // extract child info
         typedef typename Node::template Child<k>::Type Child;
-        typedef typename Child::NodeTag ChildTag;
+        typedef NodeTag<Child> ChildTag;
         typedef TreeInfo<Child,ChildTag> ChildInfo;
 
         // combine information of current child with info about following children

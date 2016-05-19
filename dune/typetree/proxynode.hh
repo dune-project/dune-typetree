@@ -253,7 +253,7 @@ namespace Dune {
      */
     template<typename Node>
     class ProxyNode
-      : public ProxyNodeBase<Node,typename Node::NodeTag>
+      : public ProxyNodeBase<Node,NodeTag<Node>>
     {
 
       static const bool proxiedNodeIsConst = std::is_const<typename std::remove_reference<Node>::type>::value;
@@ -266,7 +266,7 @@ namespace Dune {
 
       typedef Node ProxiedNode;
 
-      typedef typename Node::NodeTag NodeTag;
+      typedef Dune::TypeTree::NodeTag<Node> NodeTag;
 
       //! Mark this class as non leaf in the \ref TypeTree.
       static const bool isLeaf = Node::isLeaf;

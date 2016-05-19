@@ -52,8 +52,8 @@ namespace Dune {
                         std::forward<N2>(n2),n2.template child<count-inverse_k>(),
                         tp,std::integral_constant<std::size_t,count-inverse_k>());
           ApplyToTreePair<std::remove_reference<V>::type::treePathType,
-                          typename C1::NodeTag,
-                          typename C2::NodeTag,
+                          NodeTag<C1>,
+                          NodeTag<C2>,
                           visit>::apply(n1.template child<count-inverse_k>(),
                                         n2.template child<count-inverse_k>(),
                                         std::forward<V>(v),
@@ -92,8 +92,8 @@ namespace Dune {
                         std::forward<N2>(n2),n2.template child<count-1>(),
                         tp,std::integral_constant<std::size_t,count-1>());
           ApplyToTreePair<std::remove_reference<V>::type::treePathType,
-                          typename C1::NodeTag,
-                          typename C2::NodeTag,
+                          NodeTag<C1>,
+                          NodeTag<C2>,
                           visit>::apply(n1.template child<count-1>(),
                                         n2.template child<count-1>(),
                                         std::forward<V>(v),
@@ -140,8 +140,8 @@ namespace Dune {
                         tp.view(),count-inverse_k);
           tp.push_back(count-inverse_k);
           ApplyToTreePair<std::remove_reference<V>::type::treePathType,
-                          typename C1::NodeTag,
-                          typename C2::NodeTag,
+                          NodeTag<C1>,
+                          NodeTag<C2>,
                           visit>::apply(n1.template child<count-inverse_k>(),
                                         n2.template child<count-inverse_k>(),
                                         std::forward<V>(v),
@@ -181,8 +181,8 @@ namespace Dune {
                         tp.view(),count-1);
           tp.push_back(count-1);
           ApplyToTreePair<std::remove_reference<V>::type::treePathType,
-                          typename C1::NodeTag,
-                          typename C2::NodeTag,
+                          NodeTag<C1>,
+                          NodeTag<C2>,
                           visit>::apply(n1.template child<count-1>(),
                                         n2.template child<count-1>(),
                                         std::forward<V>(v),

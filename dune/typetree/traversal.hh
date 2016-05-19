@@ -38,9 +38,9 @@ namespace Dune {
       template<typename Node, typename Visitor>
       static void apply(Node&& node, Visitor&& visitor)
       {
-        ApplyToTree<tpType,typename std::remove_reference<Node>::type::NodeTag>::apply(std::forward<Node>(node),
-                                                                                  std::forward<Visitor>(visitor),
-                                                                                  TreePathFactory<tpType>::create(node).mutablePath());
+        ApplyToTree<tpType,NodeTag<Node>>::apply(std::forward<Node>(node),
+                                                 std::forward<Visitor>(visitor),
+                                                 TreePathFactory<tpType>::create(node).mutablePath());
       }
 
     };
@@ -127,7 +127,7 @@ namespace Dune {
             tp.push_back(k);
 
             // descend to child
-            ApplyToTree<Visitor::treePathType,typename C::NodeTag,visit>::apply(n.child(k),std::forward<V>(v),tp);
+            ApplyToTree<Visitor::treePathType,NodeTag<C>,visit>::apply(n.child(k),std::forward<V>(v),tp);
 
             // restore TreePath
             tp.pop_back();
