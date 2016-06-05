@@ -114,6 +114,11 @@ namespace Dune {
       //! The number of children.
       static const std::size_t CHILDREN = filter_result::size;
 
+      static constexpr std::size_t degree()
+      {
+        return filter_result::size;
+      }
+
       //! Access to the type and storage type of the i-th child.
       template<std::size_t k>
       struct Child {
