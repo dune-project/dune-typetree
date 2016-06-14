@@ -53,16 +53,17 @@ namespace Dune {
       {
         typedef TransformedNode<TC, staticDegree<SourceNode>> type;
         typedef std::shared_ptr<type> storage_type;
+        static const std::size_t degree = staticDegree<type>;
       };
 
       template<typename TC>
-      static typename result<TC>::type transform(const SourceNode& s, const Transformation& t, const std::array<std::shared_ptr<TC>,staticDegree<typename result<TC>::type>>& children)
+      static typename result<TC>::type transform(const SourceNode& s, const Transformation& t, const std::array<std::shared_ptr<TC>,result<TC>::degree>& children)
       {
         return typename result<TC>::type(children);
       }
 
       template<typename TC>
-      static typename result<TC>::storage_type transform_storage(std::shared_ptr<const SourceNode> s, const Transformation& t, const std::array<std::shared_ptr<TC>,staticDegree<result<TC>::type>>& children)
+      static typename result<TC>::storage_type transform_storage(std::shared_ptr<const SourceNode> s, const Transformation& t, const std::array<std::shared_ptr<TC>,result<TC>::degree>& children)
       {
         return std::make_shared<typename result<TC>::type>(children);
       }
