@@ -104,11 +104,6 @@ namespace Dune {
         )
       >;
 
-    //! Returns the statically known degree of the given Node type as a constant value.
-    template<typename Node>
-    constexpr std::size_t staticDegree = StaticDegree<Node>::value;
-
-
     //! \} group Nodes
 
   } // namespace TypeTree
