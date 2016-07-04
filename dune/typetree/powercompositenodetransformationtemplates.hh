@@ -22,7 +22,7 @@ namespace Dune {
       template<typename TC>
       struct result
       {
-        typedef TransformedNode<SourceNode,TC,staticDegree<SourceNode>> type;
+        typedef TransformedNode<SourceNode,TC,StaticDegree<SourceNode>::value> type;
       };
     };
 

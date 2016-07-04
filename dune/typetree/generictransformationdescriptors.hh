@@ -59,7 +59,7 @@ namespace Dune {
       {
         typedef typename TransformedNodeTemplate<TC>::type type;
         typedef std::shared_ptr<type> storage_type;
-        static const std::size_t degree = staticDegree<type>;
+        static const std::size_t degree = StaticDegree<type>::value;
       };
 
       template<typename TC>

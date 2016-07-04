@@ -175,7 +175,7 @@ namespace Dune {
 
         typedef typename Functor::result_type result_type;
 
-        static const result_type child_result = accumulate_over_children<Node,Functor,Reduction,ParentChildReduction,current_value,TreePath,0,staticDegree<Node>>::result;
+        static const result_type child_result = accumulate_over_children<Node,Functor,Reduction,ParentChildReduction,current_value,TreePath,0,StaticDegree<Node>::value>::result;
 
         static const result_type result =
           accumulate_node_helper<Node,Functor,ParentChildReduction,child_result,TreePath,Functor::template doVisit<Node,TreePath>::value>::result;
@@ -416,7 +416,7 @@ namespace Dune {
           current_type,
           TreePath,
           0,
-          staticDegree<Node>
+          StaticDegree<Node>::value
           >::type children_result_type;
 
         typedef typename accumulate_type_node_helper<

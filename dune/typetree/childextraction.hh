@@ -68,7 +68,7 @@ namespace Dune {
       template<typename Node, std::size_t i, typename... J,
         typename std::enable_if<
           Dune::models<HasTemplateChildMethod, Node>() &&
-          (i < staticDegree<Node>), int>::type = 0>
+          (i < StaticDegree<Node>::value), int>::type = 0>
       decltype(auto) child(Node&& node, index_constant<i>, J... j)
       {
         return child(std::forward<Node>(node).template child<i>(),j...);
@@ -77,7 +77,7 @@ namespace Dune {
       template<typename Node, std::size_t i, typename... J,
         typename std::enable_if<
           Dune::models<HasTemplateChildMethod, decltype(*std::declval<std::decay_t<Node>>())>() &&
-        (i < staticDegree<decltype(*std::declval<Node>())>), int>::type = 0>
+        (i < StaticDegree<decltype(*std::declval<Node>())>::value), int>::type = 0>
       decltype(auto) childStorage(Node&& node, index_constant<i>, J... j)
       {
         return childStorage(std::forward<Node>(node)->template childStorage<i>(),j...);
@@ -89,11 +89,11 @@ namespace Dune {
       template<typename Node, std::size_t i, typename... J,
         typename std::enable_if<
           (!Dune::models<HasTemplateChildMethod, Node>()) ||
-          (i >= staticDegree<Node>), int>::type = 0>
+          (i >= StaticDegree<Node>::value), int>::type = 0>
       void child(Node&& node, index_constant<i>, J... j)
       {
         static_assert(Dune::models<HasTemplateChildMethod, Node>(), "Node does not have a template method child()");
-        static_assert(i < staticDegree<Node>, "Child index out of range");
+        static_assert(i < StaticDegree<Node>::value, "Child index out of range");
       }
 
       // ********************************************************************************

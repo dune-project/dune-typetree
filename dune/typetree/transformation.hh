@@ -277,7 +277,7 @@ namespace Dune {
         // transform children
         typedef TransformTree<typename S::ChildType,T,NodeTag<typename S::ChildType>,ChildNodeTransformation::recursive> ChildTreeTransformation;
         typedef typename ChildTreeTransformation::transformed_type transformed_child;
-        const std::size_t child_count = staticDegree<S>;
+        const std::size_t child_count = StaticDegree<S>::value;
         std::array<std::shared_ptr<transformed_child>,child_count> children;
         for (std::size_t k = 0; k < child_count; ++k) {
           children[k] = ChildTreeTransformation::transform_storage(s.childStorage(k),t);
@@ -291,7 +291,7 @@ namespace Dune {
         // transform children
         typedef TransformTree<typename S::ChildType,T,NodeTag<typename S::ChildType>,ChildNodeTransformation::recursive> ChildTreeTransformation;
         typedef typename ChildTreeTransformation::transformed_type transformed_child;
-        const std::size_t child_count = staticDegree<S>;
+        const std::size_t child_count = StaticDegree<S>::value;
         std::array<std::shared_ptr<transformed_child>,child_count> children;
         for (std::size_t k = 0; k < child_count; ++k) {
           children[k] = ChildTreeTransformation::transform_storage(s.childStorage(k),t);
@@ -306,7 +306,7 @@ namespace Dune {
         // transform children
         typedef TransformTree<typename S::ChildType,T,NodeTag<typename S::ChildType>,ChildNodeTransformation::recursive> ChildTreeTransformation;
         typedef typename ChildTreeTransformation::transformed_type transformed_child;
-        const std::size_t child_count = staticDegree<S>;
+        const std::size_t child_count = StaticDegree<S>::value;
         std::array<std::shared_ptr<transformed_child>,child_count> children;
         for (std::size_t k = 0; k < child_count; ++k) {
           children[k] = ChildTreeTransformation::transform_storage(sp->childStorage(k),t);
@@ -320,7 +320,7 @@ namespace Dune {
         // transform children
         typedef TransformTree<typename S::ChildType,T,NodeTag<typename S::ChildType>,ChildNodeTransformation::recursive> ChildTreeTransformation;
         typedef typename ChildTreeTransformation::transformed_type transformed_child;
-        const std::size_t child_count = staticDegree<S>;
+        const std::size_t child_count = StaticDegree<S>::value;
         std::array<std::shared_ptr<transformed_child>,child_count> children;
         for (std::size_t k = 0; k < child_count; ++k) {
           children[k] = ChildTreeTransformation::transform_storage(sp->childStorage(k),t);
@@ -334,7 +334,7 @@ namespace Dune {
         // transform children
         typedef TransformTree<typename S::ChildType,T,NodeTag<typename S::ChildType>,ChildNodeTransformation::recursive> ChildTreeTransformation;
         typedef typename ChildTreeTransformation::transformed_storage_type transformed_child_storage;
-        const std::size_t child_count = staticDegree<S>;
+        const std::size_t child_count = StaticDegree<S>::value;
         std::array<transformed_child_storage,child_count> children;
         for (std::size_t k = 0; k < child_count; ++k) {
           children[k] = ChildTreeTransformation::transform_storage(sp->childStorage(k),t);
@@ -347,7 +347,7 @@ namespace Dune {
         // transform children
         typedef TransformTree<typename S::ChildType,T,NodeTag<typename S::ChildType>,ChildNodeTransformation::recursive> ChildTreeTransformation;
         typedef typename ChildTreeTransformation::transformed_storage_type transformed_child_storage;
-        const std::size_t child_count = staticDegree<S>;
+        const std::size_t child_count = StaticDegree<S>::value;
         std::array<transformed_child_storage,child_count> children;
         for (std::size_t k = 0; k < child_count; ++k) {
           children[k] = ChildTreeTransformation::transform_storage(sp->childStorage(k),t);

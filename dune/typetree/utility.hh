@@ -113,9 +113,9 @@ namespace Dune {
 
       static const std::size_t depth = 1 + ChildInfo::depth;
 
-      static const std::size_t nodeCount = 1 + staticDegree<Node> * ChildInfo::nodeCount;
+      static const std::size_t nodeCount = 1 + StaticDegree<Node>::value * ChildInfo::nodeCount;
 
-      static const std::size_t leafCount = staticDegree<Node> * ChildInfo::leafCount;
+      static const std::size_t leafCount = StaticDegree<Node>::value * ChildInfo::leafCount;
 
     };
 
@@ -163,7 +163,7 @@ namespace Dune {
     struct GenericCompositeNodeInfo
     {
 
-      typedef generic_compositenode_children_info<Node,0,staticDegree<Node>> Children;
+      typedef generic_compositenode_children_info<Node,0,StaticDegree<Node>::value> Children;
 
       static const std::size_t depth = 1 + Children::maxDepth;
 
