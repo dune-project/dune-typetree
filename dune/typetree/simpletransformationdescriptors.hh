@@ -51,9 +51,9 @@ namespace Dune {
       template<typename TC>
       struct result
       {
-        typedef TransformedNode<TC, staticDegree<SourceNode>> type;
+        typedef TransformedNode<TC, StaticDegree<SourceNode>::value> type;
         typedef std::shared_ptr<type> storage_type;
-        static const std::size_t degree = staticDegree<type>;
+        static const std::size_t degree = StaticDegree<type>::value;
       };
 
       template<typename TC>

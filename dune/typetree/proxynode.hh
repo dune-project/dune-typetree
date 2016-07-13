@@ -278,11 +278,11 @@ namespace Dune {
       static const bool isComposite = Node::isComposite;
 
       //! The number of children.
-      static const std::size_t CHILDREN = staticDegree<Node>;
+      static const std::size_t CHILDREN = StaticDegree<Node>::value;
 
       static constexpr std::size_t degree()
       {
-        return staticDegree<Node>;
+        return StaticDegree<Node>::value;
       }
 
 

@@ -245,10 +245,10 @@ namespace Dune {
         v.pre(std::forward<N1>(n1),std::forward<N2>(n2),tp.view());
         // make sure both nodes have the same number of children - otherwise, it
         // would be difficult to match the children to each other.
-        static_assert(staticDegree<N1> == staticDegree<N2>,
+        static_assert(StaticDegree<N1>::value == StaticDegree<N2>::value,
                       "non-leaf nodes with different numbers of children " \
                       "are not allowed during simultaneous grid traversal");
-        apply_to_children_pair<treePathType,staticDegree<N1>>::apply(std::forward<N1>(n1),
+        apply_to_children_pair<treePathType,StaticDegree<N1>::value>::apply(std::forward<N1>(n1),
                                                                      std::forward<N2>(n2),
                                                                      std::forward<V>(v),
                                                                      tp);

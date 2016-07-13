@@ -220,7 +220,7 @@ namespace Dune {
         v.pre(std::forward<N>(n),tp);
         typedef typename std::remove_reference<N>::type Node;
         typedef typename std::remove_reference<V>::type Visitor;
-        apply_to_children<Visitor::treePathType,staticDegree<Node>>::apply(std::forward<N>(n),
+        apply_to_children<Visitor::treePathType,StaticDegree<Node>::value>::apply(std::forward<N>(n),
                                                                            std::forward<V>(v),
                                                                            tp);
         v.post(std::forward<N>(n),tp);

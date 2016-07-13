@@ -121,7 +121,7 @@ namespace Dune {
         typedef typename std::remove_reference<N2>::type Node2;
         typedef typename Node1::template Child<0>::Type C1;
         typedef typename Node2::template Child<0>::Type C2;
-        static_assert(staticDegree<Node1> == staticDegree<Node2>,
+        static_assert(StaticDegree<Node1>::value == StaticDegree<Node2>::value,
                       "non-leaf nodes with different numbers of children " \
                       "are not allowed during simultaneous grid traversal");
         const bool visit = std::remove_reference<V>::type
