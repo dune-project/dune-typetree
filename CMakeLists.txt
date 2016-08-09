@@ -24,7 +24,6 @@ dune_project()
 add_subdirectory(cmake/modules)
 add_subdirectory(doc)
 add_subdirectory(dune)
-add_subdirectory(m4)
 add_subdirectory(test)
 
 # finalize the dune project, e.g. generating config.h etc.
