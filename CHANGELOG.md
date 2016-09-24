@@ -9,13 +9,13 @@ the 2.4.0 release of PDELab.
 Changes
 =======
 
-TypeTree 3.0
+TypeTree 2.5
 ------------
 
 - TypeTree has updated its minimum compiler requirements. You now need a compiler that is at
   least compatible with GCC 4.9 in C++14 mode.
 
-- Removed support for autotools.
+- Removed support for Autotools.
 
 
 TypeTree 2.4
