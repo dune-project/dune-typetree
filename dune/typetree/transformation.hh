@@ -29,7 +29,7 @@ namespace Dune {
     //! Register transformation descriptor to transform SourceNode with Transformation.
     /**
      * The tree transformation engine expects this function to return a struct describing
-     * how to perform the Transformation for The type SourceNode, which has ImplementationTag Tag.
+     * how to perform the Transformation for the type SourceNode, which has ImplementationTag Tag.
      * This function has to be specialized for every combination of Transformation and Tag that
      * the transformation engine should support.
      *

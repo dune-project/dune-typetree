@@ -117,7 +117,7 @@ namespace Dune {
     // The standard struct-based meta functions cause premature evaluation in a
     // context that is not SFINAE-compatible. We thus have to return the meta function
     // without evaluating it, placing that burden on the caller. On the other hand,
-    // the lookup will often directly the target type, so here is some helper code
+    // the lookup will often directly be the target type, so here is some helper code
     // to automatically do the additional evaluation if necessary.
     // Too bad that the new syntax is GCC 4.6+...
 
