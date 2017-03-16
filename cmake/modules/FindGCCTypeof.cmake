@@ -8,6 +8,9 @@
 # perform tests
 include(CheckCXXSourceCompiles)
 
+# deprecation warning
+message(DEPRECATION "FindGCCTypeof is deprecated and will be removed after the release of dune-typetree 2.6")
+
 check_cxx_source_compiles("
   template<typename A, typename B>
   struct check_equal;
