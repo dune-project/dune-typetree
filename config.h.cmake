@@ -39,7 +39,4 @@
 /* Define to the revision of dune-typetree */
 #define DUNE_TYPETREE_VERSION_REVISION ${DUNE_TYPETREE_VERSION_REVISION}
 
-/* Define to 1 if std::initializer_list is supported. */
-#cmakedefine HAVE_INITIALIZER_LIST 1
-
 /* end dune-typetree */
