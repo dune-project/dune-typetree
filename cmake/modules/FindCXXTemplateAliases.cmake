@@ -7,6 +7,9 @@
 # perform tests
 include(CheckCXXSourceCompiles)
 
+# deprecation warning
+message(DEPRECATION "FindCXXTemplateAliases is deprecated and will be removed after the release of dune-typetree 2.6")
+
 check_cxx_source_compiles("
   template<typename T, typename U>
   struct A
