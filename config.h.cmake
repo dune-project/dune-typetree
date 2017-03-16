@@ -42,13 +42,4 @@
 /* Define to 1 if std::initializer_list is supported. */
 #cmakedefine HAVE_INITIALIZER_LIST 1
 
-/* Define to 1 if template aliases are supported. */
-#cmakedefine HAVE_TEMPLATE_ALIASES 1
-
-/* Define to 1 if decltype if supported. */
-#cmakedefine HAVE_STD_DECLTYPE 1
-
-/* Define to 1 if GCC's __typeof__ extension is supported. */
-#cmakedefine HAVE_GCC___TYPEOF__ 1
-
 /* end dune-typetree */
