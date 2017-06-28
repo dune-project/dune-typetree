@@ -161,6 +161,51 @@ namespace Dune {
 
 #endif // DOXYGEN
 
+    namespace Detail {
+
+      template<class PreFunc, class LeafFunc, class PostFunc>
+      struct CallbackVisitor :
+        public TypeTree::TreeVisitor,
+        public TypeTree::DynamicTraversal
+      {
+        public:
+        CallbackVisitor(PreFunc& preFunc, LeafFunc& leafFunc, PostFunc& postFunc) :
+          preFunc_(preFunc),
+          leafFunc_(leafFunc),
+          postFunc_(postFunc)
+        {}
+
+        template<typename Node, typename TreePath>
+        void pre(Node&& node, TreePath treePath)
+        {
+          preFunc_(node, treePath);
+        }
+
+        template<typename Node, typename TreePath>
+        void leaf(Node&& node, TreePath treePath)
+        {
+          leafFunc_(node, treePath);
+        }
+
+        template<typename Node, typename TreePath>
+        void post(Node&& node, TreePath treePath)
+        {
+          postFunc_(node, treePath);
+        }
+
+      private:
+        PreFunc& preFunc_;
+        LeafFunc& leafFunc_;
+        PostFunc& postFunc_;
+      };
+
+      template<class PreFunc, class LeafFunc, class PostFunc>
+      auto callbackVisitor(PreFunc& preFunc, LeafFunc& leafFunc, PostFunc& postFunc)
+      {
+        return CallbackVisitor<PreFunc, LeafFunc, PostFunc>(preFunc, leafFunc, postFunc);
+      }
+
+    } // namespace Detail
 
 
     // ********************************************************************************
@@ -187,6 +232,71 @@ namespace Dune {
     {
       ApplyToTree<std::remove_reference<Visitor>::type::treePathType>::apply(std::forward<Tree>(tree),
                                                                              std::forward<Visitor>(visitor));
+    }
+
+    /**
+     * \brief Traverse tree and visit each node
+     *
+     * All passed callback functions are called with the
+     * node and corresponding treepath as arguments.
+     *
+     * \param tree The tree to traverse
+     * \param preFunc This function is called for each inner node before visiting its children
+     * \param leafFunc This function is called for each leaf node
+     * \param postFunc This function is called for each inner node after visiting its children
+     */
+    template<class Tree, class PreFunc, class LeafFunc, class PostFunc>
+    auto forEachNode(Tree&& tree, PreFunc&& preFunc, LeafFunc&& leafFunc, PostFunc&& postFunc)
+    {
+      applyToTree(tree, Detail::callbackVisitor(preFunc, leafFunc, postFunc));
+    }
+
+    /**
+     * \brief Traverse tree and visit each node
+     *
+     * All passed callback functions are called with the
+     * node and corresponding treepath as arguments.
+     *
+     * \param tree The tree to traverse
+     * \param innerFunc This function is called for each inner node before visiting its children
+     * \param leafFunc This function is called for each leaf node
+     */
+    template<class Tree, class InnerFunc, class LeafFunc>
+    auto forEachNode(Tree&& tree, InnerFunc&& innerFunc, LeafFunc&& leafFunc)
+    {
+      auto nop = [](auto&&... args) {};
+      forEachNode(tree, innerFunc, leafFunc, nop);
+    }
+
+    /**
+     * \brief Traverse tree and visit each node
+     *
+     * The passed callback function is called with the
+     * node and corresponding treepath as arguments.
+     *
+     * \param tree The tree to traverse
+     * \param nodeFunc This function is called for each node
+     */
+    template<class Tree, class NodeFunc>
+    auto forEachNode(Tree&& tree, NodeFunc&& nodeFunc)
+    {
+      forEachNode(tree, nodeFunc, nodeFunc);
+    }
+
+    /**
+     * \brief Traverse tree and visit each leaf node
+     *
+     * The passed callback function is called with the
+     * node and corresponding treepath as arguments.
+     *
+     * \param tree The tree to traverse
+     * \param leafFunc This function is called for each leaf node
+     */
+    template<class Tree, class LeafFunc>
+    auto forEachLeafNode(Tree&& tree, LeafFunc&& leafFunc)
+    {
+      auto nop = [](auto&&... args) {};
+      forEachNode(tree, nop, leafFunc, nop);
     }
 
     //! \} group Tree Traversal
