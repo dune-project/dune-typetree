@@ -246,7 +246,7 @@ namespace Dune {
      * \param postFunc This function is called for each inner node after visiting its children
      */
     template<class Tree, class PreFunc, class LeafFunc, class PostFunc>
-    auto forEachNode(Tree&& tree, PreFunc&& preFunc, LeafFunc&& leafFunc, PostFunc&& postFunc)
+    void forEachNode(Tree&& tree, PreFunc&& preFunc, LeafFunc&& leafFunc, PostFunc&& postFunc)
     {
       applyToTree(tree, Detail::callbackVisitor(preFunc, leafFunc, postFunc));
     }
@@ -262,7 +262,7 @@ namespace Dune {
      * \param leafFunc This function is called for each leaf node
      */
     template<class Tree, class InnerFunc, class LeafFunc>
-    auto forEachNode(Tree&& tree, InnerFunc&& innerFunc, LeafFunc&& leafFunc)
+    void forEachNode(Tree&& tree, InnerFunc&& innerFunc, LeafFunc&& leafFunc)
     {
       auto nop = [](auto&&... args) {};
       forEachNode(tree, innerFunc, leafFunc, nop);
@@ -278,7 +278,7 @@ namespace Dune {
      * \param nodeFunc This function is called for each node
      */
     template<class Tree, class NodeFunc>
-    auto forEachNode(Tree&& tree, NodeFunc&& nodeFunc)
+    void forEachNode(Tree&& tree, NodeFunc&& nodeFunc)
     {
       forEachNode(tree, nodeFunc, nodeFunc);
     }
@@ -293,7 +293,7 @@ namespace Dune {
      * \param leafFunc This function is called for each leaf node
      */
     template<class Tree, class LeafFunc>
-    auto forEachLeafNode(Tree&& tree, LeafFunc&& leafFunc)
+    void forEachLeafNode(Tree&& tree, LeafFunc&& leafFunc)
     {
       auto nop = [](auto&&... args) {};
       forEachNode(tree, nop, leafFunc, nop);
