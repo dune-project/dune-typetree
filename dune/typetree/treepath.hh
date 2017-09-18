@@ -442,13 +442,6 @@ namespace Dune {
       return treePathEntry<treePathSize(tp)-1>(tp);
     }
 
-    //! Returns the index value of the last element of the `HybridTreePath`.
-    template<typename... T, typename std::enable_if<(sizeof...(T) > 0),bool>::type = true>
-    std::size_t backIndex(const HybridTreePath<T...>& tp)
-    {
-      return treePathEntry<treePathSize(tp)-1>(tp);
-    }
-
     //! Returns a copy of the first element of the `HybridTreePath`.
     /**
      * As `HybridTreePath` instances should not be mutated after their creation, this function
@@ -458,13 +451,6 @@ namespace Dune {
     template<typename... T>
     auto front(const HybridTreePath<T...>& tp)
       -> decltype(treePathEntry<0>(tp))
-    {
-      return treePathEntry<0>(tp);
-    }
-
-    //! Returns the index value of the first element of the `HybridTreePath`.
-    template<typename... T>
-    std::size_t frontIndex(const HybridTreePath<T...>& tp)
     {
       return treePathEntry<0>(tp);
     }
