@@ -437,9 +437,9 @@ namespace Dune {
      */
     template<typename... T, typename std::enable_if<(sizeof...(T) > 0),bool>::type = true>
     auto back(const HybridTreePath<T...>& tp)
-      -> decltype(treePathEntry<treePathSize(tp)-1>(tp))
+      -> decltype(treePathEntry<sizeof...(T)-1>(tp))
     {
-      return treePathEntry<treePathSize(tp)-1>(tp);
+      return treePathEntry<sizeof...(T)-1>(tp);
     }
 
     //! Returns a copy of the first element of the `HybridTreePath`.
