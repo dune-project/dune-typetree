@@ -386,7 +386,7 @@ namespace Dune {
 
       template<typename T>
       constexpr typename std::enable_if<
-        is_flat_index<T>{},
+        Dune::TypeTree::is_flat_index<T>::value,
         bool
         >::type
       _non_empty_tree_path(T)
@@ -396,7 +396,7 @@ namespace Dune {
 
       template<typename T>
       constexpr typename std::enable_if<
-        !is_flat_index<T>{},
+        !Dune::TypeTree::is_flat_index<T>::value,
         bool
         >::type
       _non_empty_tree_path(T t)
