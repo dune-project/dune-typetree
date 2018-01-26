@@ -1,13 +1,20 @@
 TypeTree
 ========
 
-This is the 2.4.0-rc1 version of the TypeTree library for statically typed object trees.
+This is the 2.6.0-rc1 version of the TypeTree library for statically typed object trees.
 
-TypeTree 2.4.0-rc1 is compatible with the 2.4.0 release of the DUNE core modules and
-the 2.4.0 release of PDELab.
+TypeTree 2.6.0-rc1 is compatible with the 2.6.0 release of the DUNE core modules and
+the 2.6.0 release of PDELab.
 
 Changes
 =======
+
+TypeTree 2.6
+------------
+
+- TypeTree has updated its minimum build toolchain requirements. You now need a compiler that is at
+  least compatible with GCC 5 in C++14 mode and CMake 3.1.0.
+
 
 TypeTree 2.5
 ------------
