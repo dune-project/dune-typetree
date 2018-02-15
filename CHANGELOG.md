@@ -12,8 +12,21 @@ Changes
 TypeTree 2.6
 ------------
 
-- TypeTree has updated its minimum build toolchain requirements. You now need a compiler that is at
-  least compatible with GCC 5 in C++14 mode and CMake 3.1.0.
+-   TypeTree has updated its minimum build toolchain requirements. You now need a compiler that is at
+    least compatible with GCC 5 in C++14 mode and CMake 3.1.0.
+
+-   There is a new, simpler way of applying a functor to each tree node that keeps you from having
+    to write a visitor by yourself, e.g.:
+
+    ```c++
+    int i = 0;
+    forEachNode(tree, [](auto&&... node) {
+      ++i;
+    });
+    ```
+
+    Thanks to Carsten Gräser for contributing this feature!
+
 
 
 TypeTree 2.5
