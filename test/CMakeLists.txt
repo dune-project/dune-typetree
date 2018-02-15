@@ -21,3 +21,5 @@ dune_add_test(SOURCES testfilteredcompositenode.cc
 
 dune_add_test(SOURCES testproxynode.cc
               COMPILE_DEFINITIONS TEST_TYPETREE)
+
+dune_add_test(SOURCES testcallbacktraversal.cc)
