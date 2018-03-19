@@ -8,6 +8,9 @@
 #include <utility>
 #endif
 
+#include <dune/common/std/utility.hh>
+#include <dune/common/hybridutilities.hh>
+
 #include <dune/typetree/nodetags.hh>
 #include <dune/typetree/treepath.hh>
 #include <dune/typetree/visitor.hh>
@@ -163,46 +166,32 @@ namespace Dune {
 
     namespace Detail {
 
-      template<class PreFunc, class LeafFunc, class PostFunc>
-      struct CallbackVisitor :
-        public TypeTree::TreeVisitor,
-        public TypeTree::DynamicTraversal
+      /* Traverse tree and visit each node. The signature is the same
+       * as for the public forEachNode function in Dune::Typtree,
+       * despite the additionally passed treePath argument. The path
+       * passed here is associated to the tree and the relative
+       * paths of the children (wrt. to tree) are appended to this.
+       * Hence the behavior of the public function is resembeled
+       * by passing an empty treePath.
+       */
+      template<class Tree, class TreePath, class PreFunc, class LeafFunc, class PostFunc>
+      void forEachNode(Tree&& tree, TreePath treePath, PreFunc&& preFunc, LeafFunc&& leafFunc, PostFunc&& postFunc)
       {
-        public:
-        CallbackVisitor(PreFunc& preFunc, LeafFunc& leafFunc, PostFunc& postFunc) :
-          preFunc_(preFunc),
-          leafFunc_(leafFunc),
-          postFunc_(postFunc)
-        {}
-
-        template<typename Node, typename TreePath>
-        void pre(Node&& node, TreePath treePath)
-        {
-          preFunc_(node, treePath);
-        }
-
-        template<typename Node, typename TreePath>
-        void leaf(Node&& node, TreePath treePath)
-        {
-          leafFunc_(node, treePath);
-        }
-
-        template<typename Node, typename TreePath>
-        void post(Node&& node, TreePath treePath)
-        {
-          postFunc_(node, treePath);
-        }
-
-      private:
-        PreFunc& preFunc_;
-        LeafFunc& leafFunc_;
-        PostFunc& postFunc_;
-      };
-
-      template<class PreFunc, class LeafFunc, class PostFunc>
-      auto callbackVisitor(PreFunc& preFunc, LeafFunc& leafFunc, PostFunc& postFunc)
-      {
-        return CallbackVisitor<PreFunc, LeafFunc, PostFunc>(preFunc, leafFunc, postFunc);
+        Dune::Hybrid::ifElse(Dune::Std::bool_constant<tree.isLeaf>{}, [&] (auto id) {
+          // If we have a leaf tree just visit it using the leaf function.
+          leafFunc(std::forward<Tree>(tree), treePath);
+        }, [&] (auto id) {
+          // Otherwise visit the tree with the pre function,
+          // visit all children using a static loop, and
+          // finally visit the tree with the post function.
+          preFunc(tree, treePath);
+          auto indices = Dune::Std::make_index_sequence<tree.degree()>{};
+          Dune::Hybrid::forEach(indices, [&](auto i) {
+            auto childTreePath = Dune::TypeTree::push_back(treePath, i);
+            forEachNode(id(tree).child(i), childTreePath, preFunc, leafFunc, postFunc);
+          });
+          postFunc(tree, treePath);
+        });
       }
 
     } // namespace Detail
@@ -248,7 +237,7 @@ namespace Dune {
     template<class Tree, class PreFunc, class LeafFunc, class PostFunc>
     void forEachNode(Tree&& tree, PreFunc&& preFunc, LeafFunc&& leafFunc, PostFunc&& postFunc)
     {
-      applyToTree(tree, Detail::callbackVisitor(preFunc, leafFunc, postFunc));
+      Detail::forEachNode(tree, hybridTreePath(), preFunc, leafFunc, postFunc);
     }
 
     /**
