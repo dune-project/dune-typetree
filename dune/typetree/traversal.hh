@@ -177,7 +177,8 @@ namespace Dune {
       template<class Tree, class TreePath, class PreFunc, class LeafFunc, class PostFunc>
       void forEachNode(Tree&& tree, TreePath treePath, PreFunc&& preFunc, LeafFunc&& leafFunc, PostFunc&& postFunc)
       {
-        Dune::Hybrid::ifElse(Dune::Std::bool_constant<tree.isLeaf>{}, [&] (auto id) {
+        using TreeType = std::decay_t<Tree>;
+        Dune::Hybrid::ifElse(Dune::Std::bool_constant<TreeType::isLeaf>{}, [&] (auto id) {
           // If we have a leaf tree just visit it using the leaf function.
           leafFunc(id(tree), treePath);
         }, [&] (auto id) {
@@ -185,7 +186,7 @@ namespace Dune {
           // visit all children using a static loop, and
           // finally visit the tree with the post function.
           preFunc(id(tree), treePath);
-          auto indices = Dune::Std::make_index_sequence<tree.degree()>{};
+          auto indices = Dune::Std::make_index_sequence<TreeType::degree()>{};
           Dune::Hybrid::forEach(indices, [&](auto i) {
             auto childTreePath = Dune::TypeTree::push_back(treePath, i);
             forEachNode(id(tree).child(i), childTreePath, preFunc, leafFunc, postFunc);
