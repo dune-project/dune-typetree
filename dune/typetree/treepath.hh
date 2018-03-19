@@ -357,6 +357,30 @@ namespace Dune {
         return sizeof...(T);
       }
 
+      //! Get the last index value.
+      template<std::size_t i>
+      auto element(Dune::index_constant<i> pos = {}) const
+      {
+        return std::get<i>(_data);
+      }
+
+      //! Get the index value at position pos.
+      std::size_t element(std::size_t pos) const
+      {
+        std::size_t entry = 0;
+        Dune::Hybrid::forEach(enumerate(), [&] (auto i) {
+            if (i==pos)
+              entry = element(i);
+        });
+        return entry;
+      }
+
+      //! Get the last index value.
+      auto back() const
+      {
+        return std::get<sizeof...(T)-1>(_data);
+      }
+
 #ifndef DOXYGEN
 
       // I can't be bothered to make all the external accessors friends of HybridTreePath,
