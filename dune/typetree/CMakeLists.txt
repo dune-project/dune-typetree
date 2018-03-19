@@ -1,7 +1,5 @@
 install(FILES
   accumulate_static.hh
-  applytochildrensingletree.hh
-  applytochildrentreepair.hh
   childextraction.hh
   compositenode.hh
   exceptions.hh
