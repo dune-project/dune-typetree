@@ -8,6 +8,7 @@
 #include <dune/typetree/nodeinterface.hh>
 #include <dune/typetree/nodetags.hh>
 #include <dune/common/shared_ptr.hh>
+#include <dune/common/indices.hh>
 
 namespace Dune {
   namespace TypeTree {
@@ -64,7 +65,7 @@ namespace Dune {
        */
       template<std::size_t k>
       typename std::enable_if<lazy_enabled<k>::value,typename Child<k>::Type&>::type
-      child()
+      child(Dune::index_constant<k> = {})
       {
         return node().proxiedNode().template child<k>();
       }
@@ -74,7 +75,7 @@ namespace Dune {
        * \returns a const reference to the i-th child.
        */
       template<std::size_t k>
-      const typename Child<k>::Type& child() const
+      const typename Child<k>::Type& child(Dune::index_constant<k> = {}) const
       {
         return node().proxiedNode().template child<k>();
       }
