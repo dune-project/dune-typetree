@@ -179,18 +179,18 @@ namespace Dune {
       {
         Dune::Hybrid::ifElse(Dune::Std::bool_constant<tree.isLeaf>{}, [&] (auto id) {
           // If we have a leaf tree just visit it using the leaf function.
-          leafFunc(std::forward<Tree>(tree), treePath);
+          leafFunc(id(tree), treePath);
         }, [&] (auto id) {
           // Otherwise visit the tree with the pre function,
           // visit all children using a static loop, and
           // finally visit the tree with the post function.
-          preFunc(tree, treePath);
+          preFunc(id(tree), treePath);
           auto indices = Dune::Std::make_index_sequence<tree.degree()>{};
           Dune::Hybrid::forEach(indices, [&](auto i) {
             auto childTreePath = Dune::TypeTree::push_back(treePath, i);
             forEachNode(id(tree).child(i), childTreePath, preFunc, leafFunc, postFunc);
           });
-          postFunc(tree, treePath);
+          postFunc(id(tree), treePath);
         });
       }
 
