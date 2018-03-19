@@ -171,7 +171,7 @@ namespace Dune {
        * despite the additionally passed treePath argument. The path
        * passed here is associated to the tree and the relative
        * paths of the children (wrt. to tree) are appended to this.
-       * Hence the behavior of the public function is resembeled
+       * Hence the behavior of the public function is resembled
        * by passing an empty treePath.
        */
       template<class Tree, class TreePath, class PreFunc, class LeafFunc, class PostFunc>
