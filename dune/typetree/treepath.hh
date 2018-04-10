@@ -153,60 +153,6 @@ namespace Dune {
       return os;
     }
 
-    //! A TreePath that stores the path of a node as runtime information.
-    class DynamicTreePath
-    {
-
-    public:
-
-      //! Get the size (length) of this path.
-      std::size_t size() const
-      {
-        return _stack.size();
-      }
-
-      //! Get the index value at position pos.
-      std::size_t element(std::size_t pos) const
-      {
-        return _stack[pos];
-      }
-
-      //! Get the last index value.
-      std::size_t back() const
-      {
-        return _stack.back();
-      }
-
-      //! Get the first index value.
-      std::size_t front() const
-      {
-        return _stack.front();
-      }
-
-      friend std::ostream& operator<<(std::ostream& os, const DynamicTreePath& tp)
-      {
-        os << "TreePath( ";
-        for (std::size_t i = 0; i < tp.size(); ++i)
-          os << tp.element(i) << " ";
-        os << ")";
-        return os;
-      }
-
-    protected:
-
-#ifndef DOXYGEN
-
-      typedef FixedCapacityStackView<std::size_t> Stack;
-
-      Stack& _stack;
-
-      DynamicTreePath(Stack& stack)
-        : _stack(stack)
-      {}
-
-#endif // DOXYGEN
-
-    };
 
     //! A hybrid version of TreePath that supports both compile time and run time indices.
     /**

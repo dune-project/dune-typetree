@@ -164,13 +164,6 @@ namespace Dune {
         return std::false_type();
       }
 
-      // Overload for DynamicTreePath
-      constexpr auto isTreePath(const DynamicTreePath*)
-        -> std::true_type
-      {
-        return std::true_type();
-      }
-
       // Overload for instances of TreePath<...>
       template<std::size_t... i>
       constexpr auto isTreePath(const TreePath<i...>*)
