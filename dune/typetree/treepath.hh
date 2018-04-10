@@ -208,55 +208,6 @@ namespace Dune {
 
     };
 
-#ifndef DOXYGEN // DynamicTreePath subclasses are implementation details and never exposed to the user
-
-    // This is the object that gets passed around by the traversal algorithm. It
-    // extends the DynamicTreePath with stack-like modifier methods. Note that
-    // it does not yet allocate any storage for the index values. It just uses
-    // the reference to a storage vector of the base class. This implies that all
-    // objects that are copy-constructed from each other share a single index storage!
-    // The reason for this is to avoid differentiating the visitor signature for static
-    // and dynamic traversal: Having very cheap copy-construction for these objects
-    // allows us to pass them by value.
-    class MutableDynamicTreePath
-      : public DynamicTreePath
-    {
-
-    public:
-
-      typedef DynamicTreePath ViewType;
-
-      void push_back(std::size_t v)
-      {
-        _stack.push_back(v);
-      }
-
-      void pop_back()
-      {
-        _stack.pop_back();
-      }
-
-      void set_back(std::size_t v)
-      {
-        _stack.back() = v;
-      }
-
-      DynamicTreePath view()
-      {
-        return *this;
-      }
-
-    protected:
-
-      MutableDynamicTreePath(Stack& stack)
-        : DynamicTreePath(stack)
-      {}
-
-    };
-
-#endif // DOXYGEN
-
-
     //! A hybrid version of TreePath that supports both compile time and run time indices.
     /**
      * A `HybridTreePath` supports storing a combination of run time and compile time indices.
