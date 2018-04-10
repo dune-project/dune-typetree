@@ -381,6 +381,17 @@ namespace Dune {
       return HybridTreePath<T...>(t...);
     }
 
+    //! Constructs a new `HybridTreePath` from the given indices.
+    /**
+     * This function returns a new `HybridTreePath` with the given index values. It exists
+     * mainly to avoid having to manually specify the exact type of the new object.
+     */
+    template<typename... T>
+    constexpr HybridTreePath<T...> treePath(const T&... t)
+    {
+      return HybridTreePath<T...>(t...);
+    }
+
 
     //! Returns the size (number of components) of the given `HybridTreePath`.
     template<typename... T>
