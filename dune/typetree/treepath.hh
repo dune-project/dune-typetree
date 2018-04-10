@@ -23,7 +23,7 @@ namespace Dune {
     //! \{
 
     namespace TreePathType {
-      enum Type { fullyStatic, mostlyStatic, dynamic };
+      enum Type { fullyStatic, dynamic };
     }
 
     template<std::size_t... i>
