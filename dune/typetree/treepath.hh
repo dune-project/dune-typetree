@@ -279,33 +279,6 @@ namespace Dune {
 
     };
 
-    // Factory for creating the right type of TreePath based on the requested
-    // traversal pattern (static or dynamic).
-    template<TreePathType::Type tpType>
-    struct TreePathFactory;
-
-    // Factory for static traversal.
-    template<>
-    struct TreePathFactory<TreePathType::fullyStatic>
-    {
-      template<typename Tree>
-      static TreePath<> create(const Tree& tree)
-      {
-        return TreePath<>();
-      }
-    };
-
-    // Factory for dynamic traversal.
-    template<>
-    struct TreePathFactory<TreePathType::dynamic>
-    {
-      template<typename Tree>
-      static MakeableDynamicTreePath<TreeInfo<Tree>::depth> create(const Tree& tree)
-      {
-        return MakeableDynamicTreePath<TreeInfo<Tree>::depth>();
-      }
-    };
-
 #endif // DOXYGEN
 
 
