@@ -254,31 +254,6 @@ namespace Dune {
 
     };
 
-    // DynamicTreePath storage provider.
-    // This objects provides the storage for the DynamicTreePath
-    // during the tree traversal. After construction, it should
-    // not be used directly - the traversal framework uses the
-    // base class returned by calling mutablePath().
-    template<std::size_t treeDepth>
-    class MakeableDynamicTreePath
-      : private FixedCapacityStack<std::size_t,treeDepth>
-      , public MutableDynamicTreePath
-    {
-
-    public:
-
-      MutableDynamicTreePath mutablePath()
-      {
-        return static_cast<MutableDynamicTreePath&>(*this);
-      }
-
-      MakeableDynamicTreePath()
-        : MutableDynamicTreePath(static_cast<FixedCapacityStackView<std::size_t>&>(*this))
-      {
-      }
-
-    };
-
 #endif // DOXYGEN
 
 
