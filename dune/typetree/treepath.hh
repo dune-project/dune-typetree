@@ -351,6 +351,12 @@ namespace Dune {
         return {};
       }
 
+      //! Get the size (length) of this path.
+      constexpr static std::size_t size()
+      {
+        return sizeof...(T);
+      }
+
 #ifndef DOXYGEN
 
       // I can't be bothered to make all the external accessors friends of HybridTreePath,
