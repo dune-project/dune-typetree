@@ -9,6 +9,8 @@
 
 #include <dune/common/documentation.hh>
 #include <dune/common/typetraits.hh>
+#include <dune/common/indices.hh>
+#include <dune/common/hybridutilities.hh>
 
 #include <dune/typetree/fixedcapacitystack.hh>
 #include <dune/typetree/utility.hh>
@@ -355,6 +357,24 @@ namespace Dune {
       constexpr static std::size_t size()
       {
         return sizeof...(T);
+      }
+
+      //! Get the index value at position pos.
+      template<std::size_t i>
+      constexpr auto operator[](Dune::index_constant<i> pos) const
+      {
+        return std::get<i>(_data);
+      }
+
+      //! Get the index value at position pos.
+      constexpr std::size_t operator[](std::size_t pos) const
+      {
+        std::size_t entry = 0;
+        Dune::Hybrid::forEach(enumerate(), [&] (auto i) {
+            if (i==pos)
+              entry = element(i);
+        });
+        return entry;
       }
 
       //! Get the last index value.
