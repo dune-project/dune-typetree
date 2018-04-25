@@ -8,7 +8,6 @@
 #include <dune/typetree/nodetags.hh>
 #include <dune/typetree/treepath.hh>
 #include <dune/typetree/visitor.hh>
-#include <dune/typetree/applytochildrentreepair.hh>
 
 namespace Dune {
   namespace TypeTree {
@@ -18,136 +17,54 @@ namespace Dune {
      *  \{
      */
 
-#ifndef DOXYGEN // these are all internals and not public API. Only access is using applyToTree().
+    namespace Detail {
 
-    template<TreePathType::Type tpType>
-    struct ApplyToTreePair<tpType,StartTag,StartTag,true>
-    {
-
-      template<typename Node1, typename Node2, typename Visitor>
-      static void apply(Node1&& node1, Node2&& node2, Visitor&& visitor)
+      /* The signature is the same as for the public applyToTreePair
+       * function in Dune::Typtree, despite the additionally passed
+       * treePath argument. The path passed here is associated to
+       * the tree and the relative paths of the children (wrt. to tree)
+       * are appended to this.  Hence the behavior of the public function
+       * is resembled by passing an empty treePath.
+       */
+      template<class T1, class T2, class TreePath, class V>
+      void applyToTreePair(T1&& tree1, T2&& tree2, TreePath treePath, V&& visitor)
       {
-        ApplyToTreePair<tpType,
-                        NodeTag<Node1>,
-                        NodeTag<Node2>
-                        >::apply(std::forward<Node1>(node1),
-                                 std::forward<Node2>(node2),
-                                 std::forward<Visitor>(visitor),
-                                 TreePathFactory<tpType>::create(node1).mutablePath());
+        // Do we really want to take care for const-ness of the Tree
+        // when instanciating VisitChild below? I'd rather expect this:
+        // using Tree1 = std::decay_t<T1>;
+        // using Tree2 = std::decay_t<T2>;
+        // using Visitor = std::decay_t<V>;
+        using Tree1 = std::remove_reference_t<T1>;
+        using Tree2 = std::remove_reference_t<T2>;
+        using Visitor = std::remove_reference_t<V>;
+        Dune::Hybrid::ifElse(Dune::Std::bool_constant<Tree1::isLeaf>{}, [&] (auto id) {
+          visitor.leaf(id(tree1), id(tree2), treePath);
+        }, [&] (auto id) {
+          visitor.pre(id(tree1), id(tree2), treePath);
+          auto indices = Dune::Std::make_index_sequence<Tree1::degree()>{};
+          Dune::Hybrid::forEach(indices, [&](auto i) {
+            auto childTreePath = Dune::TypeTree::push_back(treePath, i);
+            auto&& child1 = id(tree1).child(i);
+            auto&& child2 = id(tree2).child(i);
+            using Child1 = std::decay_t<decltype(child1)>;
+            using Child2 = std::decay_t<decltype(child2)>;
+
+            visitor.beforeChild(id(tree1), child1, id(tree2), child2, treePath, i);
+
+            Dune::Hybrid::ifElse(Dune::Std::bool_constant<(i>0)>{}, [&] (auto id) {
+              visitor.in(id(tree1), id(tree2), treePath);
+            });
+            static const auto visitChild = Visitor::template VisitChild<Tree1,Child1,Tree2,Child2,TreePath>::value;
+            Dune::Hybrid::ifElse(Dune::Std::bool_constant<visitChild>{}, [&] (auto id) {
+              applyToTreePair(child1, child2, childTreePath, visitor);
+            });
+
+            visitor.afterChild(id(tree1), child1, id(tree2), child2, treePath, i);
+          });
+          visitor.post(id(tree1), id(tree2), treePath);
+        });
       }
-
-    };
-
-
-    // Do not visit nodes the visitor is not interested in
-    template<TreePathType::Type tpType, typename Tag1, typename Tag2>
-    struct ApplyToTreePair<tpType,Tag1,Tag2,false>
-    {
-      template<typename Node1, typename Node2, typename Visitor, typename TreePath>
-      static void apply(const Node1& node1, const Node2& node2, const Visitor& visitor, TreePath treePath)
-      {}
-    };
-
-
-    /*
-
-    // LeafNode - again, this is easy: just do all three visits
-    template<TreePathType::Type tpType>
-    struct ApplyToTree<tpType,LeafNodeTag,LeafNodeTag,true>
-    {
-
-    #if HAVE_RVALUE_REFERENCES
-
-    template<typename N1, typename N2, typename V, typename TreePath>
-    static void apply(N1&& n1, N2&& n2, V&& v, TreePath tp)
-    {
-    v.leaf(std::forward<N1>(n1),std::forward<N2>(n2),tp.view());
-    }
-
-    #else
-
-    template<typename N1, typename N2, typename V, typename TreePath>
-    static void apply(N1& n1, N2& n2, V& v, TreePath tp)
-    {
-    v.leaf(n1,n2,tp.view());
-    }
-
-    template<typename N1, typename N2, typename V, typename TreePath>
-    static void apply(const N1& n1, const N2& n2, V& v, TreePath tp)
-    {
-    v.leaf(n1,n2,tp.view());
-    }
-
-    template<typename N1, typename N2, typename V, typename TreePath>
-    static void apply(N1& n1, N2& n2, const V& v, TreePath tp)
-    {
-    v.leaf(n1,n2,tp.view());
-    }
-
-    template<typename N1, typename N2, typename V, typename TreePath>
-    static void apply(const N1& n1, const N2& n2, const V& v, TreePath tp)
-    {
-    v.leaf(n1,n2,tp.view());
-    }
-
-    #endif // HAVE_RVALUE_REFERENCES
-
-    };
-    */
-
-
-    // Automatically pick the correct traversal algorithm for the two nodes
-    template<TreePathType::Type treePathType,typename FirstTag, typename SecondTag>
-    struct ApplyToTreePair<treePathType,FirstTag,SecondTag,true>
-      : public ApplyToGenericCompositeNodePair<treePathType>
-    {
-    };
-
-
-
-    // ********************************************************************************
-    // Specialization for dynamic traversal and two PowerNodes -> use runtime iteration
-    // ********************************************************************************
-
-    template<>
-    struct ApplyToTreePair<TreePathType::dynamic,PowerNodeTag,PowerNodeTag,true>
-    {
-
-      template<typename N1, typename N2, typename V, typename TreePath>
-      static void apply(N1&& n1, N2&& n2, V&& v, TreePath tp)
-      {
-        v.pre(std::forward<N1>(n1),std::forward<N2>(n2),tp.view());
-        typedef typename std::remove_reference<N1>::type Node1;
-        typedef typename std::remove_reference<N2>::type Node2;
-        typedef typename Node1::template Child<0>::Type C1;
-        typedef typename Node2::template Child<0>::Type C2;
-        static_assert(StaticDegree<Node1>::value == StaticDegree<Node2>::value,
-                      "non-leaf nodes with different numbers of children " \
-                      "are not allowed during simultaneous grid traversal");
-        const bool visit = std::remove_reference<V>::type
-          ::template VisitChild<Node1,C1,Node2,C2,typename TreePath::ViewType>::value;
-        for (std::size_t k = 0; k < degree(n1); ++k)
-          {
-            v.beforeChild(std::forward<N1>(n1),n1.child(k),std::forward<N2>(n2),n2.child(k),tp.view(),k);
-            tp.push_back(k);
-            ApplyToTreePair<TreePathType::dynamic, // we know that due to the specialization
-                            NodeTag<C1>,
-                            NodeTag<C2>,
-                            visit>::apply(n1.child(k),
-                                          n2.child(k),
-                                          std::forward<V>(v),
-                                          tp);
-            tp.pop_back();
-            v.afterChild(std::forward<N1>(n1),n1.child(k),std::forward<N2>(n2),n2.child(k),tp.view(),k);
-            if (k < degree(n1) - 1)
-              v.in(std::forward<N1>(n1),std::forward<N2>(n2),tp.view());
-          }
-        v.post(std::forward<N1>(n1),std::forward<N2>(n2),tp.view());
-      }
-
-    };
-
-#endif // DOXYGEN
+    } // namespace Detail
 
     //! Apply visitor to a pair of TypeTrees.
     /**
@@ -167,9 +84,7 @@ namespace Dune {
     template<typename Tree1, typename Tree2, typename Visitor>
     void applyToTreePair(Tree1&& tree1, Tree2&& tree2, Visitor&& visitor)
     {
-      ApplyToTreePair<std::remove_reference<Visitor>::type::treePathType>::apply(std::forward<Tree1>(tree1),
-                                                                                 std::forward<Tree2>(tree2),
-                                                                                 std::forward<Visitor>(visitor));
+      Detail::applyToTreePair(tree1, tree2, hybridTreePath(), visitor);
     }
 
     //! \} group Tree Traversal

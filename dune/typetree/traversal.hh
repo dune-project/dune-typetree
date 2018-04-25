@@ -14,7 +14,6 @@
 #include <dune/typetree/nodetags.hh>
 #include <dune/typetree/treepath.hh>
 #include <dune/typetree/visitor.hh>
-#include <dune/typetree/applytochildrensingletree.hh>
 
 namespace Dune {
   namespace TypeTree {
@@ -25,146 +24,49 @@ namespace Dune {
      */
 
 
-#ifndef DOXYGEN // these are all internals and not public API. Only access is using applyToTree().
-
-
-    // This struct is the core of the algorithm. While this specialization simply serves as the starting point
-    // of the traversal and takes care of some setup work, the struct has to be specialized for each TreeType node type it
-    // should support.
-    // The first parameter specifies the kind of TreePath (dynamic/static) to use, the second one is the tag of the node type
-    // and the third one must always be specialized as true, as a value of false means the node should in fact not be visited.
-    // That case is already handled by a specialization of the struct.
-    template<TreePathType::Type tpType, bool doApply>
-    struct ApplyToTree<tpType,StartTag,doApply>
-    {
-
-      template<typename Node, typename Visitor>
-      static void apply(Node&& node, Visitor&& visitor)
-      {
-        ApplyToTree<tpType,NodeTag<Node>>::apply(std::forward<Node>(node),
-                                                 std::forward<Visitor>(visitor),
-                                                 TreePathFactory<tpType>::create(node).mutablePath());
-      }
-
-    };
-
-
-    // Do not visit nodes the visitor is not interested in
-    template<TreePathType::Type tpType, typename NodeTag>
-    struct ApplyToTree<tpType,NodeTag,false>
-    {
-
-      // we won't do anything with the objects, so having them all const
-      // works fine.
-      template<typename Node, typename Visitor, typename TreePath>
-      static void apply(const Node& node, const Visitor& visitor, TreePath treePath)
-      {}
-
-    };
-
-
-
-    // ********************************************************************************
-    // LeafNode
-    // ********************************************************************************
-
-    // LeafNode - just call the leaf() callback
-    template<TreePathType::Type tpType>
-    struct ApplyToTree<tpType,LeafNodeTag,true>
-    {
-
-      template<typename N, typename V, typename TreePath>
-      static void apply(N&& n, V&& v, TreePath tp)
-      {
-        v.leaf(std::forward<N>(n),tp.view());
-      }
-
-    };
-
-
-
-    // ********************************************************************************
-    // PowerNode
-    // ********************************************************************************
-
-    // Traverse PowerNode statically - in this case, we simply use the
-    // generic child traversal algorithm
-    template<>
-    struct ApplyToTree<TreePathType::fullyStatic,PowerNodeTag,true>
-      : public ApplyToGenericCompositeNode
-    {
-    };
-
-    // Traverse PowerNode dynamically. Here, we exploit the fact that is possible
-    // to do the child traversal using runtime iteration, as that saves a lot of
-    // template instantiations.
-    template<>
-    struct ApplyToTree<TreePathType::dynamic,PowerNodeTag,true>
-    {
-
-      template<typename N, typename V, typename TreePath>
-      static void apply(N&& n, V&& v, TreePath tp)
-      {
-        // first encounter of this node
-        v.pre(std::forward<N>(n),tp.view());
-
-        // strip types of possible references
-        typedef typename std::remove_reference<N>::type Node;
-        typedef typename std::remove_reference<V>::type Visitor;
-
-        // get child type
-        typedef typename Node::template Child<0>::Type C;
-
-        // Do we have to visit the children? As the TreePath is dynamic, it does not
-        // contain any information that could be evaluated at compile time, so we only
-        // have to query the visitor once.
-        const bool visit = Visitor::template VisitChild<Node,C,typename TreePath::ViewType>::value;
-
-        // iterate over children
-        for (std::size_t k = 0; k < degree(n); ++k)
-          {
-            // always call beforeChild(), regardless of the value of visit
-            v.beforeChild(std::forward<N>(n),n.child(k),tp.view(),k);
-
-            // update TreePath
-            tp.push_back(k);
-
-            // descend to child
-            ApplyToTree<Visitor::treePathType,NodeTag<C>,visit>::apply(n.child(k),std::forward<V>(v),tp);
-
-            // restore TreePath
-            tp.pop_back();
-
-            // always call afterChild(), regardless of the value of visit
-            v.afterChild(std::forward<N>(n),n.child(k),tp.view(),k);
-
-            // if this is not the last child, call infix callback
-            if (k < degree(n) - 1)
-              v.in(std::forward<N>(n),tp.view());
-          }
-
-        // node is done - call postfix callback
-        v.post(std::forward<N>(n),tp.view());
-      }
-
-    };
-
-
-
-    // ********************************************************************************
-    // CompositeNode
-    // ********************************************************************************
-
-    // Traverse CompositeNode - just forward to the generic algorithm
-    template<TreePathType::Type treePathType>
-    struct ApplyToTree<treePathType,CompositeNodeTag,true>
-      : public ApplyToGenericCompositeNode
-    {
-    };
-
-#endif // DOXYGEN
-
     namespace Detail {
+
+      /* The signature is the same as for the public applyToTree
+       * function in Dune::Typtree, despite the additionally passed
+       * treePath argument. The path passed here is associated to
+       * the tree and the relative paths of the children (wrt. to tree)
+       * are appended to this.  Hence the behavior of the public function
+       * is resembled by passing an empty treePath.
+       */
+      template<class T, class TreePath, class V>
+      void applyToTree(T&& tree, TreePath treePath, V&& visitor)
+      {
+        // Do we really want to take care for const-ness of the Tree
+        // when instanciating VisitChild below? I'd rather expect this:
+        // using Tree = std::decay_t<T>;
+        // using Visitor = std::decay_t<V>;
+        using Tree = std::remove_reference_t<T>;
+        using Visitor = std::remove_reference_t<V>;
+        Dune::Hybrid::ifElse(Dune::Std::bool_constant<Tree::isLeaf>{}, [&] (auto id) {
+          visitor.leaf(id(tree), treePath);
+        }, [&] (auto id) {
+          visitor.pre(id(tree), treePath);
+          auto indices = Dune::Std::make_index_sequence<Tree::degree()>{};
+          Dune::Hybrid::forEach(indices, [&](auto i) {
+            auto childTreePath = Dune::TypeTree::push_back(treePath, i);
+            auto&& child = id(tree).child(i);
+            using Child = std::decay_t<decltype(child)>;
+
+            visitor.beforeChild(id(tree), child, treePath, i);
+
+            Dune::Hybrid::ifElse(Dune::Std::bool_constant<(i>0)>{}, [&] (auto id) {
+              visitor.in(id(tree), treePath);
+            });
+            static const auto visitChild = Visitor::template VisitChild<Tree,Child,TreePath>::value;
+            Dune::Hybrid::ifElse(Dune::Std::bool_constant<visitChild>{}, [&] (auto id) {
+              applyToTree(child, childTreePath, visitor);
+            });
+
+            visitor.afterChild(id(tree), child, treePath, i);
+          });
+          visitor.post(id(tree), treePath);
+        });
+      }
 
       /* Traverse tree and visit each node. The signature is the same
        * as for the public forEachNode function in Dune::Typtree,
@@ -220,8 +122,7 @@ namespace Dune {
     template<typename Tree, typename Visitor>
     void applyToTree(Tree&& tree, Visitor&& visitor)
     {
-      ApplyToTree<std::remove_reference<Visitor>::type::treePathType>::apply(std::forward<Tree>(tree),
-                                                                             std::forward<Visitor>(visitor));
+      Detail::applyToTree(tree, hybridTreePath(), visitor);
     }
 
     /**
