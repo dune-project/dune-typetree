@@ -369,18 +369,6 @@ namespace Dune {
 
     namespace impl {
 
-      // helper struct to perform lazy return type evaluation in the forwarding member child() methods
-      // of nodes
-      template<typename Node>
-      struct _lazy_member_child_decltype
-      {
-        template<typename... Indices>
-        struct evaluate
-        {
-          using type = decltype(Dune::TypeTree::child(std::declval<Node>(),std::declval<Indices>()...));
-        };
-      };
-
       // helper function for check in member child() functions that tolerates being passed something that
       // isn't a TreePath. It will just return 0 in that case
 

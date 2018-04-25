@@ -9,6 +9,7 @@
 
 #include <dune/typetree/nodetags.hh>
 #include <dune/typetree/childextraction.hh>
+#include <dune/typetree/typetraits.hh>
 
 namespace Dune {
   namespace TypeTree {
@@ -173,12 +174,9 @@ namespace Dune {
       template<typename... Indices>
       ImplementationDefined& child(Indices... indices)
 #else
-      template<typename I0, typename... I>
+      template<typename I0, typename... I,
+        std::enable_if_t<(sizeof...(I) > 0) || IsTreePath<I0>::value, int > = 0>
       auto child(I0 i0, I... i)
-        -> typename std::enable_if<
-             (sizeof...(I) > 0) || !is_flat_index<I0>{},
-             impl::_lazy_member_child_decltype<CompositeNode>
-        >::type::template evaluate<I0,I...>::type
 #endif
       {
         static_assert(sizeof...(I) > 0 || impl::_non_empty_tree_path(I0{}),
@@ -196,12 +194,9 @@ namespace Dune {
       template<typename... Indices>
       const ImplementationDefined& child(Indices... indices)
 #else
-      template<typename I0, typename... I>
+      template<typename I0, typename... I,
+        std::enable_if_t<(sizeof...(I) > 0) || IsTreePath<I0>::value, int > = 0>
       auto child(I0 i0, I... i) const
-        -> typename std::enable_if<
-             (sizeof...(I) > 0) || !is_flat_index<I0>{},
-             impl::_lazy_member_child_decltype<const CompositeNode>
-        >::type::template evaluate<I0,I...>::type
 #endif
       {
         static_assert(sizeof...(I) > 0 || impl::_non_empty_tree_path(I0{}),
