@@ -4,6 +4,8 @@
 #ifndef DUNE_TYPETREE_VISITOR_HH
 #define DUNE_TYPETREE_VISITOR_HH
 
+#include <dune/common/deprecated.hh>
+
 #include <dune/typetree/treepath.hh>
 
 namespace Dune {
