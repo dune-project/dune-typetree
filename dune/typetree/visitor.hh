@@ -307,10 +307,7 @@ namespace Dune {
      */
     struct DUNE_DEPRECATED_MSG("Dune::TypeTree::StaticTraversal is deprecated. You no longer need to derive from this.")
       StaticTraversal
-    {
-      //! Use the static tree traversal algorithm.
-      static const TreePathType::Type treePathType = TreePathType::fullyStatic;
-    };
+    {};
 
     //! Mixin base class for visitors that only need a dynamic TreePath during traversal.
     /**
@@ -321,10 +318,7 @@ namespace Dune {
      */
     struct DUNE_DEPRECATED_MSG("Dune::TypeTree::DynamicTraversal is deprecated. You no longer need to derive from this.")
       DynamicTraversal
-    {
-      //! Use the dynamic tree traversal algorithm.
-      static const TreePathType::Type treePathType = TreePathType::dynamic;
-    };
+    {};
 
     //! Convenience base class for visiting the entire tree.
     struct TreeVisitor
