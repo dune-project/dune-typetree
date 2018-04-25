@@ -74,8 +74,7 @@ namespace Dune {
      * be promoted to const.
      *
      * \note The visitor must implement the interface laid out by DefaultPairVisitor (most easily achieved by
-     *       inheriting from it) and specify the required type of tree traversal (static or dynamic) by
-     *       inheriting from either StaticTraversal or DynamicTraversal.
+     *       inheriting from it).
      *
      * \param tree1   The first tree the visitor will be applied to.
      * \param tree2   The second tree the visitor will be applied to.

@@ -113,8 +113,7 @@ namespace Dune {
      * or non-const (if the compiler supports rvalue references, they may even be a non-const temporary).
      *
      * \note The visitor must implement the interface laid out by DefaultVisitor (most easily achieved by
-     *       inheriting from it) and specify the required type of tree traversal (static or dynamic) by
-     *       inheriting from either StaticTraversal or DynamicTraversal.
+     *       inheriting from it).
      *
      * \param tree    The tree the visitor will be applied to.
      * \param visitor The visitor to apply to the tree.
