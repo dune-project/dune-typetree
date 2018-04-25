@@ -329,7 +329,7 @@ namespace Dune {
 #else
       template<typename I0, typename... I,
         std::enable_if_t<(sizeof...(I) > 0) || IsTreePath<I0>::value, int > = 0>
-      auto child(I0 i0, I... i)
+      decltype(auto) child(I0 i0, I... i)
 #endif
       {
         static_assert(sizeof...(I) > 0 || impl::_non_empty_tree_path(I0{}),
@@ -349,7 +349,7 @@ namespace Dune {
 #else
       template<typename I0, typename... I,
         std::enable_if_t<(sizeof...(I) > 0) || IsTreePath<I0>::value, int > = 0>
-      auto child(I0 i0, I... i) const
+      decltype(auto) child(I0 i0, I... i) const
 #endif
       {
         static_assert(sizeof...(I) > 0 || impl::_non_empty_tree_path(I0{}),
