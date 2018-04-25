@@ -300,13 +300,13 @@ namespace Dune {
 
     //! Mixin base class for visitors that require a static TreePath during traversal.
     /**
-     * \warning Static traversal should only be used if absolutely necessary, as it tends
-     *          to increase compilation times and object sizes (especially if compiling
-     *          with debug information)!
+     * \note TreePaths are now always generated statically during traversal.
+     *       Deriving from this class no longer has any effect.
      *
      * \sa DynamicTraversal
      */
-    struct StaticTraversal
+    struct DUNE_DEPRECATED_MSG("Dune::TypeTree::StaticTraversal is deprecated. You no longer need to derive from this.")
+      StaticTraversal
     {
       //! Use the static tree traversal algorithm.
       static const TreePathType::Type treePathType = TreePathType::fullyStatic;
@@ -314,13 +314,13 @@ namespace Dune {
 
     //! Mixin base class for visitors that only need a dynamic TreePath during traversal.
     /**
-     * \note Dynamic traversal is preferable to static traversal, as it causes fewer
-     *       template instantiations, which improves compile time and reduces object
-     *       size (especially if compiling with debug information).
+     * \note TreePaths are now always generated statically during traversal.
+     *       Deriving from this class no longer has any effect.
      *
      * \sa StaticTraversal
      */
-    struct DynamicTraversal
+    struct DUNE_DEPRECATED_MSG("Dune::TypeTree::DynamicTraversal is deprecated. You no longer need to derive from this.")
+      DynamicTraversal
     {
       //! Use the dynamic tree traversal algorithm.
       static const TreePathType::Type treePathType = TreePathType::dynamic;
