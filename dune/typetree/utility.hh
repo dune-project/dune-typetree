@@ -184,83 +184,10 @@ namespace Dune {
 #endif // DOXYGEN
 
 
-    //! Simple holder class for a template argument pack of indices.
-    /**
-     * The main use of index_pack is to unpack variadically templated
-     * data structures like this:
-     *
-     * \code
-     * template<typename T, typename F, std::size_t... i>
-     * void apply_to_tuple(const T& t, F f, index_pack<i...> indices)
-     * {
-     *   discard((f(get<i>(t)),0)...);
-     * }
-     *
-     * std::tuple<int,double,...,char> t;
-     * apply_to_tuple(t,foo,tuple_indices(t));
-     * \endcode
-     *
-     * \sa tuple_indices()
-     * \sa discard()
-     */
-    template<std::size_t... i>
-    struct index_pack {};
-
-    //! TMP to build an index_pack containing the sequence 0,...,n-1.
-    template<std::size_t n, std::size_t... i>
-    struct index_pack_builder
-      : public index_pack_builder<n-1,n-1,i...>
-    {
-
-#ifdef DOXYGEN
-      //! Result.
-      typedef index_pack<0,1,...,n-1> type;
-#endif // DOXYGEN
-
-    };
-
-#ifndef DOXYGEN
-
-    // end of recursion
-    template<std::size_t... i>
-    struct index_pack_builder<0,i...>
-    {
-      typedef index_pack<i...> type;
-    };
-
-#endif // DOXYGEN
-
-    //! TMP to build an index_pack for all elements in the tuple.
-    template<typename tuple>
-    struct tuple_index_pack_builder
-      : public index_pack_builder<std::tuple_size<tuple>::value>
-    {};
-
-    //! Generate an index_pack for the tuple t.
-    template<typename tuple>
-    typename tuple_index_pack_builder<tuple>::type tuple_indices(const tuple& t)
-    {
-      return typename tuple_index_pack_builder<tuple>::type();
-    }
-
-    //! Generate an index_pack with the values {0, 1, ..., n-1}.
-    /**
-     * \tparam n The length of the index pack.
-     * \return   index_pack<0,1,...,n-1>.
-     **/
-    template<std::size_t n>
-    typename index_pack_builder<n>::type index_range(std::integral_constant<std::size_t,n> = {})
-    {
-      return typename index_pack_builder<n>::type();
-    }
-
     using Dune::index_constant;
     namespace Indices = Dune::Indices;
 
     //! No-op function to make calling a function on a variadic template argument pack legal C++.
-    /**
-     * \sa index_pack
-     */
     template<typename... Args>
     void discard(Args&&... args)
     {}
