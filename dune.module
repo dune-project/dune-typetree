@@ -1,5 +1,5 @@
 Module: dune-typetree
-Version: 2.6-rc1
+Version: 2.7-git
 Maintainer: steffen.muething@iwr.uni-heidelberg.de
-Depends: dune-common (>= 2.6)
+Depends: dune-common (>= 2.7)
 Whitespace-Hook: Yes
