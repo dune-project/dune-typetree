@@ -6,8 +6,11 @@
 
 #include <cassert>
 #include <array>
+#include <memory>
+#include <type_traits>
 
 #include <dune/common/typetraits.hh>
+#include <dune/common/std/type_traits.hh>
 
 #include <dune/typetree/nodetags.hh>
 #include <dune/typetree/utility.hh>
@@ -22,52 +25,6 @@ namespace Dune {
      *  \{
      */
 
-#ifndef DOXYGEN
-
-    namespace {
-
-      // prototype and end of recursion
-      template<typename T, typename It, typename... Args>
-      void assign_reference_pack_to_shared_ptr_array_unpack(It it, Args&&... args) {}
-
-      template<typename T, typename It, typename Arg, typename... Args>
-      void assign_reference_pack_to_shared_ptr_array_unpack(It it, Arg&& arg, Args&&... args)
-      {
-        static_assert(std::is_same<T,typename std::remove_const<typename std::remove_reference<Arg>::type>::type>::value,"type mismatch during array conversion");
-        *it = convert_arg(std::forward<Arg>(arg));
-        assign_reference_pack_to_shared_ptr_array_unpack<T>(++it,std::forward<Args>(args)...);
-      }
-
-      template<typename T, std::size_t n, typename... Args>
-      void assign_reference_pack_to_shared_ptr_array(std::array<shared_ptr<T>,n>& res, Args&&... args)
-      {
-        static_assert(sizeof...(Args) == n, "invalid number of arguments");
-        return assign_reference_pack_to_shared_ptr_array_unpack<T>(res.begin(),std::forward<Args>(args)...);
-      }
-
-
-      // prototype and end of recursion
-      template<typename T, typename It, typename... Args>
-      void assign_shared_ptr_pack_to_shared_ptr_array_unpack(It it, Args&&... args) {}
-
-      template<typename T, typename It, typename Arg, typename... Args>
-      void assign_shared_ptr_pack_to_shared_ptr_array_unpack(It it, Arg&& arg, Args&&... args)
-      {
-        static_assert(std::is_same<T,typename std::remove_reference<Arg>::type::element_type>::value,"type mismatch during array conversion");
-        *it = arg;
-        assign_shared_ptr_pack_to_shared_ptr_array_unpack<T>(++it,args...);
-      }
-
-      template<typename T, std::size_t n, typename... Args>
-      void assign_shared_ptr_pack_to_shared_ptr_array(std::array<shared_ptr<T>,n>& res, Args&&... args)
-      {
-        static_assert(sizeof...(Args) == n, "invalid number of arguments");
-        return assign_shared_ptr_pack_to_shared_ptr_array_unpack<T>(res.begin(),args...);
-      }
-
-    } // anonymous namespace
-
-#endif
 
 #ifndef DOXYGEN
 
@@ -400,33 +357,29 @@ namespace Dune {
 #ifdef DOXYGEN
 
       //! Initialize all children with the passed-in objects.
-      /**
-       * The availability of this constructor depends on the number of children and
-       * compiler support for C++0x: For 1 <= k <= 10, it is always present, but for
-       * k > 10, it requires C++0x support in the compiler. If your compiler doesn't,
-       * use PowerNode(const Storage& children) instead.
-       *
-       * Moreover, the C++0x-based version also supports passing in temporary objects
-       * and will move those objects into the node. Attempting to do so with the legacy
-       * version will result in a compile error.
-       */
       PowerNode(T& t1, T& t2, ...)
       {}
 
 #else
 
-      // this weird signature avoids shadowing other 1-argument constructors
-      template<typename C0, typename C1, typename... Children>
-      PowerNode (C0&& c0, C1&& c1, Children&&... children)
+      template<typename... Children,
+        std::enable_if_t<
+          Dune::Std::conjunction<std::is_same<ChildType, std::decay_t<Children>>...>::value
+          ,int> = 0>
+      PowerNode (Children&&... children)
       {
-        assign_reference_pack_to_shared_ptr_array(_children,std::forward<C0>(c0),std::forward<C1>(c1),std::forward<Children>(children)...);
+        static_assert(CHILDREN == sizeof...(Children), "PowerNode constructor is called with incorrect number of children");
+        _children = NodeStorage{convert_arg(std::forward<Children>(children))...};
       }
 
-      // this weird signature avoids shadowing other 1-argument constructors
-      template<typename C0, typename C1, typename... Children>
-      PowerNode (shared_ptr<C0> c0, shared_ptr<C1> c1, shared_ptr<Children>... children)
+      template<typename... Children,
+        std::enable_if_t<
+          Dune::Std::conjunction<std::is_same<ChildType, Children>...>::value
+          ,int> = 0>
+      PowerNode (std::shared_ptr<Children>... children)
       {
-        assign_shared_ptr_pack_to_shared_ptr_array(_children,c0,c1,children...);
+        static_assert(CHILDREN == sizeof...(Children), "PowerNode constructor is called with incorrect number of children");
+        _children = NodeStorage{children...};
       }
 
 #endif // DOXYGEN
