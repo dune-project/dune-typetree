@@ -7,6 +7,7 @@
 #include <array>
 #include <tuple>
 #include <memory>
+#include <utility>
 
 #include <dune/common/exceptions.hh>
 #include <dune/common/typetraits.hh>
@@ -413,25 +414,25 @@ namespace Dune {
 
 
       template<std::size_t... i>
-      static transformed_type transform(const S& s, T& t, index_pack<i...> indices)
+      static transformed_type transform(const S& s, T& t, std::index_sequence<i...> indices)
       {
         return NodeTransformation::transform(s,t,ChildTransformation<i>::transform_storage(s.template childStorage<i>(),t)...);
       }
 
       template<std::size_t... i>
-      static transformed_type transform(const S& s, const T& t, index_pack<i...> indices)
+      static transformed_type transform(const S& s, const T& t, std::index_sequence<i...> indices)
       {
         return NodeTransformation::transform(s,t,ChildTransformation<i>::transform_storage(s.template childStorage<i>(),t)...);
       }
 
       template<std::size_t... i>
-      static transformed_storage_type transform_storage(std::shared_ptr<const S> sp, T& t, index_pack<i...> indices)
+      static transformed_storage_type transform_storage(std::shared_ptr<const S> sp, T& t, std::index_sequence<i...> indices)
       {
         return NodeTransformation::transform_storage(sp,t,ChildTransformation<i>::transform_storage(sp->template childStorage<i>(),t)...);
       }
 
       template<std::size_t... i>
-      static transformed_storage_type transform_storage(std::shared_ptr<const S> sp, const T& t, index_pack<i...> indices)
+      static transformed_storage_type transform_storage(std::shared_ptr<const S> sp, const T& t, std::index_sequence<i...> indices)
       {
         return NodeTransformation::transform_storage(sp,t,ChildTransformation<i>::transform_storage(sp->template childStorage<i>(),t)...);
       }
@@ -449,9 +450,9 @@ namespace Dune {
 
       typedef typename S::ChildTypes ChildTypes;
 
-      static typename tuple_index_pack_builder<ChildTypes>::type child_indices()
+      static auto child_indices()
       {
-        return typename tuple_index_pack_builder<ChildTypes>::type();
+        return std::make_index_sequence<S::CHILDREN>();
       }
 
     public:
