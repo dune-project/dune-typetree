@@ -13,6 +13,8 @@ Changes
 TypeTree 2.7-git
 ----------------
 
+-   The class template `index_pack` and the utility functionality for its creation have been
+    removed. Use `std::index_sequence` instead.
 -   `forEachNode()`, `applyToTree()` and `applyToTreePair()` have been reimplemented.
     The new version will always provide a fully static tree path to the visitors.
     Deriving a visitor from `*Traversal` is no longer required and this base class
