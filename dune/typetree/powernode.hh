@@ -362,16 +362,6 @@ namespace Dune {
 #ifdef DOXYGEN
 
       //! Initialize all children with the passed-in objects.
-      /**
-       * The availability of this constructor depends on the number of children and
-       * compiler support for C++0x: For 1 <= k <= 10, it is always present, but for
-       * k > 10, it requires C++0x support in the compiler. If your compiler doesn't,
-       * use PowerNode(const Storage& children) instead.
-       *
-       * Moreover, the C++0x-based version also supports passing in temporary objects
-       * and will move those objects into the node. Attempting to do so with the legacy
-       * version will result in a compile error.
-       */
       PowerNode(T& t1, T& t2, ...)
       {}
 
