@@ -1,13 +1,27 @@
 TypeTree
 ========
 
-This is the 2.6.0-rc1 version of the TypeTree library for statically typed object trees.
+This is the 2.7-git development version of the TypeTree library for statically typed object trees
+that will evolve to the 2.7 release.
 
-TypeTree 2.6.0-rc1 is compatible with the 2.6.0 release of the DUNE core modules and
+TypeTree 2.7-git is compatible to the current development version 2.7-git of the DUNE core modules and
 the 2.6.0 release of PDELab.
 
 Changes
 =======
+
+TypeTree 2.7-git
+----------------
+
+-   `forEachNode()`, `applyToTree()` and `applyToTreePair()` have been reimplemented.
+    The new version will always provide a fully static tree path to the visitors.
+    Deriving a visitor from `*Traversal` is no longer required and this base class
+    will be ignored by the traversal algorithms.
+-   `HybridTreePath` gained new member functions `size()`, `element(Dune::index_constant<i>)`,
+    and `element(std::size_t)` to be compatible with `DynamicTreePath`.
+-   A `HybridTreePath` can now be constructed using the
+    global `treePath()` function which is an alias for `hybridTreePath()`.
+
 
 TypeTree 2.6
 ------------
