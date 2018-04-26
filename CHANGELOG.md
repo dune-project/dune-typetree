@@ -17,8 +17,10 @@ TypeTree 2.7-git
     The new version will always provide a fully static tree path to the visitors.
     Deriving a visitor from `*Traversal` is no longer required and this base class
     will be ignored by the traversal algorithms.
--   `HybridTreePath` gained new member functions `size()`, `element(Dune::index_constant<i>)`,
-    and `element(std::size_t)` to be compatible with `DynamicTreePath`.
+-   `HybridTreePath` gained new member functions `size()`,
+    `element(Dune::index_constant<i>)`, `element(std::size_t)`,
+    `operator[](Dune::index_constant<i>)`, and `operator[](std::size_t)`
+    to be compatible with `DynamicTreePath`.
 -   A `HybridTreePath` can now be constructed using the
     global `treePath()` function which is an alias for `hybridTreePath()`.
 
