@@ -84,9 +84,10 @@ namespace Dune {
 
           visitor.beforeChild(tree, child, treePath, i);
 
-          Dune::Hybrid::ifElse(Dune::Std::bool_constant<(i>0)>{}, [&] (auto id) {
-            visitor.in(id(tree), treePath);
-          });
+          // This requires that visiotor.in(...) can always be instantiated,
+          // even if there's a single child only.
+          if (i>0)
+            visitor.in(tree, treePath);
           static const auto visitChild = Visitor::template VisitChild<Tree,Child,TreePath>::value;
           Dune::Hybrid::ifElse(Dune::Std::bool_constant<visitChild>{}, [&] (auto id) {
             applyToTree(child, childTreePath, visitor);
