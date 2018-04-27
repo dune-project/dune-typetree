@@ -16,9 +16,8 @@ TypeTree 2.7-git
 -   The class template `index_pack` and the utility functionality for its creation have been
     removed. Use `std::index_sequence` instead.
 -   `forEachNode()`, `applyToTree()` and `applyToTreePair()` have been reimplemented.
-    The new version will always provide a fully static tree path to the visitors.
-    Deriving a visitor from `*Traversal` is no longer required and this base class
-    will be ignored by the traversal algorithms.
+    The user interface and functionality is the same. However, code using removed internal
+    implementation details of the old implementation will fail.
 -   `HybridTreePath` gained new member functions `size()`,
     `element(Dune::index_constant<i>)`, `element(std::size_t)`,
     `operator[](Dune::index_constant<i>)`, and `operator[](std::size_t)`
