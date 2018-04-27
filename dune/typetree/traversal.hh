@@ -120,6 +120,8 @@ namespace Dune {
 
           visitor.beforeChild(tree, child, treePath, i);
 
+          // This requires that visiotor.in(...) can always be instantiated,
+          // even if there's a single child only.
           if (i>0)
             visitor.in(tree, treePath);
           static const auto visitChild = Visitor::template VisitChild<Tree,Child,TreePath>::value;
