@@ -27,22 +27,21 @@ namespace Dune {
 
     namespace Detail {
 
-      template<class Node, class Visitor>
-      using DynamicChildTraversal = typename Dune::Std::bool_constant<
-        (std::decay_t<Node>::isPower and (std::decay_t<Visitor>::treePathType==TreePathType::dynamic))>;
+      // This is a constexpr version of the ternery operator c?t1:t1.
+      // In contrast to the latter the type of t1 and t2 can be different.
+      // Notice that std::conditional would not do the trick, because
+      // it only selects between types.
+      template<bool c, class T1, class T2,
+        std::enable_if_t<c, int> = 0>
+      constexpr auto conditionalValue(T1&& t1, T2&& t2) {
+        return std::forward<T1>(t1);
+      }
 
-      template<class Node, class Visitor>
-      using StaticChildTraversal = typename Dune::Std::bool_constant<
-        ((not std::decay_t<Node>::isLeaf) and (not DynamicChildTraversal<Node,Visitor>::value))>;
-
-      template<class Node, class Visitor>
-      using LeafChildTraversal = typename Dune::Std::bool_constant<
-        (std::decay_t<Node>::isLeaf)>;
-
-      // Forward declaration for dynamic child traversal overload
-      template<class T, class TreePath, class V,
-        std::enable_if_t<DynamicChildTraversal<T,V>::value, int> = 0>
-      void applyToTree(T&& tree, TreePath treePath, V&& visitor);
+      template<bool c, class T1, class T2,
+        std::enable_if_t<not c, int> = 0>
+      constexpr auto conditionalValue(T1&& t1, T2&& t2) {
+        return std::forward<T2>(t2);
+      }
 
       /* The signature is the same as for the public applyToTree
        * function in Dune::Typtree, despite the additionally passed
@@ -56,17 +55,17 @@ namespace Dune {
        * This is the overload for leaf traversal
        */
       template<class T, class TreePath, class V,
-        std::enable_if_t<LeafChildTraversal<T,V>::value, int> = 0>
+        std::enable_if_t<std::decay_t<T>::isLeaf, int> = 0>
       void applyToTree(T&& tree, TreePath treePath, V&& visitor)
       {
         visitor.leaf(tree, treePath);
       }
 
       /*
-       * This is the general overload doing static child traversal.
+       * This is the general overload doing child traversal.
        */
       template<class T, class TreePath, class V,
-        std::enable_if_t<StaticChildTraversal<T,V>::value, int> = 0>
+        std::enable_if_t<not std::decay_t<T>::isLeaf, int> = 0>
       void applyToTree(T&& tree, TreePath treePath, V&& visitor)
       {
         // Do we really want to take care for const-ness of the Tree
@@ -76,7 +75,13 @@ namespace Dune {
         using Tree = std::remove_reference_t<T>;
         using Visitor = std::remove_reference_t<V>;
         visitor.pre(tree, treePath);
-        auto indices = Dune::Std::make_index_sequence<Tree::degree()>{};
+
+        // Use statically encoded degree unless tree
+        // is a power node and dynamic traversal is requested.
+        constexpr auto useDynamicTraversal = (Tree::isPower and Visitor::treePathType==TreePathType::dynamic);
+        auto degree = conditionalValue<useDynamicTraversal>(Tree::degree(), Dune::index_constant<Tree::degree()>{});
+
+        auto indices = Dune::range(degree);
         Dune::Hybrid::forEach(indices, [&](auto i) {
           auto childTreePath = Dune::TypeTree::push_back(treePath, i);
           auto&& child = tree.child(i);
@@ -95,42 +100,6 @@ namespace Dune {
 
           visitor.afterChild(tree, child, treePath, i);
         });
-        visitor.post(tree, treePath);
-      }
-
-      /*
-       * This is the overload doing dynamic child traversal of power nodes.
-       */
-      template<class T, class TreePath, class V,
-        std::enable_if_t<DynamicChildTraversal<T,V>::value, int>>
-      void applyToTree(T&& tree, TreePath treePath, V&& visitor)
-      {
-        // Do we really want to take care for const-ness of the Tree
-        // when instanciating VisitChild below? I'd rather expect this:
-        // using Tree = std::decay_t<T>;
-        // using Visitor = std::decay_t<V>;
-        using Tree = std::remove_reference_t<T>;
-        using Visitor = std::remove_reference_t<V>;
-        visitor.pre(tree, treePath);
-        for(std::size_t i : Dune::range(Tree::degree()))
-        {
-          auto childTreePath = Dune::TypeTree::push_back(treePath, i);
-          auto&& child = tree.child(i);
-          using Child = std::decay_t<decltype(child)>;
-
-          visitor.beforeChild(tree, child, treePath, i);
-
-          // This requires that visiotor.in(...) can always be instantiated,
-          // even if there's a single child only.
-          if (i>0)
-            visitor.in(tree, treePath);
-          static const auto visitChild = Visitor::template VisitChild<Tree,Child,TreePath>::value;
-          Dune::Hybrid::ifElse(Dune::Std::bool_constant<visitChild>{}, [&] (auto id) {
-            applyToTree(child, childTreePath, visitor);
-          });
-
-          visitor.afterChild(tree, child, treePath, i);
-        }
         visitor.post(tree, treePath);
       }
 

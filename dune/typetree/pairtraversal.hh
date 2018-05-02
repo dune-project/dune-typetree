@@ -22,21 +22,6 @@ namespace Dune {
 
     namespace Detail {
 
-      template<class Node1, class Node2, class Visitor>
-      using DynamicChildPairTraversal = typename Dune::Std::conjunction<DynamicChildTraversal<Node1,Visitor>, DynamicChildTraversal<Node2,Visitor>>;
-
-      template<class Node1, class Node2, class Visitor>
-      using LeafChildPairTraversal = typename Dune::Std::disjunction<LeafChildTraversal<Node1,Visitor>, LeafChildTraversal<Node2,Visitor>>;
-
-      template<class Node1, class Node2, class Visitor>
-      using StaticChildPairTraversal = typename Dune::Std::bool_constant<
-        ((not DynamicChildPairTraversal<Node1,Node2,Visitor>::value) and (not LeafChildPairTraversal<Node1,Node2,Visitor>::value))>;
-
-      // Forward declaration for dynamic child traversal overload
-      template<class T1, class T2, class TreePath, class V,
-        std::enable_if_t<DynamicChildPairTraversal<T1,T2,V>::value, int> = 0>
-      void applyToTreePair(T1&& tree1, T2&& tree2, TreePath treePath, V&& visitor);
-
       /* The signature is the same as for the public applyToTreePair
        * function in Dune::Typtree, despite the additionally passed
        * treePath argument. The path passed here is associated to
@@ -49,7 +34,7 @@ namespace Dune {
        * This is the overload for leaf traversal
        */
       template<class T1, class T2, class TreePath, class V,
-        std::enable_if_t<LeafChildPairTraversal<T1,T2,V>::value, int> = 0>
+        std::enable_if_t<(std::decay_t<T1>::isLeaf or std::decay_t<T2>::isLeaf), int> = 0>
       void applyToTreePair(T1&& tree1, T2&& tree2, TreePath treePath, V&& visitor)
       {
         visitor.leaf(tree1, tree2, treePath);
@@ -59,7 +44,7 @@ namespace Dune {
        * This is the general overload doing static child traversal.
        */
       template<class T1, class T2, class TreePath, class V,
-        std::enable_if_t<StaticChildPairTraversal<T1,T2,V>::value, int> = 0>
+        std::enable_if_t<not(std::decay_t<T1>::isLeaf or std::decay_t<T2>::isLeaf), int> = 0>
       void applyToTreePair(T1&& tree1, T2&& tree2, TreePath treePath, V&& visitor)
       {
         // Do we really want to take care for const-ness of the Tree
@@ -71,7 +56,13 @@ namespace Dune {
         using Tree2 = std::remove_reference_t<T2>;
         using Visitor = std::remove_reference_t<V>;
         visitor.pre(tree1, tree2, treePath);
-        auto indices = Dune::Std::make_index_sequence<Tree1::degree()>{};
+
+        // Use statically encoded degree unless both trees
+        // are power nodes and dynamic traversal is requested.
+        constexpr auto useDynamicTraversal = (Tree1::isPower and Tree2::isPower and Visitor::treePathType==TreePathType::dynamic);
+        auto degree = conditionalValue<useDynamicTraversal>(Tree1::degree(), Dune::index_constant<Tree1::degree()>{});
+
+        auto indices = Dune::range(degree);
         Dune::Hybrid::forEach(indices, [&](auto i) {
           auto childTreePath = Dune::TypeTree::push_back(treePath, i);
           auto&& child1 = tree1.child(i);
@@ -94,47 +85,6 @@ namespace Dune {
         });
         visitor.post(tree1, tree2, treePath);
       }
-
-      /*
-       * This is the overload doing dynamic child traversal of power nodes.
-       */
-      template<class T1, class T2, class TreePath, class V,
-        std::enable_if_t<DynamicChildPairTraversal<T1,T2,V>::value, int>>
-      void applyToTreePair(T1&& tree1, T2&& tree2, TreePath treePath, V&& visitor)
-      {
-        // Do we really want to take care for const-ness of the Tree
-        // when instanciating VisitChild below? I'd rather expect this:
-        // using Tree1 = std::decay_t<T1>;
-        // using Tree2 = std::decay_t<T2>;
-        // using Visitor = std::decay_t<V>;
-        using Tree1 = std::remove_reference_t<T1>;
-        using Tree2 = std::remove_reference_t<T2>;
-        using Visitor = std::remove_reference_t<V>;
-        visitor.pre(tree1, tree2, treePath);
-        for(std::size_t i : Dune::range(Tree1::degree()))
-        {
-          auto childTreePath = Dune::TypeTree::push_back(treePath, i);
-          auto&& child1 = tree1.child(i);
-          auto&& child2 = tree2.child(i);
-          using Child1 = std::decay_t<decltype(child1)>;
-          using Child2 = std::decay_t<decltype(child2)>;
-
-          visitor.beforeChild(tree1, child1, tree2, child2, treePath, i);
-
-          // This requires that visiotor.in(...) can always be instantiated,
-          // even if there's a single child only.
-          if (i>0)
-            visitor.in(tree1, tree2, treePath);
-          static const auto visitChild = Visitor::template VisitChild<Tree1,Child1,Tree2,Child2,TreePath>::value;
-          Dune::Hybrid::ifElse(Dune::Std::bool_constant<visitChild>{}, [&] (auto id) {
-            applyToTreePair(child1, child2, childTreePath, visitor);
-          });
-
-          visitor.afterChild(tree1, child1, tree2, child2, treePath, i);
-        }
-        visitor.post(tree1, tree2, treePath);
-      }
-
 
     } // namespace Detail
 
