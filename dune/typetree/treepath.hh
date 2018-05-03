@@ -379,13 +379,13 @@ namespace Dune {
 
       //! Get the last index value.
       template<std::size_t i>
-      auto element(Dune::index_constant<i> pos = {}) const
+      constexpr auto element(Dune::index_constant<i> pos = {}) const
       {
         return std::get<i>(_data);
       }
 
       //! Get the index value at position pos.
-      std::size_t element(std::size_t pos) const
+      constexpr std::size_t element(std::size_t pos) const
       {
         std::size_t entry = 0;
         Dune::Hybrid::forEach(enumerate(), [&] (auto i) {
