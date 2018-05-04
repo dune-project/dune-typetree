@@ -4,6 +4,8 @@
 #ifndef DUNE_TYPETREE_PAIRTRAVERSAL_HH
 #define DUNE_TYPETREE_PAIRTRAVERSAL_HH
 
+#include <dune/common/std/type_traits.hh>
+
 #include <dune/typetree/nodeinterface.hh>
 #include <dune/typetree/nodetags.hh>
 #include <dune/typetree/treepath.hh>
