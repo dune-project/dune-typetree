@@ -8,6 +8,7 @@
 #include <utility>
 #endif
 
+#include <dune/common/std/type_traits.hh>
 #include <dune/common/std/utility.hh>
 #include <dune/common/hybridutilities.hh>
 
