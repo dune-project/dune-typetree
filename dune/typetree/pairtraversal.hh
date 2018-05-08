@@ -10,6 +10,7 @@
 #include <dune/typetree/nodetags.hh>
 #include <dune/typetree/treepath.hh>
 #include <dune/typetree/visitor.hh>
+#include <dune/typetree/traversal.hh>
 
 namespace Dune {
   namespace TypeTree {
@@ -28,7 +29,22 @@ namespace Dune {
        * are appended to this.  Hence the behavior of the public function
        * is resembled by passing an empty treePath.
        */
-      template<class T1, class T2, class TreePath, class V>
+
+      /*
+       * This is the overload for leaf traversal
+       */
+      template<class T1, class T2, class TreePath, class V,
+        std::enable_if_t<(std::decay_t<T1>::isLeaf or std::decay_t<T2>::isLeaf), int> = 0>
+      void applyToTreePair(T1&& tree1, T2&& tree2, TreePath treePath, V&& visitor)
+      {
+        visitor.leaf(tree1, tree2, treePath);
+      }
+
+      /*
+       * This is the general overload doing static child traversal.
+       */
+      template<class T1, class T2, class TreePath, class V,
+        std::enable_if_t<not(std::decay_t<T1>::isLeaf or std::decay_t<T2>::isLeaf), int> = 0>
       void applyToTreePair(T1&& tree1, T2&& tree2, TreePath treePath, V&& visitor)
       {
         // Do we really want to take care for const-ness of the Tree
@@ -39,33 +55,37 @@ namespace Dune {
         using Tree1 = std::remove_reference_t<T1>;
         using Tree2 = std::remove_reference_t<T2>;
         using Visitor = std::remove_reference_t<V>;
-        Dune::Hybrid::ifElse(Dune::Std::bool_constant<Tree1::isLeaf>{}, [&] (auto id) {
-          visitor.leaf(id(tree1), id(tree2), treePath);
-        }, [&] (auto id) {
-          visitor.pre(id(tree1), id(tree2), treePath);
-          auto indices = Dune::Std::make_index_sequence<Tree1::degree()>{};
-          Dune::Hybrid::forEach(indices, [&](auto i) {
-            auto childTreePath = Dune::TypeTree::push_back(treePath, i);
-            auto&& child1 = id(tree1).child(i);
-            auto&& child2 = id(tree2).child(i);
-            using Child1 = std::decay_t<decltype(child1)>;
-            using Child2 = std::decay_t<decltype(child2)>;
+        visitor.pre(tree1, tree2, treePath);
 
-            visitor.beforeChild(id(tree1), child1, id(tree2), child2, treePath, i);
+        // Use statically encoded degree unless both trees
+        // are power nodes and dynamic traversal is requested.
+        constexpr auto useDynamicTraversal = (Tree1::isPower and Tree2::isPower and Visitor::treePathType==TreePathType::dynamic);
+        auto degree = conditionalValue<useDynamicTraversal>(Tree1::degree(), Dune::index_constant<Tree1::degree()>{});
 
-            Dune::Hybrid::ifElse(Dune::Std::bool_constant<(i>0)>{}, [&] (auto id) {
-              visitor.in(id(tree1), id(tree2), treePath);
-            });
-            static const auto visitChild = Visitor::template VisitChild<Tree1,Child1,Tree2,Child2,TreePath>::value;
-            Dune::Hybrid::ifElse(Dune::Std::bool_constant<visitChild>{}, [&] (auto id) {
-              applyToTreePair(child1, child2, childTreePath, visitor);
-            });
+        auto indices = Dune::range(degree);
+        Dune::Hybrid::forEach(indices, [&](auto i) {
+          auto childTreePath = Dune::TypeTree::push_back(treePath, i);
+          auto&& child1 = tree1.child(i);
+          auto&& child2 = tree2.child(i);
+          using Child1 = std::decay_t<decltype(child1)>;
+          using Child2 = std::decay_t<decltype(child2)>;
 
-            visitor.afterChild(id(tree1), child1, id(tree2), child2, treePath, i);
+          visitor.beforeChild(tree1, child1, tree2, child2, treePath, i);
+
+          // This requires that visiotor.in(...) can always be instantiated,
+          // even if there's a single child only.
+          if (i>0)
+            visitor.in(tree1, tree2, treePath);
+          static const auto visitChild = Visitor::template VisitChild<Tree1,Child1,Tree2,Child2,TreePath>::value;
+          Dune::Hybrid::ifElse(Dune::Std::bool_constant<visitChild>{}, [&] (auto id) {
+            applyToTreePair(child1, child2, childTreePath, visitor);
           });
-          visitor.post(id(tree1), id(tree2), treePath);
+
+          visitor.afterChild(tree1, child1, tree2, child2, treePath, i);
         });
+        visitor.post(tree1, tree2, treePath);
       }
+
     } // namespace Detail
 
     //! Apply visitor to a pair of TypeTrees.
