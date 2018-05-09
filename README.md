@@ -52,9 +52,10 @@ TypeTree depends on the following software packages:
   components reused from dune-common (and by replacing the build system, of course).
 
 * TypeTree uses lots and lots of templates, so you need a decent C++ compiler.
-  This release requires a compiler that is at least compatible with GCC 4.7 in C++11
-  mode, so it whould work with all recent versions of GCC since version 4.7, modern versions
-  of the clang compiler (3.2+) and very recent versions of ICC (icpc 15.0.0+).
+  This release requires a compiler that is at least compatible with GCC 5 in C++14
+  mode, so it whould work with all recent versions of GCC since version 5 and modern versions
+  of the clang compiler (3.9+). Very recent versions of ICC (icpc 18+) should also work, but
+  this is not tested on a regular basis.
 
 License
 -------
