@@ -1,7 +1,7 @@
 TypeTree
 ========
 
-This is version 2.6.0-rc1 of the TypeTree library.
+This is version 2.6.0 of the TypeTree library.
 
 TypeTree is a template library for constructing and operating on statically
 typed trees of objects. It is based around the idea of defining loosely coupled,
@@ -47,7 +47,7 @@ Dependencies
 
 TypeTree depends on the following software packages:
 
-* The dune-common library from DUNE, version 2.4-dev. The dependency is actually very
+* The dune-common library from DUNE, version 2.6.0. The dependency is actually very
   weak, and you can easily use the library standalone by replacing the few convenience
   components reused from dune-common (and by replacing the build system, of course).
 

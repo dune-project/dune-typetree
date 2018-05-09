@@ -1,9 +1,9 @@
 TypeTree
 ========
 
-This is the 2.6.0-rc1 version of the TypeTree library for statically typed object trees.
+This is the 2.6.0 version of the TypeTree library for statically typed object trees.
 
-TypeTree 2.6.0-rc1 is compatible with the 2.6.0 release of the DUNE core modules and
+TypeTree 2.6.0 is compatible with the 2.6.0 release of the DUNE core modules and
 the 2.6.0 release of PDELab.
 
 Changes
