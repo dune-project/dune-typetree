@@ -1,4 +1,7 @@
 ---
+variables:
+  SLURM_HYPERTHREADING: "false"
+
 before_script:
   - duneci-install-module https://gitlab.dune-project.org/core/dune-common.git
 
@@ -16,7 +19,7 @@ debian:9--gcc:
 debian:9--clang:
   image: duneci/base:9
   script: duneci-standard-test
-  variables: {DUNECI_OPTS: /duneci/opts.clang}
+  variables: {SLURM_HYPERTHREADING: "true", DUNECI_OPTS: /duneci/opts.clang}
   tags: ["cores:4", "mem:16G"]
 
 ubuntu:16.04--gcc:
