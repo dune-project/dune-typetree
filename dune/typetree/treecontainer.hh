@@ -167,6 +167,27 @@ namespace Dune {
       return Detail::makeTreeContainerVectorBackend(factory(tree));
     }
 
+    /**
+     * \brief Create container havin the same structure as the given tree
+     *
+     * This class allows to create a nested hybrid container having the same structure
+     * as a given type tree. Power nodes are represented as std::array's while composite
+     * nodes are represented as Dune::TupleVector's. The stored values for the leaf nodes
+     * are of the given type Value. For convenience the created container is
+     * not returned directly. Instead, the returned object stores the container and
+     * provides operator[] access using a HybridTreePath.
+     *
+     * \tparam Value Type of the values to be stored for the leafs. Should be default constructible.
+     * \param leafToValue A predicate used to generate the stored values for the leaves
+     *
+     * \returns A container matching the tree structure
+     */
+    template<class Value, class Tree>
+    auto makeTreeContainer(const Tree& tree)
+    {
+      return makeTreeContainer(tree, [](const auto&) {return Value{};});
+    }
+
 
     //! \} group TypeTree
 
