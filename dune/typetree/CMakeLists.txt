@@ -19,6 +19,7 @@ install(FILES
   transformationutilities.hh
   traversal.hh
   traversalutilities.hh
+  treecontainer.hh
   treepath.hh
   typetraits.hh
   typetree.hh
