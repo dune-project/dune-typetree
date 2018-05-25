@@ -158,7 +158,7 @@ namespace Dune {
      * Example:
      *
      * \code{.cc}
-     * using namespace Dune::TypeTree::Indices; // for compile-time indices
+     * using namespace Dune::Indices;   // for compile-time indices
      * auto&& c = child(node,_4,2,_0,1);
      * \endcode
      *
@@ -186,7 +186,7 @@ namespace Dune {
 
     template<typename Node, typename... Indices>
 #ifdef DOXYGEN
-    ImplementationDefined child(Node&& node, Indices... indices)
+    ImplementationDefined childStorage(Node&& node, Indices... indices)
 #else
     auto childStorage(Node&& node, Indices... indices)
 #endif
