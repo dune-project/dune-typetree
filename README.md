@@ -1,7 +1,7 @@
 TypeTree
 ========
 
-This is version 2.6.0 of the TypeTree library.
+This is version 2.6.0-rc1 of the TypeTree library.
 
 TypeTree is a template library for constructing and operating on statically
 typed trees of objects. It is based around the idea of defining loosely coupled,
@@ -54,7 +54,7 @@ TypeTree depends on the following software packages:
 * TypeTree uses lots and lots of templates, so you need a decent C++ compiler.
   This release requires a compiler that is at least compatible with GCC 5 in C++14
   mode, so it whould work with all recent versions of GCC since version 5 and modern versions
-  of the clang compiler (3.9+). Very recent versions of ICC (icpc 18+) should also work, but
+  of the clang compiler (5+). Very recent versions of ICC (icpc 18+) should also work, but
   this is not tested on a regular basis.
 
 License
