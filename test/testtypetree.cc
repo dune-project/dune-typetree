@@ -189,6 +189,12 @@ int main(int argc, char** argv)
   auto x6 = child(sc1_1, _0, _0);
 #endif
 
+  // test empty child() method on leaf node
+  auto& sl3 = sl1.child();
+  auto& sl4 = child(sl1);
+  if (&sl3 != &sl4)
+    return 1;
+
   return 0;
 }
 
