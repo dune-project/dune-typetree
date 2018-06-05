@@ -46,16 +46,6 @@ namespace Dune {
         return 0;
       }
 
-      LeafNode& child()
-      {
-        return *this;
-      }
-
-      const LeafNode& child() const
-      {
-        return *this;
-      }
-
     protected:
 
       //! Default constructor.
