@@ -25,3 +25,5 @@ dune_add_test(SOURCES testproxynode.cc
 dune_add_test(SOURCES testcallbacktraversal.cc)
 
 dune_add_test(SOURCES testhybridtreepath.cc)
+
+dune_add_test(SOURCES testtreecontainer.cc)
