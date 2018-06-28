@@ -45,7 +45,7 @@ namespace Dune {
       }
 
       /* The signature is the same as for the public applyToTree
-       * function in Dune::Typtree, despite the additionally passed
+       * function in Dune::Typetree, despite the additionally passed
        * treePath argument. The path passed here is associated to
        * the tree and the relative paths of the children (wrt. to tree)
        * are appended to this.  Hence the behavior of the public function
@@ -70,7 +70,7 @@ namespace Dune {
       void applyToTree(T&& tree, TreePath treePath, V&& visitor)
       {
         // Do we really want to take care for const-ness of the Tree
-        // when instanciating VisitChild below? I'd rather expect this:
+        // when instantiating VisitChild below? I'd rather expect this:
         // using Tree = std::decay_t<T>;
         // using Visitor = std::decay_t<V>;
         using Tree = std::remove_reference_t<T>;
