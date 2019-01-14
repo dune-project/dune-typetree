@@ -24,6 +24,9 @@ TypeTree 2.7-git
     to be compatible with `DynamicTreePath`.
 -   A `HybridTreePath` can now be constructed using the
     global `treePath()` function which is an alias for `hybridTreePath()`.
+-   The type alias template `Child<>` now fails to instantiate if the child cannot be extracted.
+    This is much more useful than the previous behavior of just defaulting to `void` in case of
+    failure.
 
 
 TypeTree 2.6
