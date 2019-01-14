@@ -285,11 +285,20 @@ namespace Dune {
 
     namespace impl {
 
+      template<typename T>
+      struct filter_void
+      {
+        using type = T;
+      };
+
+      template<>
+      struct filter_void<void>
+      {};
+
       template<typename Node, std::size_t... indices>
       struct _Child
-      {
-        using type = std::decay_t<decltype(child(std::declval<Node>(),index_constant<indices>{}...))>;
-      };
+        : public filter_void<std::decay_t<decltype(child(std::declval<Node>(),index_constant<indices>{}...))>>
+      {};
 
     }
 
