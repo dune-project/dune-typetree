@@ -1,4 +1,7 @@
 set(modules
+  CXXConstexprIf.cmake
+  CXXExpansionStatements.cmake
+  CXXFoldExpressions.cmake
   DuneTypetreeMacros.cmake
   FindCXXDecltype.cmake
   FindCXXTemplateAliases.cmake

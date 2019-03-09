@@ -39,4 +39,9 @@
 /* Define to the revision of dune-typetree */
 #define DUNE_TYPETREE_VERSION_REVISION ${DUNE_TYPETREE_VERSION_REVISION}
 
+/* some detected compiler features may be used in dune-typree */
+#cmakedefine DUNE_HAVE_CXX_FOLD_EXPRESSIONS 1
+#cmakedefine DUNE_HAVE_CXX_CONSTEXPR_IF 1
+#cmakedefine DUNE_HAVE_EXPANSION_STATEMENTS 1
+
 /* end dune-typetree */
