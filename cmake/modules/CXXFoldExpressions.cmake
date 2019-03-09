@@ -20,11 +20,3 @@ check_cxx_source_compiles("
   }
 "  DUNE_HAVE_CXX_FOLD_EXPRESSIONS
 )
-
-# Report success correctly in summary
-include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(
-  "CXXFoldExpressions"
-  DEFAULT_MSG
-  DUNE_HAVE_CXX_FOLD_EXPRESSIONS
-)

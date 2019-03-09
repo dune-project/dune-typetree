@@ -18,11 +18,3 @@ check_cxx_source_compiles("
   }
 "  DUNE_HAVE_EXPANSION_STATEMENTS
 )
-
-# Report success correctly in summary
-include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(
-  "CXXExpansionStatements"
-  DEFAULT_MSG
-  DUNE_HAVE_EXPANSION_STATEMENTS
-)
