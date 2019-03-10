@@ -144,7 +144,7 @@ namespace Dune {
             }
           } else {
             #if DUNE_HAVE_EXPANSION_STATEMENTS
-            auto indices = Dune::range(std::index_constant<TreeType::degree()>{});
+            auto indices = Dune::range(Dune::index_constant<TreeType::degree()>{});
             for...(auto i : indices) {
               auto childTreePath = Dune::TypeTree::push_back(treePath, i);
               forEachNode(tree.child(i), childTreePath, preFunc, leafFunc, postFunc);

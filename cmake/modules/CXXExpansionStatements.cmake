@@ -12,7 +12,7 @@ check_cxx_source_compiles("
   #include <tuple>
   int main()
   {
-    auto tup = std::make_tuple(0, ‘a’, 3.14);
+    auto tup = std::make_tuple(0, 'a', 3.14);
     for... (auto elem : tup)
       std::cout << elem << std::endl;
   }
