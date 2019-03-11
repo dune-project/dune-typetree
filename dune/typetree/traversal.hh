@@ -44,6 +44,38 @@ namespace Dune {
         return std::forward<T2>(t2);
       }
 
+      template<class Tree, TreePathType::Type pathType, class Prefix,
+        std::enable_if_t<Tree::isLeaf, int> = 0>
+      constexpr auto leafTreePathTuple(Prefix prefix)
+      {
+        return std::make_tuple(prefix);
+      }
+
+      template<class Tree, TreePathType::Type pathType, class Prefix,
+        std::enable_if_t<not Tree::isLeaf, int> = 0>
+      constexpr auto leafTreePathTuple(Prefix prefix);
+
+      template<class Tree, TreePathType::Type pathType, class Prefix, std::size_t... indices,
+        std::enable_if_t<(Tree::isComposite or (Tree::isPower and (pathType!=TreePathType::dynamic))), int> = 0>
+      constexpr auto leafTreePathTuple(Prefix prefix, Std::index_sequence<indices...>)
+      {
+        return std::tuple_cat(Detail::leafTreePathTuple<TypeTree::Child<Tree,indices>, pathType>(Dune::TypeTree::push_back(prefix, Dune::index_constant<indices>{}))...);
+      }
+
+      template<class Tree, TreePathType::Type pathType, class Prefix, std::size_t... indices,
+        std::enable_if_t<(Tree::isPower and (pathType==TreePathType::dynamic)), int> = 0>
+      constexpr auto leafTreePathTuple(Prefix prefix, Std::index_sequence<indices...>)
+      {
+        return std::tuple_cat(Detail::leafTreePathTuple<TypeTree::Child<Tree,indices>, pathType>(Dune::TypeTree::push_back(prefix, indices))...);
+      }
+
+      template<class Tree, TreePathType::Type pathType, class Prefix,
+        std::enable_if_t<not Tree::isLeaf, int> = 0>
+      constexpr auto leafTreePathTuple(Prefix prefix)
+      {
+        return Detail::leafTreePathTuple<Tree, pathType>(prefix, Dune::Std::make_index_sequence<Tree::degree()>{});
+      }
+
       /* The signature is the same as for the public applyToTree
        * function in Dune::Typetree, despite the additionally passed
        * treePath argument. The path passed here is associated to
@@ -141,6 +173,25 @@ namespace Dune {
     // ********************************************************************************
     // Public Interface
     // ********************************************************************************
+
+    /**
+     * \brief Create tuple of tree paths to leafs
+     *
+     * This creates a tuple of HybridTreePath objects refering to the
+     * leaf nodes in the tree. The generated tree paths are always
+     * HybridTreePath instances. If pathType is TreePathType::dynamic
+     * then path entries for power nodes are of type std::size_t.
+     * For all other nodes and if pathType is not TreePathType::dynamic,
+     * the entries are instances of Dune::index_constant.
+     *
+     * \tparam Tree Type of tree to generate tree paths for
+     * \tparam pathType Type of paths to generate
+     */
+    template<class Tree, TreePathType::Type pathType=TreePathType::dynamic>
+    constexpr auto leafTreePathTuple()
+    {
+      return Detail::leafTreePathTuple<std::decay_t<Tree>, pathType>(hybridTreePath());
+    }
 
     //! Apply visitor to TypeTree.
     /**
