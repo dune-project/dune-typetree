@@ -462,7 +462,7 @@ namespace Dune {
      *
      */
     template<std::size_t i, typename... T>
-    auto treePathEntry(const HybridTreePath<T...>& tp, index_constant<i> = {})
+    constexpr auto treePathEntry(const HybridTreePath<T...>& tp, index_constant<i> = {})
       -> typename std::decay<decltype(std::get<i>(tp._data))>::type
     {
       return std::get<i>(tp._data);
@@ -485,7 +485,7 @@ namespace Dune {
      *
      */
     template<std::size_t i,typename... T>
-    std::size_t treePathIndex(const HybridTreePath<T...>& tp, index_constant<i> = {})
+    constexpr std::size_t treePathIndex(const HybridTreePath<T...>& tp, index_constant<i> = {})
     {
       return std::get<i>(tp._data);
     }
@@ -497,7 +497,7 @@ namespace Dune {
      * just as cheap as returning a reference.
      */
     template<typename... T, typename std::enable_if<(sizeof...(T) > 0),bool>::type = true>
-    auto back(const HybridTreePath<T...>& tp)
+    constexpr auto back(const HybridTreePath<T...>& tp)
       -> decltype(treePathEntry<sizeof...(T)-1>(tp))
     {
       return treePathEntry<sizeof...(T)-1>(tp);
@@ -510,7 +510,7 @@ namespace Dune {
      * just as cheap as returning a reference.
      */
     template<typename... T>
-    auto front(const HybridTreePath<T...>& tp)
+    constexpr auto front(const HybridTreePath<T...>& tp)
       -> decltype(treePathEntry<0>(tp))
     {
       return treePathEntry<0>(tp);
@@ -521,7 +521,7 @@ namespace Dune {
      * This function returns a new `HybridTreePath` with the run time index `i` appended.
      */
     template<typename... T>
-    HybridTreePath<T...,std::size_t> push_back(const HybridTreePath<T...>& tp, std::size_t i)
+    constexpr HybridTreePath<T...,std::size_t> push_back(const HybridTreePath<T...>& tp, std::size_t i)
     {
       return HybridTreePath<T...,std::size_t>(std::tuple_cat(tp._data,std::make_tuple(i)));
     }
@@ -542,7 +542,7 @@ namespace Dune {
      *
      */
     template<std::size_t i, typename... T>
-    HybridTreePath<T...,index_constant<i>> push_back(const HybridTreePath<T...>& tp, index_constant<i> i_ = {})
+    constexpr HybridTreePath<T...,index_constant<i>> push_back(const HybridTreePath<T...>& tp, index_constant<i> i_ = {})
     {
       return HybridTreePath<T...,index_constant<i> >(std::tuple_cat(tp._data,std::make_tuple(i_)));
     }
@@ -552,7 +552,7 @@ namespace Dune {
      * This function returns a new `HybridTreePath` with the run time index `i` prepended.
      */
     template<typename... T>
-    HybridTreePath<std::size_t,T...> push_front(const HybridTreePath<T...>& tp, std::size_t element)
+    constexpr HybridTreePath<std::size_t,T...> push_front(const HybridTreePath<T...>& tp, std::size_t element)
     {
       return HybridTreePath<std::size_t,T...>(std::tuple_cat(std::make_tuple(element),tp._data));
     }
@@ -573,7 +573,7 @@ namespace Dune {
      *
      */
     template<std::size_t i, typename... T>
-    HybridTreePath<index_constant<i>,T...> push_front(const HybridTreePath<T...>& tp, index_constant<i> _i = {})
+    constexpr HybridTreePath<index_constant<i>,T...> push_front(const HybridTreePath<T...>& tp, index_constant<i> _i = {})
     {
       return HybridTreePath<index_constant<i>,T...>(std::tuple_cat(std::make_tuple(_i),tp._data));
     }
