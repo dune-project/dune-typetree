@@ -13,6 +13,7 @@
 #include <dune/common/std/type_traits.hh>
 #include <dune/common/hybridutilities.hh>
 
+#include <dune/typetree/childextraction.hh>
 #include <dune/typetree/nodetags.hh>
 #include <dune/typetree/treepath.hh>
 #include <dune/typetree/visitor.hh>
