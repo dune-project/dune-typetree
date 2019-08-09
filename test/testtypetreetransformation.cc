@@ -28,6 +28,9 @@ int main(int argc, char** argv)
   Dune::TypeTree::TransformTree<SimpleLeaf,TestTransformation>::transformed_type tl1 =
     Dune::TypeTree::TransformTree<SimpleLeaf,TestTransformation>::transform(sl1,TestTransformation());
 
+  typedef SimpleDynamicPower<SimpleLeaf> SDP;
+  SDP sdp(sl1,sl1,sl1);
+
   typedef SimplePower<SimpleLeaf,3> SP1;
   SP1 sp1_1;
   sp1_1.setChild(0,sl1);
@@ -44,6 +47,9 @@ int main(int argc, char** argv)
   Dune::TypeTree::applyToTree(sp1_1,TreePrinter());
 
   TestTransformation trafo;
+
+  Dune::TypeTree::TransformTree<SDP,TestTransformation>::transformed_type tsdp1_1 =
+    Dune::TypeTree::TransformTree<SDP,TestTransformation>::transform(sdp,trafo);
 
   Dune::TypeTree::TransformTree<SP1,TestTransformation>::transformed_type tp1_1 =
     Dune::TypeTree::TransformTree<SP1,TestTransformation>::transform(sp1_1,trafo);

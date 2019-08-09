@@ -109,11 +109,19 @@ namespace Dune {
       //! Mark this class as a non power in the \ref TypeTree.
       static const bool isPower = false;
 
+      //! Mark this class as a non dynamic in the \ref TypeTree.
+      static const bool isDynamic = false;
+
       //! Mark this class as a composite in the \ref TypeTree.
       static const bool isComposite = true;
 
       //! The number of children.
       static const std::size_t CHILDREN = filter_result::size;
+
+      constexpr friend Dune::index_constant<FilteredCompositeNode::filter_result::size> degree(const FilteredCompositeNode&)
+      {
+        return {};
+      }
 
       static constexpr std::size_t degree()
       {

@@ -39,6 +39,9 @@ namespace Dune {
       //! Whether this is a composite node in the \ref TypeTree.
       static const bool isComposite = implementationDefined;
 
+      //! Whether this is a dynamic node in the \ref TypeTree.
+      static const bool isDynamic = implementationDefined;
+
       //! Number of children of this node in the \ref TypeTree
       static const std::size_t CHILDREN = implementationDefined;
 
@@ -68,7 +71,7 @@ namespace Dune {
 
     //! Returns the degree of node as run time information.
     template<typename Node>
-    std::size_t degree(const Node& node)
+    auto degree(const Node& node)
     {
       return degree(&node,NodeTag<Node>());
     }
