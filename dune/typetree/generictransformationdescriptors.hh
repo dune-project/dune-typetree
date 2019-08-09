@@ -82,12 +82,54 @@ namespace Dune {
 
     };
 
+    template<typename SourceNode, typename Transformation, template<typename Child> class TransformedNodeTemplate>
+    struct TemplatizedGenericDynamicPowerNodeTransformation
+    {
+
+      static const bool recursive = true;
+
+      template<typename TC>
+      struct result
+      {
+        typedef typename TransformedNodeTemplate<TC>::type type;
+        typedef std::shared_ptr<type> storage_type;
+      };
+
+      template<typename TC>
+      static typename result<TC>::type transform(const SourceNode& s, const Transformation& t, const std::vector<std::shared_ptr<TC>>& children)
+      {
+        return typename result<TC>::type(s,t,children);
+      }
+
+      template<typename TC>
+      static typename result<TC>::type transform(std::shared_ptr<const SourceNode> s, const Transformation& t, const std::vector<std::shared_ptr<TC>>& children)
+      {
+        return typename result<TC>::type(s,t,children);
+      }
+
+      template<typename TC>
+      static typename result<TC>::storage_type transform_storage(std::shared_ptr<const SourceNode> s, const Transformation& t, const std::vector<std::shared_ptr<TC>>& children)
+      {
+        return std::make_shared<typename result<TC>::type>(s,t,children);
+      }
+
+    };
 
     template<typename SourceNode, typename Transformation, template<typename,typename,std::size_t> class TransformedNode>
     struct GenericPowerNodeTransformation
       : public TemplatizedGenericPowerNodeTransformation<SourceNode,
                                                          Transformation,
                                                          GenericPowerNodeTransformationTemplate<SourceNode,
+                                                                                                Transformation,
+                                                                                                TransformedNode>::template result
+                                                         >
+    {};
+
+    template<typename SourceNode, typename Transformation, template<typename,typename> class TransformedNode>
+    struct GenericDynamicPowerNodeTransformation
+      : public TemplatizedGenericDynamicPowerNodeTransformation<SourceNode,
+                                                         Transformation,
+                                                         GenericDynamicPowerNodeTransformationTemplate<SourceNode,
                                                                                                 Transformation,
                                                                                                 TransformedNode>::template result
                                                          >

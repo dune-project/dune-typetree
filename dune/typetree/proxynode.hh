@@ -267,11 +267,23 @@ namespace Dune {
       //! Mark this class as a non power in the \ref TypeTree.
       static const bool isPower = Node::isPower;
 
+      //! Mark this class as a non dynamic in the \ref TypeTree.
+      static const bool isDynamic = Node::isDynamic;
+
       //! Mark this class as a composite in the \ref TypeTree.
       static const bool isComposite = Node::isComposite;
 
-      //! The number of children.
-      static const std::size_t CHILDREN = StaticDegree<Node>::value;
+      template<class T = void>
+      constexpr friend std::enable_if_t<not isDynamic and std::is_same_v<T,void>,Dune::index_constant<Node::degree()>> degree(const ProxyNode& n)
+      {
+        return {};
+      }
+
+      template<class T = void>
+      friend std::enable_if_t<isDynamic and std::is_same_v<T,void>,std::size_t> degree(const ProxyNode& n)
+      {
+        return n.degree();
+      }
 
       template <class N = Node,
         std::enable_if_t<hasStaticDegree<N>, int> = 0>

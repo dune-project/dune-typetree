@@ -4,6 +4,8 @@
 #ifndef DUNE_TYPETREE_LEAFNODE_HH
 #define DUNE_TYPETREE_LEAFNODE_HH
 
+#include <dune/common/indices.hh>
+
 #include <dune/typetree/nodetags.hh>
 #include <cstddef>
 
@@ -32,6 +34,9 @@ namespace Dune {
       //! Mark this class as a non power in the \ref TypeTree.
       static const bool isPower = false;
 
+      //! Mark this class as a non dynamic in the \ref TypeTree.
+      static const bool isDynamic = false;
+
       //! Mark this class as a non composite in the \ref TypeTree.
       static const bool isComposite = false;
 
@@ -40,6 +45,11 @@ namespace Dune {
 
       //! The type tag that describes a LeafNode.
       typedef LeafNodeTag NodeTag;
+
+      constexpr friend Dune::index_constant<1> degree(const LeafNode&)
+      {
+        return {};
+      }
 
       static constexpr std::size_t degree()
       {

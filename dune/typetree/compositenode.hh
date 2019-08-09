@@ -8,6 +8,7 @@
 #include <memory>
 
 #include <dune/common/indices.hh>
+
 #include <dune/typetree/nodetags.hh>
 #include <dune/typetree/childextraction.hh>
 #include <dune/typetree/typetraits.hh>
@@ -41,6 +42,9 @@ namespace Dune {
 
       //! Mark this class as a non power in the \ref TypeTree.
       static const bool isPower = false;
+
+      //! Mark this class as a non dynamic in the \ref TypeTree.
+      static const bool isDynamic = false;
 
       //! Mark this class as a composite in the \ref TypeTree.
       static const bool isComposite = true;

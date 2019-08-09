@@ -18,6 +18,9 @@ namespace Dune {
     //! Tag designating a power node.
     struct PowerNodeTag {};
 
+    //! Tag designating a power node.
+    struct DynamicPowerNodeTag {};
+
     //! Tag designating a composite node.
     struct CompositeNodeTag {};
 

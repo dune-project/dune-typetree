@@ -127,6 +127,11 @@ int main(int argc, char** argv)
 
   typedef Dune::TypeTree::TreeInfo<SVC2> TI;
 
+  typedef SimpleDynamicPower<SimpleLeaf> SDP;
+  SDP sdp(sl1,sl1);
+
+  Dune::TypeTree::applyToTree(sdp,TreePrinter());
+
   // test TreeInfo
   static_assert(TI::depth == 4 && TI::nodeCount == 14 && TI::leafCount == 10,
                 "TreeInfo yields wrong information");
