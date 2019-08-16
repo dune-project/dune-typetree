@@ -62,14 +62,15 @@ namespace Dune {
         // Dynamic nodes are always traversed dynamically even
         // when visitors are marked with static traversals
         constexpr auto useDynamicTraversal1 =
-                  (Tree1::isPower and
-                      (   Visitor::treePathType==TreePathType::dynamic
-                       or TreeInfo<Tree1>::dynamic));
+                  ((Tree1::isPower and Visitor::treePathType==TreePathType::dynamic)
+                  or Tree1::isDynamic);
         constexpr auto useDynamicTraversal2 =
-                  (Tree2::isPower and
-                      (   Visitor::treePathType==TreePathType::dynamic
-                       or TreeInfo<Tree2>::dynamic));
+                  ((Tree2::isPower and Visitor::treePathType==TreePathType::dynamic)
+                  or Tree2::isDynamic);
         constexpr auto useDynamicTraversal = useDynamicTraversal1 and useDynamicTraversal2;
+
+        static_assert(not ((Visitor::treePathType!=TreePathType::fullyStatic) and (Tree1::isDynamic or Tree2::isDynamic) ),
+          "Trees with dynamic nodes cannot be traversed with fullStatic tree path type");
 
         auto degree = traversalDegree(tree1,std::integral_constant<bool,useDynamicTraversal>{});
 
