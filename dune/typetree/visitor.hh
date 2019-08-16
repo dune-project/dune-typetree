@@ -252,7 +252,7 @@ namespace Dune {
      * only visit the root node and call DefaultVisitor::beforeChild() and DefaultVisitor::afterChild()
      * for its direct children.
      */
-    struct VisitDirectChildren
+    struct VisitDirectChildrenStatic
     {
 
       // the little trick with the default template arguments
@@ -272,13 +272,47 @@ namespace Dune {
 
     };
 
-
-    //! Mixin base class for visitors that want to visit the complete tree.
+    //! Mixin base class for visitors that only want to visit the direct children of a node.
     /**
-     * This mixin class will accept all children presented to it and thus make the iterator
-     * traverse the entire tree.
+     * This mixin class will reject all children presented to it, causing the algorithm to
+     * only visit the root node and call DefaultVisitor::beforeChild() and DefaultVisitor::afterChild()
+     * for its direct children.
      */
-    struct VisitTree
+    struct VisitDirectChildrenDynamic
+    {
+
+      template<typename Node,
+               typename Child,
+               typename TreePath>
+      inline bool visitChild(const Node& n, const Child& c, const TreePath& p)
+      {
+        return false;
+      }
+
+      template<typename Node1,
+               typename Child1,
+               typename Node2,
+               typename Child2,
+               typename TreePath>
+      inline bool visitChild(const Node1& n1, const Child1& c1, const Node2& n2, const Child2& c2, const TreePath& p)
+      {
+        return false;
+      }
+    };
+
+    //! Mixin base class for visitors that only want to visit the direct children of a node.
+    /**
+     * This mixin class will reject all children presented to it, causing the algorithm to
+     * only visit the root node and call DefaultVisitor::beforeChild() and DefaultVisitor::afterChild()
+     * for its direct children.
+     */
+    struct VisitDirectChildren : public VisitDirectChildrenStatic, public VisitDirectChildrenDynamic {};
+
+    //! Mixin base class for visitors that want to statically visit the complete tree.
+    /**
+     * This mixin class will accept and instantiate all children presented to it.
+     */
+    struct VisitTreeStatic
     {
 
       // the little trick with the default template arguments
@@ -297,6 +331,40 @@ namespace Dune {
       };
 
     };
+
+    //! Mixin base class for visitors that want to visit the complete tree.
+    /**
+     * This mixin class will accept all children presented to it and thus make the iterator
+     * traverse the entire tree. Only instantiated childen may be visited.
+     */
+    struct VisitTreeDynamic
+    {
+
+      template<typename Node,
+               typename Child,
+               typename TreePath>
+      inline bool visitChild(const Node& n, const Child& c, const TreePath& p)
+      {
+        return true;
+      }
+
+      template<typename Node1,
+               typename Child1,
+               typename Node2,
+               typename Child2,
+               typename TreePath>
+      inline bool visitChild(const Node1& n1, const Child1& c1, const Node2& n2, const Child2& c2, const TreePath& p)
+      {
+        return true;
+      }
+    };
+
+    //! Mixin base class for visitors that want to visit the complete tree.
+    /**
+     * This mixin class will accept all children presented to it and thus make the iterator
+     * traverse the entire tree.
+     */
+    struct VisitTree : public VisitTreeStatic, public VisitTreeDynamic {};
 
     //! Mixin base class for visitors that require a static TreePath during traversal.
     /**
@@ -349,6 +417,24 @@ namespace Dune {
       : public DefaultPairVisitor
       , public VisitDirectChildren
     {};
+
+    //! Default visitor to count number of interior nodes and and leafs
+    struct CountVisitor : public TreeVisitor, public DynamicTraversal
+    {
+      template<typename T, typename TreePath>
+      void leaf(T&& t, TreePath treePath) const
+      {
+        leafCount += 1;
+        nodeCount += 1;
+      }
+      template<typename T, typename TreePath>
+      void post(T&& t, TreePath treePath) const
+      {
+        nodeCount += 1;
+      }
+
+      mutable std::size_t leafCount = 0, nodeCount = 0;
+    };
 
     //! \} group Tree Traversal
 
