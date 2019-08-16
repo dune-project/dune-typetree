@@ -18,6 +18,8 @@
 namespace Dune {
   namespace TypeTree {
 
+    template<typename Tree>
+    struct TreeInfo;
 
     //! \addtogroup TreePath
     //! \ingroup TypeTree
