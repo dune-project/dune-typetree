@@ -105,10 +105,6 @@ void check(const Tree& tree)
 
   if constexpr (not TI::dynamic)
   {
-
-    static_assert(leafCount == Dune::TypeTree::leafCount(tree));
-    static_assert(nodeCount == Dune::TypeTree::nodeCount(tree));
-
     static_assert((Dune::TypeTree::AccumulateValue<
                   Tree,
                   NodeCountingFunctor,
