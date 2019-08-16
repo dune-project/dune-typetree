@@ -62,6 +62,8 @@ namespace Dune {
         constexpr auto useDynamicTraversal = (Tree1::isPower and Tree2::isPower and Visitor::treePathType==TreePathType::dynamic);
         auto degree = traversalDegree<useDynamicTraversal>(tree1);
 
+        auto degree = traversalDegree(tree1,std::integral_constant<bool,useDynamicTraversal>{});
+
         auto indices = Dune::range(degree);
         Dune::Hybrid::forEach(indices, [&](auto i) {
           auto childTreePath = Dune::TypeTree::push_back(treePath, i);
@@ -76,11 +78,14 @@ namespace Dune {
           // even if there's a single child only.
           if (i>0)
             visitor.in(tree1, tree2, treePath);
-          static const auto visitChild = Visitor::template VisitChild<Tree1,Child1,Tree2,Child2,TreePath>::value;
-          Dune::Hybrid::ifElse(Dune::Std::bool_constant<visitChild>{}, [&] (auto id) {
-            applyToTreePair(child1, child2, childTreePath, visitor);
-          });
 
+          static const auto staticVisitChild = Visitor::template VisitChild<Tree1,Child1,Tree2,Child2,TreePath>::value;
+          if constexpr (staticVisitChild)
+          {
+            const auto dynamicVisitChild = visitor.visitChild(tree1,child1,tree2,child2,treePath);
+            if (dynamicVisitChild)
+              applyToTreePair(child1, child2, childTreePath, visitor);
+          }
           visitor.afterChild(tree1, child1, tree2, child2, treePath, i);
         });
         visitor.post(tree1, tree2, treePath);

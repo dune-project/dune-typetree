@@ -102,7 +102,6 @@ namespace Dune {
         // using Visitor = std::decay_t<V>;
         using Tree = std::remove_reference_t<T>;
         using Visitor = std::remove_reference_t<V>;
-        visitor.pre(tree, treePath);
 
         // Use statically encoded degree unless tree
         // is a power node and dynamic traversal is requested.
