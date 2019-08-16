@@ -82,15 +82,17 @@ namespace Dune {
             visitor.in(tree1, tree2, treePath);
 
           static const auto staticVisitChild = Visitor::template VisitChild<Tree1,Child1,Tree2,Child2,TreePath>::value;
-          if constexpr (staticVisitChild)
-          {
+
+          Dune::Hybrid::ifElse(Dune::Std::bool_constant<staticVisitChild>{}, [&] (auto id) {
             const auto dynamicVisitChild = visitor.visitChild(tree1,child1,tree2,child2,treePath);
             if (dynamicVisitChild)
             {
               auto childTreePath = Dune::TypeTree::push_back(treePath, i);
               applyToTreePair(child1, child2, childTreePath, visitor);
             }
-          }
+          },
+            [&] (auto id) {}
+          );
           visitor.afterChild(tree1, child1, tree2, child2, treePath, i);
         });
         visitor.post(tree1, tree2, treePath);
