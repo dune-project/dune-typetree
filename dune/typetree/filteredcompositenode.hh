@@ -118,14 +118,9 @@ namespace Dune {
       //! The number of children.
       static const std::size_t CHILDREN = filter_result::size;
 
-      constexpr friend Dune::index_constant<FilteredCompositeNode::filter_result::size> degree(const FilteredCompositeNode&)
-      {
-        return {};
-      }
-
       static constexpr std::size_t degree()
       {
-        return filter_result::size;
+        return CHILDREN;
       }
 
       //! Access to the type and storage type of the i-th child.

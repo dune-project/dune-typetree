@@ -282,20 +282,16 @@ namespace Dune {
       static const bool isComposite = Node::isComposite;
 
       template<class T = void>
-      constexpr friend std::enable_if_t<not isDynamic and std::is_same_v<T,void>,Dune::index_constant<Node::degree()>> degree(const ProxyNode& n)
+      static constexpr
+      std::enable_if_t<not isDynamic and std::is_same_v<T,void>,std::size_t> degree()
       {
-        return {};
+        return Node::degree();
       }
 
       template<class T = void>
-      friend std::enable_if_t<isDynamic and std::is_same_v<T,void>,std::size_t> degree(const ProxyNode& n)
+      std::enable_if_t<isDynamic and std::is_same_v<T,void>,std::size_t> degree()
       {
-        return n.degree();
-      }
-
-      static constexpr std::size_t degree()
-      {
-        return StaticDegree<Node>::value;
+        return _node->degree();
       }
 
 

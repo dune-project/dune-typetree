@@ -67,11 +67,6 @@ namespace Dune {
       //! The number of children.
       static const std::size_t CHILDREN = k;
 
-      constexpr friend Dune::index_constant<CHILDREN> degree(const PowerNode& n)
-      {
-        return {};
-      }
-
       static constexpr std::size_t degree()
       {
         return k;
