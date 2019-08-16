@@ -275,13 +275,13 @@ namespace Dune {
 
       template<class T = void>
       static constexpr
-      std::enable_if_t<not isDynamic and std::is_same_v<T,void>,std::size_t> degree()
+      std::enable_if_t<not isDynamic and std::is_same<T,void>::value,std::size_t> degree()
       {
         return Node::degree();
       }
 
       template<class T = void>
-      std::enable_if_t<isDynamic and std::is_same_v<T,void>,std::size_t> degree()
+      std::enable_if_t<isDynamic and std::is_same<T,void>::value,std::size_t> degree()
       {
         return _node->degree();
       }
