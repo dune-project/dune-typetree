@@ -140,7 +140,6 @@ namespace Dune {
         auto degree = traversalDegree(tree,std::integral_constant<bool,useDynamicTraversal>{});
         auto indices = Dune::range(degree);
         Dune::Hybrid::forEach(indices, [&](auto i) {
-          auto childTreePath = Dune::TypeTree::push_back(treePath, i);
           auto&& child = tree.child(i);
           using Child = std::decay_t<decltype(child)>;
 
@@ -155,7 +154,10 @@ namespace Dune {
           {
             const auto dynamicVisitChild = visitor.visitChild(tree,child,treePath);
             if (dynamicVisitChild)
+            {
+              auto childTreePath = Dune::TypeTree::push_back(treePath, i);
               applyToTree(child, childTreePath, visitor);
+            }
           }
 
           visitor.afterChild(tree, child, treePath, i);

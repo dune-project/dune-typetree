@@ -76,7 +76,6 @@ namespace Dune {
 
         auto indices = Dune::range(degree);
         Dune::Hybrid::forEach(indices, [&](auto i) {
-          auto childTreePath = Dune::TypeTree::push_back(treePath, i);
           auto&& child1 = tree1.child(i);
           auto&& child2 = tree2.child(i);
           using Child1 = std::decay_t<decltype(child1)>;
@@ -94,7 +93,10 @@ namespace Dune {
           {
             const auto dynamicVisitChild = visitor.visitChild(tree1,child1,tree2,child2,treePath);
             if (dynamicVisitChild)
+            {
+              auto childTreePath = Dune::TypeTree::push_back(treePath, i);
               applyToTreePair(child1, child2, childTreePath, visitor);
+            }
           }
           visitor.afterChild(tree1, child1, tree2, child2, treePath, i);
         });
