@@ -103,31 +103,28 @@ void check(const Tree& tree)
   assert(leafCount == Dune::TypeTree::leafCount(tree));
   assert(nodeCount == Dune::TypeTree::nodeCount(tree));
 
-  Dune::Hybrid::ifElse(Dune::Std::bool_constant<TI::dynamic)>{},
-    [&] (auto id) {}
-  ,
-    [&] (auto id) {
-      static_assert((Dune::TypeTree::AccumulateValue<
-                    Tree,
-                    NodeCountingFunctor,
-                    Dune::TypeTree::plus<std::size_t>,
-                    0>::result == TI::nodeCount),
-                  "Error in AccumulateValue");
+  if constexpr (not TI::dynamic)
+  {
+    static_assert((Dune::TypeTree::AccumulateValue<
+                  Tree,
+                  NodeCountingFunctor,
+                  Dune::TypeTree::plus<std::size_t>,
+                  0>::result == TI::nodeCount),
+                "Error in AccumulateValue");
 
-      static_assert((TI::nodeCount == nodeCount),
-                    "TreeInfo yields wrong information");
+    static_assert((TI::nodeCount == nodeCount),
+                  "TreeInfo yields wrong information");
 
-      static_assert((Dune::TypeTree::AccumulateValue<
-                    Tree,
-                    LeafCountingFunctor,
-                    Dune::TypeTree::plus<std::size_t>,
-                    0>::result == TI::leafCount),
-                  "Error in AccumulateValue");
+    static_assert((Dune::TypeTree::AccumulateValue<
+                  Tree,
+                  LeafCountingFunctor,
+                  Dune::TypeTree::plus<std::size_t>,
+                  0>::result == TI::leafCount),
+                "Error in AccumulateValue");
 
-      static_assert((TI::leafCount == leafCount),
-                    "TreeInfo yields wrong information");
-    }
-  );
+    static_assert((TI::leafCount == leafCount),
+                  "TreeInfo yields wrong information");
+  }
 
   std::cout << "==================================" << std::endl;
 }
