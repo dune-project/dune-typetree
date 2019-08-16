@@ -51,9 +51,9 @@ namespace Dune {
       //! The number of children.
       const std::size_t CHILDREN;
 
-      friend std::size_t degree(const DynamicPowerNode& n)
+      std::size_t degree() const
       {
-        return n._children.size();
+        return _children.size();
       }
 
       //! The type tag that describes a PowerNode.
@@ -165,8 +165,8 @@ namespace Dune {
 
       //! Initialize the DynamicPowerNode with a copy of the passed-in storage type.
       explicit DynamicPowerNode(const NodeStorage& children)
-        : _children(children)
-        , CHILDREN(children.size())
+        : CHILDREN(children.size())
+        , _children(children)
       {}
 
 #ifdef DOXYGEN
