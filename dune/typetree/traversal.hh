@@ -150,15 +150,17 @@ namespace Dune {
           if (i>0)
             visitor.in(tree, treePath);
           static const auto staticVisitChild = Visitor::template VisitChild<Tree,Child,TreePath>::value;
-          if constexpr (staticVisitChild)
-          {
+
+          Dune::Hybrid::ifElse(Dune::Std::bool_constant<staticVisitChild>{}, [&] (auto id) {
             const auto dynamicVisitChild = visitor.visitChild(tree,child,treePath);
             if (dynamicVisitChild)
             {
               auto childTreePath = Dune::TypeTree::push_back(treePath, i);
               applyToTree(child, childTreePath, visitor);
             }
-          }
+          },
+            [&] (auto id) {}
+          );
 
           visitor.afterChild(tree, child, treePath, i);
         });
