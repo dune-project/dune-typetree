@@ -20,6 +20,9 @@ namespace Dune {
 
     template<typename... T>
     class HybridTreePath;
+    
+    template<typename Tree>
+    struct TreeInfo;
 
     //! \addtogroup TreePath
     //! \ingroup TypeTree
