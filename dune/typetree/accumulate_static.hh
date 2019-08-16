@@ -139,6 +139,23 @@ namespace Dune {
 
       };
 
+      //! dynamic power node specialization.
+      template<typename DynamicPowerNode, typename Functor, typename Reduction, typename ParentChildReduction, typename Functor::result_type current_value, typename TreePath>
+      struct accumulate_value<DynamicPowerNode,Functor,Reduction,ParentChildReduction,current_value,TreePath,DynamicPowerNodeTag>
+      {
+
+        typedef typename Functor::result_type result_type;
+
+        typedef decltype(push_back(TreePath{},0)) child_tree_path;
+
+        typedef typename DynamicPowerNode::ChildType child;
+
+        static const result_type result =
+
+          accumulate_value<child,Functor,Reduction,ParentChildReduction,current_value,child_tree_path,NodeTag<child>>::result;
+
+      };
+
       //! Iteration over children of a composite node.
       template<typename Node, typename Functor, typename Reduction, typename ParentChildReduction, typename Functor::result_type current_value, typename TreePath, std::size_t i, std::size_t n>
       struct accumulate_over_children
@@ -146,7 +163,7 @@ namespace Dune {
 
         typedef typename Functor::result_type result_type;
 
-        typedef typename TreePathPushBack<TreePath,i>::type child_tree_path;
+        typedef decltype(push_back(TreePath{},index_constant<i>{})) child_tree_path;
 
         typedef typename Node::template Child<i>::Type child;
 
@@ -365,7 +382,7 @@ namespace Dune {
       struct accumulate_type_over_children
       {
 
-        typedef typename TreePathPushBack<TreePath,i>::type child_tree_path;
+        typedef decltype(push_back(TreePath{},index_constant<i>{})) child_tree_path;
 
         typedef typename Node::template Child<i>::Type child;
 
@@ -443,6 +460,48 @@ namespace Dune {
       template<typename CompositeNode, typename Policy, typename current_type, typename TreePath>
       struct accumulate_type<CompositeNode,Policy,current_type,TreePath,CompositeNodeTag>
         : public accumulate_type_generic_composite_node<CompositeNode,Policy,current_type,TreePath>
+      {};
+
+      //! Iteration over child of a dynamic power node.
+      template<typename Node, typename Policy, typename current_type, typename TreePath>
+      struct accumulate_type_over_dynamic_power_node
+      {
+
+        typedef decltype(push_back(TreePath{},0)) child_tree_path;
+
+        typedef typename Node::ChildType child;
+
+        typedef typename accumulate_type<
+          child,
+          Policy,
+          // apply reduction choice (flat / hierarchic)
+          typename propagate_type_down_tree<
+            current_type,
+            child_tree_path,
+            typename Policy::start_type,
+            typename Policy::reduction_strategy
+            >::type,
+          child_tree_path,
+          NodeTag<child>
+          >::type child_result_type;
+
+        typedef typename accumulate_type_node_helper<
+          Node,
+          typename Policy::functor,
+          typename Policy::parent_child_reduction,
+          child_result_type,
+          TreePath,
+          Policy::functor::template doVisit<
+            Node,
+            TreePath
+            >::value
+          >::type type;
+      };
+
+      //! DynamicPowerNode specialization.
+      template<typename DynamicPowerNode, typename Policy, typename current_type, typename TreePath>
+      struct accumulate_type<DynamicPowerNode,Policy,current_type,TreePath,DynamicPowerNodeTag>
+        : public accumulate_type_over_dynamic_power_node<DynamicPowerNode,Policy,current_type,TreePath>
       {};
 
     } // anonymous namespace
