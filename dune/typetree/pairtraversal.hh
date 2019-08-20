@@ -62,12 +62,13 @@ namespace Dune {
         constexpr auto useDynamicTraversal = (Tree1::isPower and Tree2::isPower and Visitor::treePathType==TreePathType::dynamic);
         auto degree = traversalDegree<useDynamicTraversal>(tree1);
 
-        static_assert(not ((Visitor::treePathType!=TreePathType::fullyStatic) and (Tree1::isDynamic or Tree2::isDynamic) ),
+        static_assert(not ((Visitor::treePathType==TreePathType::fullyStatic) and (Tree1::isDynamic or Tree2::isDynamic) ),
           "Trees with dynamic nodes cannot be traversed with fullStatic tree path type");
 
+        // get a degree that is either std::size_t or std::integral_constant
         auto degree = traversalDegree(tree1,std::integral_constant<bool,useDynamicTraversal>{});
-
         auto indices = Dune::range(degree);
+
         Dune::Hybrid::forEach(indices, [&](auto i) {
           auto&& child1 = tree1.child(i);
           auto&& child2 = tree2.child(i);
