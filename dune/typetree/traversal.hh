@@ -137,8 +137,10 @@ namespace Dune {
 
         visitor.pre(tree, treePath);
 
+        // get a degree that is either std::size_t or std::integral_constant
         auto degree = traversalDegree(tree,std::integral_constant<bool,useDynamicTraversal>{});
         auto indices = Dune::range(degree);
+
         Dune::Hybrid::forEach(indices, [&](auto i) {
           auto&& child = tree.child(i);
           using Child = std::decay_t<decltype(child)>;
