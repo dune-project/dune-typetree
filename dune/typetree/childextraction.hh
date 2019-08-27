@@ -11,6 +11,7 @@
 #include <dune/common/typetraits.hh>
 #include <dune/common/shared_ptr.hh>
 
+#include <dune/typetree/nodetags.hh>
 #include <dune/typetree/nodeinterface.hh>
 #include <dune/typetree/treepath.hh>
 
