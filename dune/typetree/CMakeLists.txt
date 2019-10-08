@@ -2,6 +2,7 @@ install(FILES
   accumulate_static.hh
   childextraction.hh
   compositenode.hh
+  dynamicpowernode.hh
   exceptions.hh
   filteredcompositenode.hh
   filters.hh
