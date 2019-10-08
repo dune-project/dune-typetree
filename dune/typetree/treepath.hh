@@ -13,12 +13,13 @@
 #include <dune/common/hybridutilities.hh>
 
 #include <dune/typetree/fixedcapacitystack.hh>
-#include <dune/typetree/utility.hh>
 
 
 namespace Dune {
   namespace TypeTree {
 
+    template<typename Tree>
+    struct TreeInfo;
 
     //! \addtogroup TreePath
     //! \ingroup TypeTree
@@ -436,6 +437,11 @@ namespace Dune {
       return HybridTreePath<T...>(t...);
     }
 
+    //! Returns the size (number of components) of the given `HybridTreePath`.
+    template<typename... T>
+    struct TreePathSize<HybridTreePath<T...> >
+      : public index_constant<sizeof...(T)>
+    {};
 
     //! Returns the size (number of components) of the given `HybridTreePath`.
     template<typename... T>

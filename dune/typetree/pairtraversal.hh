@@ -59,12 +59,22 @@ namespace Dune {
 
         // Use statically encoded degree unless both trees
         // are power nodes and dynamic traversal is requested.
-        constexpr auto useDynamicTraversal = (Tree1::isPower and Tree2::isPower and Visitor::treePathType==TreePathType::dynamic);
-        auto degree = conditionalValue<useDynamicTraversal>(Tree1::degree(), Dune::index_constant<Tree1::degree()>{});
+        constexpr auto useDynamicTraversal1 =
+                  ((Tree1::isPower and Visitor::treePathType==TreePathType::dynamic)
+                  or Tree1::isDynamic);
+        constexpr auto useDynamicTraversal2 =
+                  ((Tree2::isPower and Visitor::treePathType==TreePathType::dynamic)
+                  or Tree2::isDynamic);
+        constexpr auto useDynamicTraversal = useDynamicTraversal1 or useDynamicTraversal2;
 
+        static_assert(not ((Visitor::treePathType==TreePathType::fullyStatic) and (Tree1::isDynamic or Tree2::isDynamic) ),
+          "Trees with dynamic nodes cannot be traversed with fullStatic tree path type");
+
+        // get a degree that is either std::size_t or std::integral_constant
+        auto degree = traversalDegree(tree1,std::integral_constant<bool,useDynamicTraversal>{});
         auto indices = Dune::range(degree);
+
         Dune::Hybrid::forEach(indices, [&](auto i) {
-          auto childTreePath = Dune::TypeTree::push_back(treePath, i);
           auto&& child1 = tree1.child(i);
           auto&& child2 = tree2.child(i);
           using Child1 = std::decay_t<decltype(child1)>;
@@ -76,11 +86,19 @@ namespace Dune {
           // even if there's a single child only.
           if (i>0)
             visitor.in(tree1, tree2, treePath);
-          static const auto visitChild = Visitor::template VisitChild<Tree1,Child1,Tree2,Child2,TreePath>::value;
-          Dune::Hybrid::ifElse(Dune::Std::bool_constant<visitChild>{}, [&] (auto id) {
-            applyToTreePair(child1, child2, childTreePath, visitor);
-          });
 
+          static const auto staticVisitChild = Visitor::template VisitChild<Tree1,Child1,Tree2,Child2,TreePath>::value;
+
+          Dune::Hybrid::ifElse(Dune::Std::bool_constant<staticVisitChild>{}, [&] (auto id) {
+            const auto dynamicVisitChild = visitor.visitChild(tree1,child1,tree2,child2,treePath);
+            if (dynamicVisitChild)
+            {
+              auto childTreePath = Dune::TypeTree::push_back(treePath, i);
+              applyToTreePair(child1, child2, childTreePath, visitor);
+            }
+          },
+            [&] (auto id) {}
+          );
           visitor.afterChild(tree1, child1, tree2, child2, treePath, i);
         });
         visitor.post(tree1, tree2, treePath);

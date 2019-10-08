@@ -11,6 +11,7 @@
 
 #include <dune/common/typetraits.hh>
 #include <dune/common/std/type_traits.hh>
+#include <dune/common/indices.hh>
 
 #include <dune/typetree/nodetags.hh>
 #include <dune/typetree/utility.hh>
@@ -56,6 +57,9 @@ namespace Dune {
 
       //! Mark this class as a power in the \ref TypeTree.
       static const bool isPower = true;
+
+      //! Mark this class as a non dynamic in the \ref TypeTree.
+      static const bool isDynamic = false;
 
       //! Mark this class as a non composite in the \ref TypeTree.
       static const bool isComposite = false;

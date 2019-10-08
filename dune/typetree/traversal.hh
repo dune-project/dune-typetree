@@ -29,6 +29,23 @@ namespace Dune {
 
     namespace Detail {
 
+      // Switch between static and dynamic degree for traversal
+      template<typename Node, bool dynamic = Node::isDynamic>
+      std::enable_if_t<dynamic, std::size_t>
+      traversalDegree(const Node& node, std::integral_constant<bool,dynamic> = {})
+      {
+        return node.degree();
+      }
+
+      // Switch between static and dynamic degree for traversal
+      template<typename Node, bool dynamic = Node::isDynamic>
+      std::enable_if_t<!dynamic, Dune::index_constant<Node::degree()>>
+      constexpr
+      traversalDegree(const Node& node, std::integral_constant<bool,dynamic> = {})
+      {
+        return {};
+      }
+
       // This is a constexpr version of the ternery operator c?t1:t1.
       // In contrast to the latter the type of t1 and t2 can be different.
       // Notice that std::conditional would not do the trick, because
@@ -108,16 +125,23 @@ namespace Dune {
         // using Visitor = std::decay_t<V>;
         using Tree = std::remove_reference_t<T>;
         using Visitor = std::remove_reference_t<V>;
-        visitor.pre(tree, treePath);
 
         // Use statically encoded degree unless tree
         // is a power node and dynamic traversal is requested.
-        constexpr auto useDynamicTraversal = (Tree::isPower and Visitor::treePathType==TreePathType::dynamic);
-        auto degree = conditionalValue<useDynamicTraversal>(Tree::degree(), Dune::index_constant<Tree::degree()>{});
+        constexpr auto useDynamicTraversal =
+                  ((Tree::isPower and Visitor::treePathType==TreePathType::dynamic)
+                  or Tree::isDynamic);
 
+        static_assert(not ((Visitor::treePathType==TreePathType::fullyStatic) and Tree::isDynamic),
+          "Trees with dynamic nodes cannot be traversed with fullStatic tree path type");
+
+        visitor.pre(tree, treePath);
+
+        // get a degree that is either std::size_t or std::integral_constant
+        auto degree = traversalDegree(tree,std::integral_constant<bool,useDynamicTraversal>{});
         auto indices = Dune::range(degree);
+
         Dune::Hybrid::forEach(indices, [&](auto i) {
-          auto childTreePath = Dune::TypeTree::push_back(treePath, i);
           auto&& child = tree.child(i);
           using Child = std::decay_t<decltype(child)>;
 
@@ -127,10 +151,18 @@ namespace Dune {
           // even if there's a single child only.
           if (i>0)
             visitor.in(tree, treePath);
-          static const auto visitChild = Visitor::template VisitChild<Tree,Child,TreePath>::value;
-          Dune::Hybrid::ifElse(Dune::Std::bool_constant<visitChild>{}, [&] (auto id) {
-            applyToTree(child, childTreePath, visitor);
-          });
+          static const auto staticVisitChild = Visitor::template VisitChild<Tree,Child,TreePath>::value;
+
+          Dune::Hybrid::ifElse(Dune::Std::bool_constant<staticVisitChild>{}, [&] (auto id) {
+            const auto dynamicVisitChild = visitor.visitChild(tree,child,treePath);
+            if (dynamicVisitChild)
+            {
+              auto childTreePath = Dune::TypeTree::push_back(treePath, i);
+              applyToTree(child, childTreePath, visitor);
+            }
+          },
+            [&] (auto id) {}
+          );
 
           visitor.afterChild(tree, child, treePath, i);
         });
@@ -159,7 +191,8 @@ namespace Dune {
           // visit all children using a static loop, and
           // finally visit the tree with the post function.
           preFunc(id(tree), treePath);
-          auto indices = Dune::Std::make_index_sequence<TreeType::degree()>{};
+          auto degree = traversalDegree(tree);
+          auto indices = Dune::range(degree);
           Dune::Hybrid::forEach(indices, [&](auto i) {
             auto childTreePath = Dune::TypeTree::push_back(treePath, i);
             forEachNode(id(tree).child(i), childTreePath, preFunc, leafFunc, postFunc);
