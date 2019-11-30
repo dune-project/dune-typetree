@@ -1,8 +1,4 @@
-set(modules
+install(
+  FILES
   DuneTypetreeMacros.cmake
-  FindCXXDecltype.cmake
-  FindCXXTemplateAliases.cmake
-  FindGCCTypeof.cmake
-)
-
-install(FILES ${modules} DESTINATION ${DUNE_INSTALL_MODULEDIR})
+  DESTINATION ${DUNE_INSTALL_MODULEDIR})
