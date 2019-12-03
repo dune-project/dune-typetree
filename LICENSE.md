@@ -12,15 +12,15 @@ Copyright holders
 | 2014--2018 | Ansgar Burchardt           |
 | 2009--2016 | Christian Engwer           |
 | 2009--2013 | Jorrit Fahlke              |
-| 2015--2018 | Carsten Gräser             |
+| 2015--2019 | Carsten Gräser             |
 | 2015--2016 | Felix Gruber               |
-| 2013--2016 | Christoph Grüninger        |
-| 2013--2016 | Dominic Kempf              |
-| 2010--2018 | Steffen Müthing            |
+| 2013--2019 | Christoph Grüninger        |
+| 2013--2019 | Dominic Kempf              |
+| 2010--2019 | Steffen Müthing            |
 | 2012       | Rebecca Neumann            |
 | 2015       | Elias Pipping              |
 | 2018       | Simon Praetorius           |
-| 2015       | Oliver Sander              |
+| 2015--2018 | Oliver Sander              |
 | 2013       | Bård Skaflestad            |
 
 License
