@@ -412,31 +412,29 @@ namespace Dune {
                                >
       {};
 
-
-      template<std::size_t... i>
-      static transformed_type transform(const S& s, T& t, std::index_sequence<i...> indices)
+      template<typename Trafo, typename Storage, std::size_t i0, std::size_t... i>
+      static void transform_children(const S& s, Trafo&& t, Storage& storage, std::index_sequence<i0,i...>)
       {
-        return NodeTransformation::transform(s,t,ChildTransformation<i>::transform_storage(s.template childStorage<i>(),t)...);
+        std::get<i0>(storage) = ChildTransformation<i0>::transform_storage(s.template childStorage<i0>(), std::forward<Trafo>(t));
+        if constexpr(sizeof...(i) > 0)
+          transform_children(s, std::forward<Trafo>(t),storage,std::index_sequence<i...>{});
       }
 
-      template<std::size_t... i>
-      static transformed_type transform(const S& s, const T& t, std::index_sequence<i...> indices)
+      template<typename Trafo, std::size_t... i>
+      static transformed_type transform(const S& s, Trafo&& t, std::index_sequence<i...> indices)
       {
-        return NodeTransformation::transform(s,t,ChildTransformation<i>::transform_storage(s.template childStorage<i>(),t)...);
+        std::tuple<typename ChildTransformation<i>::transformed_storage_type...> storage;
+        transform_children(s, std::forward<Trafo>(t), storage, indices);
+        return NodeTransformation::transform(s, std::forward<Trafo>(t), std::get<i>(storage)...);
       }
 
-      template<std::size_t... i>
-      static transformed_storage_type transform_storage(std::shared_ptr<const S> sp, T& t, std::index_sequence<i...> indices)
+      template<typename Trafo, std::size_t... i>
+      static transformed_storage_type transform_storage(std::shared_ptr<const S> sp, Trafo&& t, std::index_sequence<i...> indices)
       {
-        return NodeTransformation::transform_storage(sp,t,ChildTransformation<i>::transform_storage(sp->template childStorage<i>(),t)...);
+        std::tuple<typename ChildTransformation<i>::transformed_storage_type...> storage;
+        transform_children(*sp, std::forward<Trafo>(t), storage, indices);
+        return NodeTransformation::transform_storage(sp, std::forward<Trafo>(t), std::get<i>(storage)...);
       }
-
-      template<std::size_t... i>
-      static transformed_storage_type transform_storage(std::shared_ptr<const S> sp, const T& t, std::index_sequence<i...> indices)
-      {
-        return NodeTransformation::transform_storage(sp,t,ChildTransformation<i>::transform_storage(sp->template childStorage<i>(),t)...);
-      }
-
     };
 
 
