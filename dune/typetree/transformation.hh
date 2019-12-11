@@ -412,19 +412,17 @@ namespace Dune {
                                >
       {};
 
-      template<typename Trafo, typename Storage, std::size_t i0, std::size_t... i>
-      static void transform_children(const S& s, Trafo&& t, Storage& storage, std::index_sequence<i0,i...>)
+      template<std::size_t i, typename Tuple, typename Value>
+      static void setElement(Tuple& tuple, Value&& value)
       {
-        std::get<i0>(storage) = ChildTransformation<i0>::transform_storage(s.template childStorage<i0>(), std::forward<Trafo>(t));
-        if constexpr(sizeof...(i) > 0)
-          transform_children(s, std::forward<Trafo>(t),storage,std::index_sequence<i...>{});
+        std::get<i>(tuple) = std::forward<Value>(value);
       }
 
       template<typename Trafo, std::size_t... i>
       static transformed_type transform(const S& s, Trafo&& t, std::index_sequence<i...> indices)
       {
         std::tuple<typename ChildTransformation<i>::transformed_storage_type...> storage;
-        transform_children(s, std::forward<Trafo>(t), storage, indices);
+        (setElement<i>(storage, ChildTransformation<i>::transform_storage(s.template childStorage<i>(), std::forward<Trafo>(t))),...,0);
         return NodeTransformation::transform(s, std::forward<Trafo>(t), std::get<i>(storage)...);
       }
 
@@ -432,7 +430,7 @@ namespace Dune {
       static transformed_storage_type transform_storage(std::shared_ptr<const S> sp, Trafo&& t, std::index_sequence<i...> indices)
       {
         std::tuple<typename ChildTransformation<i>::transformed_storage_type...> storage;
-        transform_children(*sp, std::forward<Trafo>(t), storage, indices);
+        (setElement<i>(storage, ChildTransformation<i>::transform_storage(sp->template childStorage<i>(), std::forward<Trafo>(t))),...,0);
         return NodeTransformation::transform_storage(sp, std::forward<Trafo>(t), std::get<i>(storage)...);
       }
     };
