@@ -98,6 +98,10 @@ namespace Dune {
         }
 
       public:
+        TreeContainerVectorBackend() :
+          container_()
+        {}
+
         TreeContainerVectorBackend(Container&& container) :
           container_(std::move(container))
         {}
