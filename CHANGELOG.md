@@ -1,17 +1,16 @@
 TypeTree
 ========
 
-This is the 2.7-git development version of the TypeTree library for statically typed object trees
-that will evolve to the 2.7 release.
+This is release 2.7.0 of the TypeTree library for statically typed object trees.
 
-TypeTree 2.7-git is compatible to the current development version 2.7-git of the DUNE core modules and
+TypeTree 2.7.0 is compatible to the release 2.7.0 of the DUNE core modules and
 the 2.6.0 release of PDELab.
 
 Changes
 =======
 
-TypeTree 2.7-git
-----------------
+TypeTree 2.7
+------------
 
 -   The class template `index_pack` and the utility functionality for its creation have been
     removed. Use `std::index_sequence` instead.
