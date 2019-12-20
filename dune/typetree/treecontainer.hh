@@ -34,7 +34,8 @@ namespace Dune {
       class ContainerFactory
       {
       public:
-
+        ContainerFactory() = default;
+        
         /**
          * \brief Create ContainerFactory
          *
@@ -98,16 +99,10 @@ namespace Dune {
         }
 
       public:
-        TreeContainerVectorBackend() :
-          container_()
-        {}
+        TreeContainerVectorBackend() = default;
 
         TreeContainerVectorBackend(Container&& container) :
           container_(std::move(container))
-        {}
-
-        TreeContainerVectorBackend(TreeContainerVectorBackend&& other) :
-          container_(std::move(other.container_))
         {}
 
         template<class... T>

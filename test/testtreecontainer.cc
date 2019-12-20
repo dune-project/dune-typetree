@@ -38,6 +38,15 @@ Dune::TestSuite checkTreeContainer(const Tree& tree, const Value& value)
 
   auto container = Dune::TypeTree::makeTreeContainer<Value>(tree);
 
+  // copy construct the container
+  auto container2 = container;
+
+  // copy-assign the container
+  container2 = container;
+
+  // move-construct the container
+  auto container3 = std::move(container2);
+
   Dune::TypeTree::forEachLeafNode(tree, [&] (auto&& node, auto treePath) {
       test.check(notThrown([&]() {
         container[treePath] = value;
