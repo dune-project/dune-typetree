@@ -308,14 +308,14 @@ namespace Dune {
 
       //! Returns the storage of the proxied node.
       template<bool enabled = !proxiedNodeIsConst>
-      typename std::enable_if<enabled,shared_ptr<Node> >::type
+      typename std::enable_if<enabled,std::shared_ptr<Node> >::type
       proxiedNodeStorage()
       {
         return _node;
       }
 
       //! Returns the storage of the proxied node (const version).
-      shared_ptr<const Node> proxiedNodeStorage() const
+      std::shared_ptr<const Node> proxiedNodeStorage() const
       {
         return _node;
       }
@@ -329,7 +329,7 @@ namespace Dune {
         : _node(stackobject_to_shared_ptr(node))
       {}
 
-      ProxyNode(shared_ptr<Node> node)
+      ProxyNode(std::shared_ptr<Node> node)
         : _node(node)
       {}
 
@@ -337,7 +337,7 @@ namespace Dune {
 
     private:
 
-      shared_ptr<Node> _node;
+      std::shared_ptr<Node> _node;
     };
 
     //! \} group Nodes
