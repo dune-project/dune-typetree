@@ -31,12 +31,21 @@ bool notThrown(F&& f)
   return false;
 }
 
+template <class Value, class Tree>
+using UniformTreeMatrix
+  = Dune::TypeTree::UniformTreeContainer<
+      Dune::TypeTree::UniformTreeContainer<Value,Tree>,Tree>;
+
 template<class Tree, class Value>
 Dune::TestSuite checkTreeContainer(const Tree& tree, const Value& value)
 {
   Dune::TestSuite test(treeName(tree));
 
+  // contruct a container using a factory function
   auto container = Dune::TypeTree::makeTreeContainer<Value>(tree);
+
+  // default construct a container
+  Dune::TypeTree::UniformTreeContainer<Value,Tree> container2{};
 
   Dune::TypeTree::forEachLeafNode(tree, [&] (auto&& node, auto treePath) {
       test.check(notThrown([&]() {
@@ -48,6 +57,28 @@ Dune::TestSuite checkTreeContainer(const Tree& tree, const Value& value)
       test.check(container[treePath] == value)
         << "Value in tree container does not match assigned value";
     });
+
+  // construct a matrix-like container
+  auto matrix = Dune::TypeTree::makeTreeContainer(tree,
+    [&](auto const&) { return Dune::TypeTree::makeTreeContainer<Value>(tree); });
+
+  // default construct matrix-like container
+  UniformTreeMatrix<Value,Tree> matrix2{};
+
+  Dune::TypeTree::forEachLeafNode(tree, [&] (auto&& rowNode, auto rowTreePath) {
+    Dune::TypeTree::forEachLeafNode(tree, [&] (auto&& colNode, auto colTreePath) {
+      test.check(notThrown([&]() {
+        matrix[rowTreePath][colTreePath] = value;
+      })) << "Assigning desired value to tree matrix-container entry failed";
+    });
+  });
+
+  Dune::TypeTree::forEachLeafNode(tree, [&] (auto&& rowNode, auto rowTreePath) {
+    Dune::TypeTree::forEachLeafNode(tree, [&] (auto&& colNode, auto colTreePath) {
+      test.check(matrix[rowTreePath][colTreePath] == value)
+        << "Value in tree matrix-container does not match assigned value";
+    });
+  });
 
   return test;
 }
