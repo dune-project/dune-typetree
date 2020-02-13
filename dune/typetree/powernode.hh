@@ -75,10 +75,10 @@ namespace Dune {
       typedef T ChildType;
 
       //! The storage type of each child.
-      typedef shared_ptr<T> ChildStorageType;
+      typedef std::shared_ptr<T> ChildStorageType;
 
       //! The const version of the storage type of each child.
-      typedef shared_ptr<const T> ChildConstStorageType;
+      typedef std::shared_ptr<const T> ChildConstStorageType;
 
       //! The type used for storing the children.
       typedef std::array<ChildStorageType,k> NodeStorage;
@@ -349,7 +349,7 @@ namespace Dune {
           }
         else
           {
-            shared_ptr<T> sp = stackobject_to_shared_ptr(t);
+            std::shared_ptr<T> sp = stackobject_to_shared_ptr(t);
             std::fill(_children.begin(),_children.end(),sp);
           }
       }
