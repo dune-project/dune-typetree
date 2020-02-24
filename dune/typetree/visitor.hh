@@ -350,6 +350,104 @@ namespace Dune {
       , public VisitDirectChildren
     {};
 
+
+    namespace Detail {
+
+      struct NOP
+      {
+        template<class... T>
+          void operator()(T&&... t) const
+          {}
+      };
+
+      template<class BaseVisitor, class Pre, class In, class Post, class Leaf>
+        class VisitorFactory : public BaseVisitor
+      {
+        using This = VisitorFactory<BaseVisitor, Pre, In, Post, Leaf>;
+
+        Pre pre_;
+        In in_;
+        Post post_;
+        Leaf leaf_;
+
+      public:
+
+        VisitorFactory(const BaseVisitor& baseVisitor, const Pre& pre, const In& in, const Post& post, const Leaf& leaf) :
+          BaseVisitor(baseVisitor),
+          pre_(pre),
+          in_(in),
+          post_(post),
+          leaf_(leaf)
+        {}
+
+        template<typename T, typename TreePath>
+        void pre(T&& t, TreePath treePath) const {
+          BaseVisitor::pre(t, treePath);
+          pre_(t, treePath);
+        }
+
+        template<typename T, typename TreePath>
+        void in(T&& t, TreePath treePath) const {
+          BaseVisitor::in(t, treePath);
+          in_(t, treePath);
+        }
+
+        template<typename T, typename TreePath>
+        void post(T&& t, TreePath treePath) const {
+          BaseVisitor::post(t, treePath);
+          post_(t, treePath);
+        }
+
+        template<typename T, typename TreePath>
+        void leaf(T&& t, TreePath treePath) const {
+          BaseVisitor::leaf(t, treePath);
+          leaf_(t, treePath);
+        }
+
+        template<class F>
+        auto pre(F&& f) const {
+          return VisitorFactory<This, std::decay_t<F>, NOP, NOP, NOP>(*this, std::forward<F>(f), NOP{}, NOP{}, NOP{});
+        }
+
+        template<class F>
+        auto in(F&& f) const {
+          return VisitorFactory<This, NOP, std::decay_t<F>, NOP, NOP>(*this, NOP{}, std::forward<F>(f), NOP{}, NOP{});
+        }
+
+        template<class F>
+        auto post(F&& f) const {
+          return VisitorFactory<This, NOP, NOP, std::decay_t<F>, NOP>(*this, NOP{}, NOP{}, std::forward<F>(f), NOP{});
+        }
+
+        template<class F>
+        auto leaf(F&& f) const {
+          return VisitorFactory<This, NOP, NOP, NOP, std::decay_t<F>>(*this, NOP{}, NOP{}, NOP{}, std::forward<F>(f));
+        }
+
+      };
+
+      template<class TreePathType>
+        class NOPVisitor : public TreeVisitor, public TreePathType
+      {
+        public:
+      };
+
+    } // namespace Detail
+
+    template<class TreePathType = DynamicTraversal>
+    auto makeVisitor() {
+      using namespace Detail;
+      return VisitorFactory<NOPVisitor<TreePathType>, NOP, NOP, NOP, NOP>(NOPVisitor<TreePathType>{}, NOP{}, NOP{}, NOP{}, NOP{});
+    }
+
+
+//      template<typename T, typename Child, typename TreePath, typename ChildIndex>
+//      void beforeChild(T&& t, Child&& child, TreePath treePath, ChildIndex childIndex) const {}
+
+//      template<typename T, typename Child, typename TreePath, typename ChildIndex>
+//      void afterChild(T&& t, Child&& child, TreePath treePath, ChildIndex childIndex) const {}
+
+
     //! \} group Tree Traversal
 
   } // namespace TypeTree
