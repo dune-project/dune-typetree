@@ -19,6 +19,8 @@
 namespace Dune {
   namespace TypeTree {
 
+    template<typename... T>
+    class HybridTreePath;
 
     //! \addtogroup TreePath
     //! \ingroup TypeTree
@@ -422,6 +424,66 @@ namespace Dune {
     {
       return HybridTreePath<index_constant<i>,T...>(std::tuple_cat(std::make_tuple(_i),tp._data));
     }
+
+
+    template<std::size_t... i>
+    struct TreePathSize<HybridTreePath<index_constant<i>...> >
+      : public index_constant<sizeof...(i)>
+    {};
+
+
+    template<std::size_t k, std::size_t... i>
+    struct TreePathPushBack<HybridTreePath<index_constant<i>...>,k>
+    {
+      typedef HybridTreePath<index_constant<i>...,index_constant<k>> type;
+    };
+
+    template<std::size_t k, std::size_t... i>
+    struct TreePathPushFront<HybridTreePath<index_constant<i>...>,k>
+    {
+      typedef HybridTreePath<index_constant<k>,index_constant<i>...> type;
+    };
+
+    template<std::size_t k>
+    struct TreePathBack<HybridTreePath<index_constant<k>>>
+      : public index_constant<k>
+    {};
+
+    template<std::size_t j, std::size_t k, std::size_t... l>
+    struct TreePathBack<HybridTreePath<index_constant<j>,index_constant<k>,index_constant<l>...>>
+      : public TreePathBack<HybridTreePath<index_constant<k>,index_constant<l>...>>
+    {};
+
+    template<std::size_t k, std::size_t... i>
+    struct TreePathFront<HybridTreePath<index_constant<k>,index_constant<i>...>>
+      : public index_constant<k>
+    {};
+
+    template<std::size_t k, std::size_t... i>
+    struct TreePathPopBack<HybridTreePath<index_constant<k>>,i...>
+    {
+      typedef HybridTreePath<index_constant<i>...> type;
+    };
+
+    template<std::size_t j,
+             std::size_t k,
+             std::size_t... l,
+             std::size_t... i>
+    struct TreePathPopBack<HybridTreePath<index_constant<j>,index_constant<k>,index_constant<l>...>,i...>
+      : public TreePathPopBack<HybridTreePath<index_constant<k>,index_constant<l>...>,i...,j>
+    {};
+
+    template<std::size_t k, std::size_t... i>
+    struct TreePathPopFront<HybridTreePath<index_constant<k>,index_constant<i>...> >
+    {
+      typedef HybridTreePath<index_constant<i>...> type;
+    };
+
+    template<std::size_t... i, std::size_t... k>
+    struct TreePathConcat<HybridTreePath<index_constant<i>...>,HybridTreePath<index_constant<k>...> >
+    {
+      typedef HybridTreePath<index_constant<i>...,index_constant<k>...> type;
+    };
 
 #ifndef DOXYGEN
 
