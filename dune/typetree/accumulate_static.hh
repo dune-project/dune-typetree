@@ -262,7 +262,7 @@ namespace Dune {
       typedef typename Functor::result_type result_type;
 
       //! The accumulated result of the computation.
-      static const result_type result = accumulate_value<Tree,Functor,Reduction,ParentChildReduction,startValue,TreePath<>,NodeTag<Tree>>::result;
+      static const result_type result = accumulate_value<Tree,Functor,Reduction,ParentChildReduction,startValue,HybridTreePath<>,NodeTag<Tree>>::result;
 
     };
 
@@ -557,7 +557,7 @@ namespace Dune {
         Tree,
         Policy,
         typename Policy::start_type,
-        TreePath<>,
+        HybridTreePath<>,
         NodeTag<Tree>
         >::type type;
 
