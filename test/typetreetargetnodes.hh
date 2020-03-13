@@ -8,11 +8,11 @@ struct TargetLeaf
   {}
 
   template<typename Transformation>
-  TargetLeaf(Dune::shared_ptr<const SimpleLeaf> sl, const Transformation& t)
+  TargetLeaf(std::shared_ptr<const SimpleLeaf> sl, const Transformation& t)
     : s(sl)
   {}
 
-  Dune::shared_ptr<const SimpleLeaf> s;
+  std::shared_ptr<const SimpleLeaf> s;
 
   const char* name() const
   {
@@ -32,18 +32,18 @@ struct TargetPower
 {
 
   template<typename Transformation>
-  TargetPower(const S& sc, const Transformation& t, const std::array<Dune::shared_ptr<T>,k>& children)
+  TargetPower(const S& sc, const Transformation& t, const std::array<std::shared_ptr<T>,k>& children)
     : Dune::TypeTree::PowerNode<T,k>(children)
     , s(Dune::stackobject_to_shared_ptr(sc))
   {}
 
   template<typename Transformation>
-  TargetPower(Dune::shared_ptr<const S> sc, const Transformation& t, const std::array<Dune::shared_ptr<T>,k>& children)
+  TargetPower(std::shared_ptr<const S> sc, const Transformation& t, const std::array<std::shared_ptr<T>,k>& children)
     : Dune::TypeTree::PowerNode<T,k>(children)
     , s(sc)
   {}
 
-  Dune::shared_ptr<const S> s;
+  std::shared_ptr<const S> s;
 
   const char* name() const
   {
@@ -64,18 +64,18 @@ struct TargetComposite
 {
 
   template<typename Transformation>
-  TargetComposite(const S& sc, const Transformation& t, Dune::shared_ptr<Children>... children)
+  TargetComposite(const S& sc, const Transformation& t, std::shared_ptr<Children>... children)
     : Dune::TypeTree::CompositeNode<Children...>(children...)
     , s(Dune::stackobject_to_shared_ptr(sc))
   {}
 
   template<typename Transformation>
-  TargetComposite(Dune::shared_ptr<const S> sc, const Transformation& t, Dune::shared_ptr<Children>... children)
+  TargetComposite(std::shared_ptr<const S> sc, const Transformation& t, std::shared_ptr<Children>... children)
     : Dune::TypeTree::CompositeNode<Children...>(children...)
     , s(sc)
   {}
 
-  Dune::shared_ptr<const S> s;
+  std::shared_ptr<const S> s;
 
   const char* name() const
   {
