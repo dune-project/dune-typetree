@@ -68,9 +68,9 @@ namespace Dune {
       //! @name Child Access
       //! @{
 
-      //! Returns the i-th child.
+      //! Returns the k-th child.
       /**
-       * \returns a reference to the i-th child.
+       * \returns a reference to the k-th child.
        */
       template<std::size_t k>
       auto& child (index_constant<k> = {})
@@ -78,9 +78,9 @@ namespace Dune {
         return *std::get<k>(_children);
       }
 
-      //! Returns the i-th child (const version).
+      //! Returns the k-th child (const version).
       /**
-       * \returns a const reference to the i-th child.
+       * \returns a const reference to the k-th child.
        */
       template<std::size_t k>
       const auto& child (index_constant<k> = {}) const
@@ -88,9 +88,9 @@ namespace Dune {
         return *std::get<k>(_children);
       }
 
-      //! Returns the storage of the i-th child.
+      //! Returns the storage of the k-th child.
       /**
-       * \returns a copy of the object storing the i-th child.
+       * \returns a copy of the object storing the k-th child.
        */
       template<std::size_t k>
       auto childStorage (index_constant<k> = {})
@@ -98,12 +98,9 @@ namespace Dune {
         return std::get<k>(_children);
       }
 
-      //! Returns the storage of the i-th child (const version).
+      //! Returns the storage of the k-th child (const version).
       /**
-       * This method is only important if the child is stored as
-       * some kind of pointer, as this allows the pointee type to
-       * become const.
-       * \returns a copy of the object storing the i-th child.
+       * \returns a copy of the object storing the k-th child.
        */
       template<std::size_t k>
       auto childStorage (index_constant<k> = {}) const
@@ -111,7 +108,7 @@ namespace Dune {
         return std::get<k>(_children);
       }
 
-      //! Sets the i-th child to the passed-in value.
+      //! Sets the k-th child to the passed-in value.
       template<std::size_t k>
       void setChild (typename Child<k>::Type& child, index_constant<k> = {})
       {
@@ -125,7 +122,7 @@ namespace Dune {
         std::get<k>(_children) = convert_arg(std::move(child));
       }
 
-      //! Sets the storage of the i-th child to the passed-in value.
+      //! Sets the storage of the k-th child to the passed-in value.
       template<std::size_t k>
       void setChild (std::shared_ptr<typename Child<k>::Type> child, index_constant<k> = {})
       {

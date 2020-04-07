@@ -130,9 +130,6 @@ namespace Dune {
 
       //! Returns the storage of the i-th child (const version).
       /**
-       * This method is only important if the child is stored as
-       * some kind of pointer, as this allows the pointee type to
-       * become const.
        * \returns a copy of the object storing the i-th child.
        */
       template<std::size_t i>
@@ -204,9 +201,6 @@ namespace Dune {
 
       //! Returns the storage of the i-th child (const version).
       /**
-       * This method is only important if the child is stored as
-       * some kind of pointer, as this allows the pointee type to
-       * become const.
        * \returns a copy of the object storing the i-th child.
        */
       auto childStorage (std::size_t i) const

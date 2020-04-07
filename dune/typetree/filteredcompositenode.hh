@@ -142,9 +142,9 @@ namespace Dune {
       //! @name Child Access
       //! @{
 
-      //! Returns the i-th child.
+      //! Returns the k-th child.
       /**
-       * \returns a reference to the i-th child.
+       * \returns a reference to the k-th child.
        */
       template<std::size_t k,
         typename std::enable_if<lazy_enable<k>::value, int>::type = 0>
@@ -153,9 +153,9 @@ namespace Dune {
         return _node->template child<Child<k>::mapped_index>();
       }
 
-      //! Returns the i-th child (const version).
+      //! Returns the k-th child (const version).
       /**
-       * \returns a const reference to the i-th child.
+       * \returns a const reference to the k-th child.
        */
       template<std::size_t k>
       const auto& child (index_constant<k> = {}) const
@@ -163,9 +163,9 @@ namespace Dune {
         return _node->template child<Child<k>::mapped_index>();
       }
 
-      //! Returns the storage of the i-th child.
+      //! Returns the storage of the k-th child.
       /**
-       * \returns a copy of the object storing the i-th child.
+       * \returns a copy of the object storing the k-th child.
        */
       template<std::size_t k,
         typename std::enable_if<lazy_enable<k>::value, int>::type = 0>
@@ -174,12 +174,9 @@ namespace Dune {
         return _node->template childStorage<Child<k>::mapped_index>();
       }
 
-      //! Returns the storage of the i-th child (const version).
+      //! Returns the storage of the k-th child (const version).
       /**
-       * This method is only important if the child is stored as
-       * some kind of pointer, as this allows the pointee type to
-       * become const.
-       * \returns a copy of the object storing the i-th child.
+       * \returns a copy of the object storing the k-th child.
        */
       template<std::size_t k>
       auto childStorage (index_constant<k> = {}) const
@@ -187,7 +184,7 @@ namespace Dune {
         return _node->template childStorage<Child<k>::mapped_index>();
       }
 
-      //! Sets the i-th child to the passed-in value.
+      //! Sets the k-th child to the passed-in value.
       template<std::size_t k, class ChildType>
       void setChild (ChildType&& child, typename std::enable_if<lazy_enable<k>::value,void*>::type = 0)
       {
