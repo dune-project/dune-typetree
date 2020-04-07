@@ -46,7 +46,7 @@ namespace Dune {
       {
         typedef std::tuple<typename Node::template Child<FilterEntries::original_index>...> Children;
         typedef std::tuple<typename Node::template Child<FilterEntries::original_index>::Type...> ChildTypes;
-        typedef std::tuple<typename Node::template Child<FilterEntries::original_index>::Storage...> NodeStorage;
+        typedef std::tuple<std::shared_ptr<typename Node::template Child<FilterEntries::original_index>::Type>...> NodeStorage;
       };
 
     };
