@@ -40,7 +40,7 @@ namespace Dune {
       template <class Node, std::size_t i>
       std::bool_constant<(i < Node::degree())> checkChildIndex(Node const& node, index_constant<i>)
       {
-        static_assert(i < node.degree(), "Child index out of range");
+        static_assert(i < Node::degree(), "Child index out of range");
         return {};
       }
 
