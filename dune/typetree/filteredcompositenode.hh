@@ -115,7 +115,7 @@ namespace Dune {
       //! The number of children.
       static const std::size_t CHILDREN = filter_result::size;
 
-      static constexpr std::size_t degree()
+      static constexpr std::size_t degree ()
       {
         return filter_result::size;
       }
@@ -137,12 +137,6 @@ namespace Dune {
 
         //! The type of the child.
         typedef typename OriginalChild::type type;
-
-        //! The storage type of the child.
-        typedef typename OriginalChild::Storage Storage;
-
-        //! The const storage type of the child.
-        typedef typename OriginalChild::ConstStorage ConstStorage;
       };
 
       //! @name Child Access
@@ -152,9 +146,9 @@ namespace Dune {
       /**
        * \returns a reference to the i-th child.
        */
-      template<std::size_t k>
-      typename std::enable_if<lazy_enable<k>::value,typename Child<k>::Type&>::type
-      child(Dune::index_constant<k> = {})
+      template<std::size_t k,
+        typename std::enable_if<lazy_enable<k>::value, int>::type = 0>
+      auto& child (Dune::index_constant<k> = {})
       {
         return _node->template child<Child<k>::mapped_index>();
       }
@@ -164,7 +158,7 @@ namespace Dune {
        * \returns a const reference to the i-th child.
        */
       template<std::size_t k>
-      const typename Child<k>::Type& child(Dune::index_constant<k> = {}) const
+      const auto& child (Dune::index_constant<k> = {}) const
       {
         return _node->template child<Child<k>::mapped_index>();
       }
@@ -173,9 +167,9 @@ namespace Dune {
       /**
        * \returns a copy of the object storing the i-th child.
        */
-      template<std::size_t k>
-      typename std::enable_if<lazy_enable<k>::value,typename Child<k>::Storage>::type
-      childStorage()
+      template<std::size_t k,
+        typename std::enable_if<lazy_enable<k>::value, int>::type = 0>
+      auto childStorage (Dune::index_constant<k> = {})
       {
         return _node->template childStorage<Child<k>::mapped_index>();
       }
@@ -188,23 +182,16 @@ namespace Dune {
        * \returns a copy of the object storing the i-th child.
        */
       template<std::size_t k>
-      typename Child<k>::ConstStorage childStorage() const
+      auto childStorage (Dune::index_constant<k> = {}) const
       {
         return _node->template childStorage<Child<k>::mapped_index>();
       }
 
       //! Sets the i-th child to the passed-in value.
-      template<std::size_t k>
-      void setChild(typename Child<k>::type& child, typename std::enable_if<lazy_enable<k>::value,void*>::type = 0)
+      template<std::size_t k, class ChildType>
+      void setChild (ChildType&& child, typename std::enable_if<lazy_enable<k>::value,void*>::type = 0)
       {
-        _node->template childStorage<Child<k>::mapped_index>() = stackobject_to_shared_ptr(child);
-      }
-
-      //! Sets the storage of the i-th child to the passed-in value.
-      template<std::size_t k>
-      void setChild(typename Child<k>::storage_type child, typename std::enable_if<lazy_enable<k>::value,void*>::type = 0)
-      {
-        _node->template childStorage<Child<k>::mapped_index>() = child;
+        _node->template setChild<Child<k>::mapped_index>(std::forward<ChildType>(child));
       }
 
       //! @}
@@ -220,7 +207,7 @@ namespace Dune {
        */
       template<bool enabled = !nodeIsConst>
       typename std::enable_if<enabled,Node&>::type
-      unfiltered()
+      unfiltered ()
       {
         return *_node;
       }
@@ -229,7 +216,7 @@ namespace Dune {
       /**
        * \returns A const reference to the original, unfiltered node.
        */
-      const Node& unfiltered() const
+      const Node& unfiltered () const
       {
         return *_node;
       }
@@ -240,7 +227,7 @@ namespace Dune {
        */
       template<bool enabled = !nodeIsConst>
       typename std::enable_if<enabled,std::shared_ptr<Node> >::type
-      unfilteredStorage()
+      unfilteredStorage ()
       {
         return _node;
       }
@@ -249,7 +236,7 @@ namespace Dune {
       /**
        * \returns A shared_ptr to the original, unfiltered node.
        */
-      std::shared_ptr<const Node> unfilteredStorage() const
+      std::shared_ptr<const Node> unfilteredStorage () const
       {
         return _node;
       }
@@ -262,12 +249,12 @@ namespace Dune {
       //! @{
 
       //! Initialize the CompositeNode with copies of the passed in Storage objects.
-      FilteredCompositeNode(std::shared_ptr<Node> node)
-        : _node(node)
+      FilteredCompositeNode (std::shared_ptr<Node> node)
+        : _node(std::move(node))
       {}
 
       //! Initialize the CompositeNode with a copy of the passed-in storage type.
-      FilteredCompositeNode(Node& node)
+      FilteredCompositeNode (Node& node)
         : _node(stackobject_to_shared_ptr(node))
       {}
 
