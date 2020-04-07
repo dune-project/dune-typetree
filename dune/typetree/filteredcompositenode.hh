@@ -148,7 +148,7 @@ namespace Dune {
        */
       template<std::size_t k,
         typename std::enable_if<lazy_enable<k>::value, int>::type = 0>
-      auto& child (Dune::index_constant<k> = {})
+      auto& child (index_constant<k> = {})
       {
         return _node->template child<Child<k>::mapped_index>();
       }
@@ -158,7 +158,7 @@ namespace Dune {
        * \returns a const reference to the i-th child.
        */
       template<std::size_t k>
-      const auto& child (Dune::index_constant<k> = {}) const
+      const auto& child (index_constant<k> = {}) const
       {
         return _node->template child<Child<k>::mapped_index>();
       }
@@ -169,7 +169,7 @@ namespace Dune {
        */
       template<std::size_t k,
         typename std::enable_if<lazy_enable<k>::value, int>::type = 0>
-      auto childStorage (Dune::index_constant<k> = {})
+      auto childStorage (index_constant<k> = {})
       {
         return _node->template childStorage<Child<k>::mapped_index>();
       }
@@ -182,7 +182,7 @@ namespace Dune {
        * \returns a copy of the object storing the i-th child.
        */
       template<std::size_t k>
-      auto childStorage (Dune::index_constant<k> = {}) const
+      auto childStorage (index_constant<k> = {}) const
       {
         return _node->template childStorage<Child<k>::mapped_index>();
       }

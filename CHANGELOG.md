@@ -4,6 +4,11 @@ Changes
 TypeTree 2.8-git
 ----------------
 
+-   Removed the free function `childStorage()`
+-   Removed the type aliases for the storage type `Storage` and `ConstStorage` in the
+    node implementations.
+
+
 TypeTree 2.7
 ------------
 
