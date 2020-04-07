@@ -52,10 +52,10 @@ namespace Dune {
         return std::forward<Node>(node);
       }
 
-      template<class Node>
-      auto childStorageImpl (Node&& node)
+      template<class NodePtr>
+      auto childStorageImpl (NodePtr&& nodePtr)
       {
-        return std::forward<Node>(node);
+        return std::forward<NodePtr>(nodePtr);
       }
 
       // recursively call `node.child(...)` with the given indices
@@ -70,12 +70,12 @@ namespace Dune {
       }
 
       // recursively call `node.childStorage(...)` with the given indices
-      template<class Node, class I0, class... I>
-      decltype(auto) childStorageImpl (Node&& node, I0 i0, I... i)
+      template<class NodePtr, class I0, class... I>
+      decltype(auto) childStorageImpl (NodePtr&& nodePtr, I0 i0, I... i)
       {
-        auto valid = checkChildIndex(node,i0);
+        auto valid = checkChildIndex(*nodePtr,i0);
         if constexpr (valid)
-          return childStorageImpl(node->childStorage(i0),i...);
+          return childStorageImpl(nodePtr->childStorage(i0),i...);
         else
           return;
       }
@@ -88,10 +88,10 @@ namespace Dune {
       }
 
       // forward to the impl methods by extracting the indices from the treepath
-      template<class Node, class... Indices, std::size_t... i>
-      decltype(auto) childStorage (Node&& node, HybridTreePath<Indices...> tp, std::index_sequence<i...>)
+      template<class NodePtr, class... Indices, std::size_t... i>
+      decltype(auto) childStorage (NodePtr&& nodePtr, HybridTreePath<Indices...> tp, std::index_sequence<i...>)
       {
-        return childStorageImpl(std::forward<Node>(node),treePathEntry<i>(tp)...);
+        return childStorageImpl(std::forward<NodePtr>(nodePtr),treePathEntry<i>(tp)...);
       }
 
     } // end namespace Impl
