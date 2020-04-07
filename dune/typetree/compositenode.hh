@@ -163,7 +163,7 @@ namespace Dune {
        */
 #ifdef DOXYGEN
       template<typename... Indices>
-      ImplementationDefined& child(Indices... indices)
+      ImplementationDefined& child (Indices... indices)
 #else
       template<typename I0, typename... I,
         std::enable_if_t<(sizeof...(I) > 0) || IsTreePath<I0>::value, int > = 0>
@@ -183,7 +183,7 @@ namespace Dune {
        */
 #ifdef DOXYGEN
       template<typename... Indices>
-      const ImplementationDefined& child(Indices... indices)
+      const ImplementationDefined& child (Indices... indices)
 #else
       template<typename I0, typename... I,
         std::enable_if_t<(sizeof...(I) > 0) || IsTreePath<I0>::value, int > = 0>
@@ -211,7 +211,7 @@ namespace Dune {
        * will not be usable before its children are set using any of the
        * setChild(...) methods!
        */
-      CompositeNode()
+      CompositeNode ()
       {}
 
       //! Initialize all children with the passed-in objects.

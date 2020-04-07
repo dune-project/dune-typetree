@@ -264,7 +264,7 @@ namespace Dune {
        */
 #ifdef DOXYGEN
       template<typename... Indices>
-      ImplementationDefined& child(Indices... indices)
+      ImplementationDefined& child (Indices... indices)
 #else
       template<typename I0, typename... I,
         std::enable_if_t<(sizeof...(I) > 0) || IsTreePath<I0>::value, int > = 0>
@@ -284,7 +284,7 @@ namespace Dune {
        */
 #ifdef DOXYGEN
       template<typename... Indices>
-      const ImplementationDefined& child(Indices... indices)
+      const ImplementationDefined& child (Indices... indices)
 #else
       template<typename I0, typename... I,
         std::enable_if_t<(sizeof...(I) > 0) || IsTreePath<I0>::value, int > = 0>
@@ -313,7 +313,7 @@ namespace Dune {
        * \warning When using the default constructor, make sure to set ALL children
        * by means of the setChild() methods!
        */
-      PowerNode()
+      PowerNode ()
       {}
 
       //! Initialize the PowerNode with a copy of the passed-in storage type.

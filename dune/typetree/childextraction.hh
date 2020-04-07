@@ -30,7 +30,7 @@ namespace Dune {
 
       // check at run time whether index is a valid child index
       template <class Node, class Index>
-      std::true_type checkChildIndex(Node const& node, Index i)
+      std::true_type checkChildIndex (Node const& node, Index i)
       {
         assert(i < node.degree() && "Child index out of range");
         return {};
@@ -38,7 +38,7 @@ namespace Dune {
 
       // check at compile time whether index is a valid index
       template <class Node, std::size_t i>
-      std::bool_constant<(i < Node::degree())> checkChildIndex(Node const& node, index_constant<i>)
+      std::bool_constant<(i < Node::degree())> checkChildIndex (Node const& node, index_constant<i>)
       {
         static_assert(i < Node::degree(), "Child index out of range");
         return {};
@@ -123,7 +123,7 @@ namespace Dune {
      */
     template<typename Node, typename... Indices>
 #ifdef DOXYGEN
-    ImplementationDefined child(Node&& node, Indices... indices)
+    ImplementationDefined child (Node&& node, Indices... indices)
 #else
     decltype(auto) child (Node&& node, Indices... indices)
 #endif
@@ -133,7 +133,7 @@ namespace Dune {
 
     template<typename Node, typename... Indices>
 #ifdef DOXYGEN
-    ImplementationDefined childStorage(Node&& node, Indices... indices)
+    ImplementationDefined childStorage (Node&& node, Indices... indices)
 #else
     auto childStorage (Node&& node, Indices... indices)
 #endif
@@ -163,7 +163,7 @@ namespace Dune {
      */
     template<typename Node, std::size_t... Indices>
 #ifdef DOXYGEN
-    ImplementationDefined child(Node&& node, TreePath<Indices...> treePath)
+    ImplementationDefined child (Node&& node, TreePath<Indices...> treePath)
 #else
     decltype(auto) child (Node&& node, TreePath<Indices...>)
 #endif
@@ -173,7 +173,7 @@ namespace Dune {
 
     template<typename Node, std::size_t... Indices>
 #ifdef DOXYGEN
-    ImplementationDefined childStorage(Node&& node, TreePath<Indices...> treePath)
+    ImplementationDefined childStorage (Node&& node, TreePath<Indices...> treePath)
 #else
     auto childStorage (Node&& node, TreePath<Indices...>)
 #endif
@@ -208,7 +208,7 @@ namespace Dune {
      */
     template<typename Node, typename... Indices>
 #ifdef DOXYGEN
-    ImplementationDefined child(Node&& node, HybridTreePath<Indices...> treePath)
+    ImplementationDefined child (Node&& node, HybridTreePath<Indices...> treePath)
 #else
     decltype(auto) child (Node&& node, HybridTreePath<Indices...> tp)
 #endif
@@ -218,7 +218,7 @@ namespace Dune {
 
     template<typename Node, typename... Indices>
 #ifdef DOXYGEN
-    ImplementationDefined child(Node&& node, HybridTreePath<Indices...> treePath)
+    ImplementationDefined child (Node&& node, HybridTreePath<Indices...> treePath)
 #else
     auto childStorage (Node&& node, HybridTreePath<Indices...> tp)
 #endif
@@ -333,7 +333,7 @@ namespace Dune {
         Dune::TypeTree::is_flat_index<T>::value,
         bool
         >::type
-      _non_empty_tree_path(T)
+      _non_empty_tree_path (T)
       {
         return false;
       }
@@ -343,7 +343,7 @@ namespace Dune {
         !Dune::TypeTree::is_flat_index<T>::value,
         bool
         >::type
-      _non_empty_tree_path(T t)
+      _non_empty_tree_path (T t)
       {
         return treePathSize(t) > 0;
       }
