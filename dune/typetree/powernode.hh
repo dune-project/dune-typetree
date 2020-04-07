@@ -122,7 +122,7 @@ namespace Dune {
        * \returns a copy of the object storing the i-th child.
        */
       template<std::size_t i>
-      auto childStorage (index_constant<i> = {})
+      std::shared_ptr<T> childStorage (index_constant<i> = {})
       {
         static_assert((i < CHILDREN), "child index out of range");
         return _children[i];
@@ -133,7 +133,7 @@ namespace Dune {
        * \returns a copy of the object storing the i-th child.
        */
       template<std::size_t i>
-      auto childStorage (index_constant<i> = {}) const
+      std::shared_ptr<const T> childStorage (index_constant<i> = {}) const
       {
         static_assert((i < CHILDREN), "child index out of range");
         return _children[i];
@@ -193,7 +193,7 @@ namespace Dune {
       /**
        * \returns a copy of the object storing the i-th child.
        */
-      auto childStorage (std::size_t i)
+      std::shared_ptr<T> childStorage (std::size_t i)
       {
         assert(i < CHILDREN && "child index out of range");
         return _children[i];
@@ -203,7 +203,7 @@ namespace Dune {
       /**
        * \returns a copy of the object storing the i-th child.
        */
-      auto childStorage (std::size_t i) const
+      std::shared_ptr<const T> childStorage (std::size_t i) const
       {
         assert(i < CHILDREN && "child index out of range");
         return _children[i];

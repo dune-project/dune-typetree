@@ -47,7 +47,7 @@ namespace Dune {
       //! The number of children.
       static const std::size_t CHILDREN = sizeof...(Children);
 
-      static constexpr std::size_t degree()
+      static constexpr std::size_t degree ()
       {
         return sizeof...(Children);
       }
@@ -73,7 +73,7 @@ namespace Dune {
        * \returns a reference to the k-th child.
        */
       template<std::size_t k>
-      auto& child (index_constant<k> = {})
+      typename Child<k>::Type& child (index_constant<k> = {})
       {
         return *std::get<k>(_children);
       }
@@ -83,7 +83,7 @@ namespace Dune {
        * \returns a const reference to the k-th child.
        */
       template<std::size_t k>
-      const auto& child (index_constant<k> = {}) const
+      const typename Child<k>::Type& child (index_constant<k> = {}) const
       {
         return *std::get<k>(_children);
       }
@@ -93,7 +93,7 @@ namespace Dune {
        * \returns a copy of the object storing the k-th child.
        */
       template<std::size_t k>
-      auto childStorage (index_constant<k> = {})
+      std::shared_ptr<typename Child<k>::Type> childStorage (index_constant<k> = {})
       {
         return std::get<k>(_children);
       }
@@ -103,7 +103,7 @@ namespace Dune {
        * \returns a copy of the object storing the k-th child.
        */
       template<std::size_t k>
-      auto childStorage (index_constant<k> = {}) const
+      std::shared_ptr<const typename Child<k>::Type> childStorage (index_constant<k> = {}) const
       {
         return std::get<k>(_children);
       }
