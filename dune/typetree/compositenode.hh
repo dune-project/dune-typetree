@@ -47,7 +47,7 @@ namespace Dune {
       //! The number of children.
       static const std::size_t CHILDREN = sizeof...(Children);
 
-      static constexpr std::size_t degree()
+      static constexpr std::size_t degree ()
       {
         return sizeof...(Children);
       }
@@ -63,82 +63,73 @@ namespace Dune {
 
         //! The type of the child.
         typedef typename std::tuple_element<k,ChildTypes>::type type;
-
-        //! The storage type of the child.
-        typedef typename std::tuple_element<k,NodeStorage>::type Storage;
-
-        //! The const storage type of the child.
-        typedef std::shared_ptr<const typename std::tuple_element<k,ChildTypes>::type> ConstStorage;
       };
 
       //! @name Child Access
       //! @{
 
-      //! Returns the i-th child.
+      //! Returns the k-th child.
       /**
-       * \returns a reference to the i-th child.
+       * \returns a reference to the k-th child.
        */
       template<std::size_t k>
-      typename Child<k>::Type& child(index_constant<k> = {})
+      typename Child<k>::Type& child (index_constant<k> = {})
       {
         return *std::get<k>(_children);
       }
 
-      //! Returns the i-th child (const version).
+      //! Returns the k-th child (const version).
       /**
-       * \returns a const reference to the i-th child.
+       * \returns a const reference to the k-th child.
        */
       template<std::size_t k>
-      const typename Child<k>::Type& child(index_constant<k> = {}) const
+      const typename Child<k>::Type& child (index_constant<k> = {}) const
       {
         return *std::get<k>(_children);
       }
 
-      //! Returns the storage of the i-th child.
+      //! Returns the storage of the k-th child.
       /**
-       * \returns a copy of the object storing the i-th child.
+       * \returns a copy of the object storing the k-th child.
        */
       template<std::size_t k>
-      typename Child<k>::Storage childStorage(index_constant<k> = {})
+      std::shared_ptr<typename Child<k>::Type> childStorage (index_constant<k> = {})
       {
         return std::get<k>(_children);
       }
 
-      //! Returns the storage of the i-th child (const version).
+      //! Returns the storage of the k-th child (const version).
       /**
-       * This method is only important if the child is stored as
-       * some kind of pointer, as this allows the pointee type to
-       * become const.
-       * \returns a copy of the object storing the i-th child.
+       * \returns a copy of the object storing the k-th child.
        */
       template<std::size_t k>
-      typename Child<k>::ConstStorage childStorage(index_constant<k> = {}) const
+      std::shared_ptr<const typename Child<k>::Type> childStorage (index_constant<k> = {}) const
       {
         return std::get<k>(_children);
       }
 
-      //! Sets the i-th child to the passed-in value.
+      //! Sets the k-th child to the passed-in value.
       template<std::size_t k>
-      void setChild(typename Child<k>::Type& child, index_constant<k> = {})
+      void setChild (typename Child<k>::Type& child, index_constant<k> = {})
       {
         std::get<k>(_children) = stackobject_to_shared_ptr(child);
       }
 
       //! Store the passed value in k-th child.
       template<std::size_t k>
-      void setChild(typename Child<k>::Type&& child, index_constant<k> = {})
+      void setChild (typename Child<k>::Type&& child, index_constant<k> = {})
       {
         std::get<k>(_children) = convert_arg(std::move(child));
       }
 
-      //! Sets the storage of the i-th child to the passed-in value.
+      //! Sets the storage of the k-th child to the passed-in value.
       template<std::size_t k>
-      void setChild(typename Child<k>::Storage child, index_constant<k> = {})
+      void setChild (std::shared_ptr<typename Child<k>::Type> child, index_constant<k> = {})
       {
-        std::get<k>(_children) = child;
+        std::get<k>(_children) = std::move(child);
       }
 
-      const NodeStorage& nodeStorage() const
+      const NodeStorage& nodeStorage () const
       {
         return _children;
       }
@@ -172,11 +163,11 @@ namespace Dune {
        */
 #ifdef DOXYGEN
       template<typename... Indices>
-      ImplementationDefined& child(Indices... indices)
+      ImplementationDefined& child (Indices... indices)
 #else
       template<typename I0, typename... I,
         std::enable_if_t<(sizeof...(I) > 0) || IsTreePath<I0>::value, int > = 0>
-      decltype(auto) child(I0 i0, I... i)
+      decltype(auto) child (I0 i0, I... i)
 #endif
       {
         static_assert(sizeof...(I) > 0 || impl::_non_empty_tree_path(I0{}),
@@ -192,11 +183,11 @@ namespace Dune {
        */
 #ifdef DOXYGEN
       template<typename... Indices>
-      const ImplementationDefined& child(Indices... indices)
+      const ImplementationDefined& child (Indices... indices)
 #else
       template<typename I0, typename... I,
         std::enable_if_t<(sizeof...(I) > 0) || IsTreePath<I0>::value, int > = 0>
-      decltype(auto) child(I0 i0, I... i) const
+      decltype(auto) child (I0 i0, I... i) const
 #endif
       {
         static_assert(sizeof...(I) > 0 || impl::_non_empty_tree_path(I0{}),
@@ -220,22 +211,22 @@ namespace Dune {
        * will not be usable before its children are set using any of the
        * setChild(...) methods!
        */
-      CompositeNode()
+      CompositeNode ()
       {}
 
       //! Initialize all children with the passed-in objects.
       template<typename... Args, typename = typename std::enable_if<(sizeof...(Args) == CHILDREN)>::type>
-      CompositeNode(Args&&... args)
+      CompositeNode (Args&&... args)
         : _children(convert_arg(std::forward<Args>(args))...)
       {}
 
       //! Initialize the CompositeNode with copies of the passed in Storage objects.
-      CompositeNode(std::shared_ptr<Children>... children)
-        : _children(children...)
+      CompositeNode (std::shared_ptr<Children>... children)
+        : _children(std::move(children)...)
       {}
 
       //! Initialize the CompositeNode with a copy of the passed-in storage type.
-      CompositeNode(const NodeStorage& children)
+      CompositeNode (const NodeStorage& children)
         : _children(children)
       {}
 

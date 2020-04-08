@@ -4,6 +4,12 @@ Changes
 TypeTree 2.8-git
 ----------------
 
+-   Removed the type aliases for the storage type `Storage` and `ConstStorage` in the
+    node implementations.
+-   The memberfunction `childStorage()` in the nodes now consistently take an index or an
+    index_constant as argument.
+
+
 TypeTree 2.7
 ------------
 
