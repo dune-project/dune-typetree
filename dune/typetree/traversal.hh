@@ -4,12 +4,9 @@
 #ifndef DUNE_TYPETREE_TRAVERSAL_HH
 #define DUNE_TYPETREE_TRAVERSAL_HH
 
-#if HAVE_RVALUE_REFERENCES
 #include <utility>
-#endif
 
 #include <dune/common/std/type_traits.hh>
-#include <dune/common/std/utility.hh>
 #include <dune/common/std/type_traits.hh>
 #include <dune/common/hybridutilities.hh>
 
@@ -58,14 +55,14 @@ namespace Dune {
 
       template<class Tree, TreePathType::Type pathType, class Prefix, std::size_t... indices,
         std::enable_if_t<(Tree::isComposite or (Tree::isPower and (pathType!=TreePathType::dynamic))), int> = 0>
-      constexpr auto leafTreePathTuple(Prefix prefix, Std::index_sequence<indices...>)
+      constexpr auto leafTreePathTuple(Prefix prefix, std::index_sequence<indices...>)
       {
         return std::tuple_cat(Detail::leafTreePathTuple<TypeTree::Child<Tree,indices>, pathType>(Dune::TypeTree::push_back(prefix, Dune::index_constant<indices>{}))...);
       }
 
       template<class Tree, TreePathType::Type pathType, class Prefix, std::size_t... indices,
         std::enable_if_t<(Tree::isPower and (pathType==TreePathType::dynamic)), int> = 0>
-      constexpr auto leafTreePathTuple(Prefix prefix, Std::index_sequence<indices...>)
+      constexpr auto leafTreePathTuple(Prefix prefix, std::index_sequence<indices...>)
       {
         return std::tuple_cat(Detail::leafTreePathTuple<TypeTree::Child<Tree,indices>, pathType>(Dune::TypeTree::push_back(prefix, indices))...);
       }
@@ -74,7 +71,7 @@ namespace Dune {
         std::enable_if_t<not Tree::isLeaf, int>>
       constexpr auto leafTreePathTuple(Prefix prefix)
       {
-        return Detail::leafTreePathTuple<Tree, pathType>(prefix, Dune::Std::make_index_sequence<Tree::degree()>{});
+        return Detail::leafTreePathTuple<Tree, pathType>(prefix, std::make_index_sequence<Tree::degree()>{});
       }
 
       /* The signature is the same as for the public applyToTree
@@ -159,7 +156,7 @@ namespace Dune {
           // visit all children using a static loop, and
           // finally visit the tree with the post function.
           preFunc(id(tree), treePath);
-          auto indices = Dune::Std::make_index_sequence<TreeType::degree()>{};
+          auto indices = std::make_index_sequence<TreeType::degree()>{};
           Dune::Hybrid::forEach(indices, [&](auto i) {
             auto childTreePath = Dune::TypeTree::push_back(treePath, i);
             forEachNode(id(tree).child(i), childTreePath, preFunc, leafFunc, postFunc);

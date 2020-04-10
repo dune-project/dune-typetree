@@ -346,7 +346,7 @@ namespace Dune {
 
       template<typename... Children,
         std::enable_if_t<
-          Dune::Std::conjunction<std::is_same<ChildType, std::decay_t<Children>>...>::value
+          std::conjunction<std::is_same<ChildType, std::decay_t<Children>>...>::value
           ,int> = 0>
       PowerNode (Children&&... children)
       {
@@ -356,7 +356,7 @@ namespace Dune {
 
       template<typename... Children,
         std::enable_if_t<
-          Dune::Std::conjunction<std::is_same<ChildType, Children>...>::value
+          std::conjunction<std::is_same<ChildType, Children>...>::value
           ,int> = 0>
       PowerNode (std::shared_ptr<Children>... children)
       {
