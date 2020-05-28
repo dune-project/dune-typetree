@@ -19,6 +19,8 @@
 namespace Dune {
   namespace TypeTree {
 
+    template<typename... T>
+    class HybridTreePath;
 
     //! \addtogroup TreePath
     //! \ingroup TypeTree
@@ -28,112 +30,29 @@ namespace Dune {
       enum Type { fullyStatic, dynamic };
     }
 
-    template<std::size_t... i>
-    struct TreePath {
-
-      constexpr TreePath() = default;
-      constexpr TreePath(const TreePath&) = default;
-      constexpr TreePath(TreePath&&) = default;
-
-      typedef TreePath ViewType;
-      TreePath view() { return *this; }
-      TreePath mutablePath() { return *this; }
-    };
-
     template<typename>
     struct TreePathSize;
-
-    template<std::size_t... i>
-    struct TreePathSize<TreePath<i...> >
-      : public index_constant<sizeof...(i)>
-    {};
-
-     //! Returns the size (number of components) of the given `TreePath`.
-    template<std::size_t... i>
-    constexpr std::size_t treePathSize(const TreePath<i...>&)
-    {
-      return sizeof...(i);
-    }
 
     template<typename,std::size_t>
     struct TreePathPushBack;
 
-    template<std::size_t k, std::size_t... i>
-    struct TreePathPushBack<TreePath<i...>,k>
-    {
-      typedef TreePath<i...,k> type;
-    };
-
     template<typename,std::size_t>
     struct TreePathPushFront;
-
-    template<std::size_t k, std::size_t... i>
-    struct TreePathPushFront<TreePath<i...>,k>
-    {
-      typedef TreePath<k,i...> type;
-    };
 
     template<typename>
     struct TreePathBack;
 
-    // There is only a single element, so return that...
-    template<std::size_t k>
-    struct TreePathBack<TreePath<k> >
-      : public index_constant<k>
-    {};
-
-    // We need to explicitly provide two elements here, as
-    // the template argument pack would match the empty list
-    // and create a conflict with the single-element specialization.
-    // Here, we just shave off the first element and recursively
-    // instantiate ourselves.
-    template<std::size_t j, std::size_t k, std::size_t... l>
-    struct TreePathBack<TreePath<j,k,l...> >
-      : public TreePathBack<TreePath<k,l...> >
-    {};
-
     template<typename>
     struct TreePathFront;
-
-    template<std::size_t k, std::size_t... i>
-    struct TreePathFront<TreePath<k,i...> >
-      : public index_constant<k>
-    {};
 
     template<typename, std::size_t...>
     struct TreePathPopBack;
 
-    template<std::size_t k, std::size_t... i>
-    struct TreePathPopBack<TreePath<k>,i...>
-    {
-      typedef TreePath<i...> type;
-    };
-
-    template<std::size_t j,
-             std::size_t k,
-             std::size_t... l,
-             std::size_t... i>
-    struct TreePathPopBack<TreePath<j,k,l...>,i...>
-      : public TreePathPopBack<TreePath<k,l...>,i...,j>
-    {};
-
     template<typename>
     struct TreePathPopFront;
 
-    template<std::size_t k, std::size_t... i>
-    struct TreePathPopFront<TreePath<k,i...> >
-    {
-      typedef TreePath<i...> type;
-    };
-
     template<typename, typename>
     struct TreePathConcat;
-
-    template<std::size_t... i, std::size_t... k>
-    struct TreePathConcat<TreePath<i...>,TreePath<k...> >
-    {
-      typedef TreePath<i...,k...> type;
-    };
 
     template<std::size_t... i>
     void print_tree_path(std::ostream& os)
@@ -145,16 +64,6 @@ namespace Dune {
       os << k << " ";
       print_tree_path<i...>(os);
     }
-
-    template<std::size_t... i>
-    std::ostream& operator<<(std::ostream& os, const TreePath<i...>& tp)
-    {
-      os << "TreePath< ";
-      print_tree_path<i...>(os);
-      os << ">";
-      return os;
-    }
-
 
     //! A hybrid version of TreePath that supports both compile time and run time indices.
     /**
@@ -423,6 +332,66 @@ namespace Dune {
       return HybridTreePath<index_constant<i>,T...>(std::tuple_cat(std::make_tuple(_i),tp._data));
     }
 
+
+    template<std::size_t... i>
+    struct TreePathSize<HybridTreePath<index_constant<i>...> >
+      : public index_constant<sizeof...(i)>
+    {};
+
+
+    template<std::size_t k, std::size_t... i>
+    struct TreePathPushBack<HybridTreePath<index_constant<i>...>,k>
+    {
+      typedef HybridTreePath<index_constant<i>...,index_constant<k>> type;
+    };
+
+    template<std::size_t k, std::size_t... i>
+    struct TreePathPushFront<HybridTreePath<index_constant<i>...>,k>
+    {
+      typedef HybridTreePath<index_constant<k>,index_constant<i>...> type;
+    };
+
+    template<std::size_t k>
+    struct TreePathBack<HybridTreePath<index_constant<k>>>
+      : public index_constant<k>
+    {};
+
+    template<std::size_t j, std::size_t k, std::size_t... l>
+    struct TreePathBack<HybridTreePath<index_constant<j>,index_constant<k>,index_constant<l>...>>
+      : public TreePathBack<HybridTreePath<index_constant<k>,index_constant<l>...>>
+    {};
+
+    template<std::size_t k, std::size_t... i>
+    struct TreePathFront<HybridTreePath<index_constant<k>,index_constant<i>...>>
+      : public index_constant<k>
+    {};
+
+    template<std::size_t k, std::size_t... i>
+    struct TreePathPopBack<HybridTreePath<index_constant<k>>,i...>
+    {
+      typedef HybridTreePath<index_constant<i>...> type;
+    };
+
+    template<std::size_t j,
+             std::size_t k,
+             std::size_t... l,
+             std::size_t... i>
+    struct TreePathPopBack<HybridTreePath<index_constant<j>,index_constant<k>,index_constant<l>...>,i...>
+      : public TreePathPopBack<HybridTreePath<index_constant<k>,index_constant<l>...>,i...,j>
+    {};
+
+    template<std::size_t k, std::size_t... i>
+    struct TreePathPopFront<HybridTreePath<index_constant<k>,index_constant<i>...> >
+    {
+      typedef HybridTreePath<index_constant<i>...> type;
+    };
+
+    template<std::size_t... i, std::size_t... k>
+    struct TreePathConcat<HybridTreePath<index_constant<i>...>,HybridTreePath<index_constant<k>...> >
+    {
+      typedef HybridTreePath<index_constant<i>...,index_constant<k>...> type;
+    };
+
 #ifndef DOXYGEN
 
     namespace impl {
@@ -459,6 +428,9 @@ namespace Dune {
       os << ">";
       return os;
     }
+
+    template<std::size_t... i>
+    using TreePath = HybridTreePath<Dune::index_constant<i>...>;
 
     //! \} group TypeTree
 
