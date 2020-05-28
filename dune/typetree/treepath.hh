@@ -430,7 +430,10 @@ namespace Dune {
     }
 
     template<std::size_t... i>
-    using TreePath = HybridTreePath<Dune::index_constant<i>...>;
+    using TreePath [[deprecated("use StaticTreePath, this type will be removed after DUNE 2.7")]] = HybridTreePath<Dune::index_constant<i>...>;
+
+    template<std::size_t... i>
+    using StaticTreePath = HybridTreePath<Dune::index_constant<i>...>;
 
     //! \} group TypeTree
 
