@@ -7,7 +7,7 @@ TypeTree 2.8-git
 -   Removed the type aliases for the storage type `Storage` and `ConstStorage` in the
     node implementations.
 -   The memberfunction `childStorage()` in the nodes now consistently take an index or an
-    index_constant as argument.
+    `index_constant` as argument.
 
 
 TypeTree 2.7
@@ -24,6 +24,12 @@ TypeTree 2.7
     to be compatible with `DynamicTreePath`.
 -   A `HybridTreePath` can now be constructed using the
     global `treePath()` function which is an alias for `hybridTreePath()`.
+-   `HybridTreePath` now supports all static operations of the old
+    `TreePath`. The `TreePath<i,...>` is thus only an alias to
+    `HybridTreePath<integral_constant<i>,...>` and is deprecated (i.e. will
+    be removed after TypeTree 2.7)
+-   A convenience alias `StaticTreePath` is introduced, which should be
+    used instead of the deprecated `TreePath` alias, if the path is known to be static.
 -   The type alias template `Child<>` now fails to instantiate if the child cannot be extracted.
     This is much more useful than the previous behavior of just defaulting to `void` in case of
     failure.
