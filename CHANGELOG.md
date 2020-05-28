@@ -1,9 +1,9 @@
 TypeTree
 ========
 
-This is release 2.7.0 of the TypeTree library for statically typed object trees.
+This is release 2.7.1 of the TypeTree library for statically typed object trees.
 
-TypeTree 2.7.0 is compatible to the release 2.7.0 of the DUNE core modules and
+TypeTree 2.7.1 is compatible to the release 2.7 of the DUNE core modules and
 the 2.6.0 release of PDELab.
 
 Changes
