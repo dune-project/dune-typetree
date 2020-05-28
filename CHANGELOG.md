@@ -1,9 +1,9 @@
 TypeTree
 ========
 
-This is release 2.7.0 of the TypeTree library for statically typed object trees.
+This is release 2.7.1 of the TypeTree library for statically typed object trees.
 
-TypeTree 2.7.0 is compatible to the release 2.7.0 of the DUNE core modules and
+TypeTree 2.7.1 is compatible to the release 2.7 of the DUNE core modules and
 the 2.6.0 release of PDELab.
 
 Changes
@@ -23,6 +23,12 @@ TypeTree 2.7
     to be compatible with `DynamicTreePath`.
 -   A `HybridTreePath` can now be constructed using the
     global `treePath()` function which is an alias for `hybridTreePath()`.
+-   `HybridTreePath` now supports all static operations of the old
+    `TreePath`. The `TreePath<i,...>` is thus only an alias to
+    `HybridTreePath<integral_constant<i>,...> and is deprecated (i.e. will
+    be removed after TypeTree 2.7)
+-   A convenience alias `StaticTreePath` is introduced, which shuld be
+    used instead of the `TypeTree`, if the path is known to be static.
 -   The type alias template `Child<>` now fails to instantiate if the child cannot be extracted.
     This is much more useful than the previous behavior of just defaulting to `void` in case of
     failure.
