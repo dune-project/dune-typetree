@@ -195,46 +195,6 @@ namespace Dune {
       return impl::childStorage(&node,indices...);
     }
 
-    //! Extracts the child of a node given by a static TreePath object.
-    /**
-     * Use this function to extract a (possibly indirect) child of a TypeTree node.
-     *
-     * Example:
-     *
-     * \code{.cc}
-     * Dune::TypeTree::TreePath<4,2,0,1> tp;
-     * auto&& c = child(node,tp);
-     * \endcode
-     *
-     * returns the second child of the first child of the third child
-     * of the fifth child of node.
-     *
-     * \param node        The node from which to extract the child.
-     * \param treePath    A TreePath object that describes the path into the tree to the
-     *                    wanted child.
-     * \return            A reference to the child, its cv-qualification depends on the passed-in node.
-     */
-    template<typename Node, std::size_t... Indices>
-#ifdef DOXYGEN
-    ImplementationDefined child(Node&& node, TreePath<Indices...> treePath)
-#else
-    decltype(auto) child(Node&& node, TreePath<Indices...>)
-#endif
-    {
-      return child(std::forward<Node>(node),index_constant<Indices>{}...);
-    }
-
-    template<typename Node, std::size_t... Indices>
-#ifdef DOXYGEN
-    ImplementationDefined childStorage(Node&& node, TreePath<Indices...> treePath)
-#else
-    auto childStorage(Node&& node, TreePath<Indices...>)
-#endif
-    {
-      static_assert(sizeof...(Indices) > 0, "childStorage() cannot be called with an empty TreePath");
-      return impl::childStorage(&node,index_constant<Indices>{}...);
-    }
-
     //! Extracts the child of a node given by a HybridTreePath object.
     /**
      * Use this function to extract a (possibly indirect) child of a TypeTree node.
