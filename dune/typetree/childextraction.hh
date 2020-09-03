@@ -32,7 +32,7 @@ namespace Dune {
       template <class Node, class Index>
       std::true_type checkChildIndex (Node const& node, Index i)
       {
-        assert(i < node.degree() && "Child index out of range");
+        assert(std::size_t(i) < node.degree() && "Child index out of range");
         return {};
       }
 
