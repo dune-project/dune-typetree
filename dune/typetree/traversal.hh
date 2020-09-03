@@ -115,7 +115,7 @@ namespace Dune {
 
           visitor.beforeChild(tree, child, treePath, i);
 
-          // This requires that visiotor.in(...) can always be instantiated,
+          // This requires that visitor.in(...) can always be instantiated,
           // even if there's a single child only.
           if (i>0)
             visitor.in(tree, treePath);
@@ -160,6 +160,15 @@ namespace Dune {
 
     } // namespace Detail
 
+#ifndef DOXYGEN
+    /// A functor with no operation
+    struct NoOp
+    {
+      template <class... T>
+      constexpr void operator()(T&&...) const { /* do nothing */ }
+    };
+#endif
+
 
     // ********************************************************************************
     // Public Interface
@@ -192,7 +201,7 @@ namespace Dune {
      * This function applies the given visitor to the given tree. Both visitor and tree may be const
      * or non-const (if the compiler supports rvalue references, they may even be a non-const temporary).
      *
-     * \note The visitor must Detailement the interface laid out by DefaultVisitor (most easily achieved by
+     * \note The visitor must Implement the interface laid out by DefaultVisitor (most easily achieved by
      *       inheriting from it) and specify the required type of tree traversal (static or dynamic) by
      *       inheriting from either StaticTraversal or DynamicTraversal.
      *
@@ -235,8 +244,7 @@ namespace Dune {
     template<class Tree, class InnerFunc, class LeafFunc>
     void forEachNode(Tree&& tree, InnerFunc&& innerFunc, LeafFunc&& leafFunc)
     {
-      auto nop = [](auto&&... args) {};
-      forEachNode(tree, innerFunc, leafFunc, nop);
+      Detail::forEachNode(tree, hybridTreePath(), innerFunc, leafFunc, NoOp{});
     }
 
     /**
@@ -251,7 +259,7 @@ namespace Dune {
     template<class Tree, class NodeFunc>
     void forEachNode(Tree&& tree, NodeFunc&& nodeFunc)
     {
-      forEachNode(tree, nodeFunc, nodeFunc);
+      Detail::forEachNode(tree, hybridTreePath(), nodeFunc, nodeFunc, NoOp{});
     }
 
     /**
@@ -266,8 +274,7 @@ namespace Dune {
     template<class Tree, class LeafFunc>
     void forEachLeafNode(Tree&& tree, LeafFunc&& leafFunc)
     {
-      auto nop = [](auto&&... args) {};
-      forEachNode(tree, nop, leafFunc, nop);
+      Detail::forEachNode(tree, hybridTreePath(), NoOp{}, leafFunc, NoOp{});
     }
 
     //! \} group Tree Traversal
