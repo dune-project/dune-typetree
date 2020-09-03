@@ -60,7 +60,7 @@ namespace Dune {
         // Use statically encoded degree unless both trees
         // are power nodes and dynamic traversal is requested.
         constexpr auto useDynamicTraversal = (Tree1::isPower and Tree2::isPower and Visitor::treePathType==TreePathType::dynamic);
-        auto degree = conditionalValue<useDynamicTraversal>(Tree1::degree(), Dune::index_constant<Tree1::degree()>{});
+        auto degree = traversalDegree<useDynamicTraversal>(tree1);
 
         auto indices = Dune::range(degree);
         Dune::Hybrid::forEach(indices, [&](auto i) {
