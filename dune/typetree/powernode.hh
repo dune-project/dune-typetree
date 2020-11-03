@@ -59,9 +59,6 @@ namespace Dune {
       //! Mark this class as a power in the \ref TypeTree.
       static const bool isPower = true;
 
-      //! Mark this class as a non dynamic in the \ref TypeTree.
-      static const bool isDynamic = false;
-
       //! Mark this class as a non composite in the \ref TypeTree.
       static const bool isComposite = false;
 

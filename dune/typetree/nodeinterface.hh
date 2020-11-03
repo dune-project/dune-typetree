@@ -41,9 +41,6 @@ namespace Dune {
       //! Whether this is a composite node in the \ref TypeTree.
       static const bool isComposite = implementationDefined;
 
-      //! Whether this is a dynamic node in the \ref TypeTree.
-      static const bool isDynamic = implementationDefined;
-
       //! Number of children of this node in the \ref TypeTree
       static const std::size_t CHILDREN = implementationDefined;
 
@@ -90,26 +87,6 @@ namespace Dune {
     {
       return node.degree();
     }
-
-#ifndef DOXYGEN
-
-    //! Default implementation of degree dispatch function.
-    /**
-     * This dispatches using a pointer to the node instead of a reference,
-     * as we can easily create a constexpr pointer to the node, while a constexpr
-     * reference might not even be possible to manufacture (std::declval is not
-     * constexpr).
-     */
-    // template<typename Node, typename NodeTag>
-    // auto degree(const Node* node, NodeTag)
-    // {
-    //   if constexpr (hasStaticDegree<Node>)
-    //     return Node::degree();
-    //   else
-    //     return node->degree();
-    // }
-
-#endif // DOXYGEN
 
     //! Returns the statically known degree of the given Node type as a std::index_constant.
     template<typename Node, std::enable_if_t<hasStaticDegree<Node>,int> = 0>
