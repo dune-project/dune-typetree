@@ -51,7 +51,7 @@ namespace Dune {
       //! The number of children.
       const std::size_t CHILDREN;
 
-      std::size_t degree() const
+      auto degree() const
       {
         return _children.size();
       }
@@ -63,10 +63,10 @@ namespace Dune {
       typedef T ChildType;
 
       //! The storage type of each child.
-      typedef shared_ptr<T> ChildStorageType;
+      typedef std::shared_ptr<T> ChildStorageType;
 
       //! The const version of the storage type of each child.
-      typedef shared_ptr<const T> ChildConstStorageType;
+      typedef std::shared_ptr<const T> ChildConstStorageType;
 
       //! The type used for storing the children.
       typedef std::vector<ChildStorageType> NodeStorage;

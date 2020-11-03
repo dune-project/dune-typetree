@@ -64,18 +64,18 @@ struct TargetDynamicPower
 {
 
   template<typename Transformation>
-  TargetDynamicPower(const S& sc, const Transformation& t, const std::vector<Dune::shared_ptr<T>>& children)
+  TargetDynamicPower(const S& sc, const Transformation& t, const std::vector<std::shared_ptr<T>>& children)
     : Dune::TypeTree::DynamicPowerNode<T>(children)
     , s(Dune::stackobject_to_shared_ptr(sc))
   {}
 
   template<typename Transformation>
-  TargetDynamicPower(Dune::shared_ptr<const S> sc, const Transformation& t, const std::vector<Dune::shared_ptr<T>>& children)
+  TargetDynamicPower(std::shared_ptr<const S> sc, const Transformation& t, const std::vector<std::shared_ptr<T>>& children)
     : Dune::TypeTree::DynamicPowerNode<T>(children)
     , s(sc)
   {}
 
-  Dune::shared_ptr<const S> s;
+  std::shared_ptr<const S> s;
 
   const char* name() const
   {

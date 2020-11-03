@@ -245,12 +245,6 @@ namespace Dune {
     {
       static const bool proxiedNodeIsConst = std::is_const<typename std::remove_reference<Node>::type>::value;
 
-      template <class N>
-      using HasStaticDegree = index_constant<N::degree()>;
-
-      template <class N>
-      static constexpr bool hasStaticDegree = Std::is_detected<HasStaticDegree, N>::value;
-
       // accessor mixins need to be friends for access to proxiedNode()
       friend class StaticChildAccessors<Node>;
       friend class DynamicChildAccessors<Node>;
@@ -267,23 +261,21 @@ namespace Dune {
       //! Mark this class as a non power in the \ref TypeTree.
       static const bool isPower = Node::isPower;
 
-      //! Mark this class as a non dynamic in the \ref TypeTree.
-      static const bool isDynamic = Node::isDynamic;
-
       //! Mark this class as a composite in the \ref TypeTree.
       static const bool isComposite = Node::isComposite;
 
-      template<class T = void>
-      static constexpr
-      std::enable_if_t<not isDynamic and std::is_same<T,void>::value,std::size_t> degree()
+      template <class N = Node,
+        std::enable_if_t<hasStaticDegree<N>, int> = 0>
+      static constexpr auto degree ()
       {
-        return Node::degree();
+        return N::degree();
       }
 
-      template<class T = void>
-      std::enable_if_t<isDynamic and std::is_same<T,void>::value,std::size_t> degree()
+      template <class N = Node,
+        std::enable_if_t<not hasStaticDegree<N>, int> = 0>
+      auto degree () const
       {
-        return _node->degree();
+        return proxiedNode().degree();
       }
 
 
