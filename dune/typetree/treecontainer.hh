@@ -54,11 +54,23 @@ namespace Dune {
         }
 
         template<class Node,
-          std::enable_if_t<Node::isPower, int> = 0>
+          std::enable_if_t<Node::isPower && hasStaticDegree<Node>, int> = 0>
         auto operator()(const Node& node)
         {
           using TransformedChild = decltype((*this)(node.child(0)));
           return std::array<TransformedChild, Node::degree()>();
+        }
+
+
+        template<class Node,
+          std::enable_if_t<Node::isPower && !hasStaticDegree<Node>, int> = 0>
+        auto operator()(const Node& node)
+        {
+          using TransformedChild = decltype((*this)(node.child(0)));
+          std::vector<TransformedChild> container(node.degree());
+          for (size_t i = 0; i < node.degree(); i++)
+            container[i] = (*this)(node.child(i));
+          return container;
         }
 
         template<class Node,
@@ -164,12 +176,12 @@ namespace Dune {
      */
 
     /**
-     * \brief Create container havin the same structure as the given tree
+     * \brief Create container having the same structure as the given tree
      *
      * This class allows to create a nested hybrid container having the same structure
-     * as a given type tree. Power nodes are represented as std::array's while composite
+     * as a given type tree. Power nodes are represented as std::array or std::vector while composite
      * nodes are represented as Dune::TupleVector's. The stored values for the leaf nodes
-     * are creating using a given predicate. For convenience the created container is
+     * are created using a given predicate. For convenience the created container is
      * not returned directly. Instead, the returned object stores the container and
      * provides operator[] access using a HybridTreePath.
      *
@@ -190,7 +202,7 @@ namespace Dune {
      * \brief Create container havin the same structure as the given tree
      *
      * This class allows to create a nested hybrid container having the same structure
-     * as a given type tree. Power nodes are represented as std::array's while composite
+     * as a given type tree. Power nodes are represented as std::array or std::vector while composite
      * nodes are represented as Dune::TupleVector's. The stored values for the leaf nodes
      * are of the given type Value. For convenience the created container is
      * not returned directly. Instead, the returned object stores the container and
