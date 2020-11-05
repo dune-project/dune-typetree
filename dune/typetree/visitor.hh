@@ -408,9 +408,18 @@ namespace Dune {
      */
     struct StaticTraversal
     {
-      template <class, class, class = void> struct Strategy {
-        static constexpr TraversalStrategy value = TraversalStrategy::Static;
+      // Pair traversal case
+      template <class Tree1, class Tree2, class TreePath = void>
+      struct Strategy {
+        static constexpr TraversalStrategy value =
+            (hasStaticDegree<Tree1> and hasStaticDegree<Tree2>)
+                ? TraversalStrategy::Static
+                : TraversalStrategy::Dynamic;
       };
+
+      // Single tree traversal specialization
+      template <class Node, class TreePath>
+      struct Strategy<Node,TreePath,void> : public Strategy<Node,Node,TreePath> {};
 
       //! Use the static tree traversal algorithm.
       DUNE_DEPRECATED static const TreePathType::Type treePathType = TreePathType::fullyStatic;
