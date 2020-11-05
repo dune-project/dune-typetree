@@ -107,11 +107,12 @@ namespace Dune {
         using Visitor = std::remove_reference_t<V>;
         visitor.pre(tree, treePath);
 
-        // Use statically encoded degree unless tree
-        // is a power node and dynamic traversal is requested.
-        constexpr auto useDynamicTraversal = (Tree::isPower and Visitor::treePathType==TreePathType::dynamic);
+        // Get traversal strategy from visitor
+        constexpr auto strategy = Visitor::template Strategy<Tree,TreePath>::value;
+        constexpr bool useDynamicTraversal = (strategy == TraversalStrategy::Dynamic);
         auto degree = conditionalValue<useDynamicTraversal>(Tree::degree(), Dune::index_constant<Tree::degree()>{});
 
+        // Visit all children according to traversal strategy
         auto indices = Dune::range(degree);
         Dune::Hybrid::forEach(indices, [&](auto i) {
           auto childTreePath = Dune::TypeTree::push_back(treePath, i);
@@ -144,25 +145,33 @@ namespace Dune {
        * Hence the behavior of the public function is resembled
        * by passing an empty treePath.
        */
-      template<class Tree, class TreePath, class PreFunc, class LeafFunc, class PostFunc>
-      void forEachNode(Tree&& tree, TreePath treePath, PreFunc&& preFunc, LeafFunc&& leafFunc, PostFunc&& postFunc)
-      {
+      template <class StrategyVisitor, class Tree, class TreePath,
+                class PreFunc, class LeafFunc, class PostFunc>
+      void forEachNode(Tree &&tree, TreePath treePath, PreFunc &&preFunc,
+                       LeafFunc &&leafFunc, PostFunc &&postFunc) {
         using TreeType = std::decay_t<Tree>;
-        Dune::Hybrid::ifElse(Dune::Std::bool_constant<TreeType::isLeaf>{}, [&] (auto id) {
+        if constexpr (TreeType::isLeaf) {
           // If we have a leaf tree just visit it using the leaf function.
-          leafFunc(id(tree), treePath);
-        }, [&] (auto id) {
-          // Otherwise visit the tree with the pre function,
-          // visit all children using a static loop, and
-          // finally visit the tree with the post function.
-          preFunc(id(tree), treePath);
-          auto indices = std::make_index_sequence<TreeType::degree()>{};
+          leafFunc(tree, treePath);
+        } else {
+          // Otherwise visit the tree with the pre function...
+          preFunc(tree, treePath);
+
+          // ...get traversal mode from Strategy visitor
+          constexpr auto strategy = StrategyVisitor::template Strategy<TreeType,TreePath>::value;
+          constexpr bool useDynamicTraversal = (strategy == TraversalStrategy::Dynamic);
+          auto degree = conditionalValue<useDynamicTraversal>(TreeType::degree(), Dune::index_constant<TreeType::degree()>{});
+
+          // ...visit all children according to traversal strategy
+          auto indices = Dune::range(degree);
           Dune::Hybrid::forEach(indices, [&](auto i) {
             auto childTreePath = Dune::TypeTree::push_back(treePath, i);
-            forEachNode(id(tree).child(i), childTreePath, preFunc, leafFunc, postFunc);
+            forEachNode<StrategyVisitor>(tree.child(i), childTreePath, preFunc, leafFunc, postFunc);
           });
-          postFunc(id(tree), treePath);
-        });
+
+          // ...and visit post function
+          postFunc(tree, treePath);
+        }
       }
 
     } // namespace Detail
@@ -213,6 +222,24 @@ namespace Dune {
     }
 
     /**
+     * \brief Traverse tree and visit each node (custom traverse strategy)
+     *
+     * All passed callback functions are called with the
+     * node and corresponding treepath as arguments.
+     *
+     * \tparam TravVisitor Visitor to decide traversal strategy (e.g. StaticTraversal or DynamicTraversal)
+     * \param tree The tree to traverse
+     * \param preFunc This function is called for each inner node before visiting its children
+     * \param leafFunc This function is called for each leaf node
+     * \param postFunc This function is called for each inner node after visiting its children
+     */
+    template<class TravVisitor, class Tree, class PreFunc, class LeafFunc, class PostFunc>
+    void forEachNode(Tree&& tree, PreFunc&& preFunc, LeafFunc&& leafFunc, PostFunc&& postFunc)
+    {
+      Detail::forEachNode<TravVisitor>(tree, hybridTreePath(), preFunc, leafFunc, postFunc);
+    }
+
+    /**
      * \brief Traverse tree and visit each node
      *
      * All passed callback functions are called with the
@@ -226,7 +253,25 @@ namespace Dune {
     template<class Tree, class PreFunc, class LeafFunc, class PostFunc>
     void forEachNode(Tree&& tree, PreFunc&& preFunc, LeafFunc&& leafFunc, PostFunc&& postFunc)
     {
-      Detail::forEachNode(tree, hybridTreePath(), preFunc, leafFunc, postFunc);
+      forEachNode<StaticTraversal>(tree, preFunc, leafFunc, postFunc);
+    }
+
+    /**
+     * \brief Traverse tree and visit each node (custom traverse strategy)
+     *
+     * All passed callback functions are called with the
+     * node and corresponding treepath as arguments.
+     *
+     * \tparam TravVisitor Visitor to decide traversal strategy (e.g. StaticTraversal or DynamicTraversal)
+     * \param tree The tree to traverse
+     * \param innerFunc This function is called for each inner node before visiting its children
+     * \param leafFunc This function is called for each leaf node
+     */
+    template<class TravVisitor, class Tree, class InnerFunc, class LeafFunc>
+    void forEachNode(Tree&& tree, InnerFunc&& innerFunc, LeafFunc&& leafFunc)
+    {
+      auto nop = [](auto&&... args) {};
+      forEachNode<TravVisitor>(tree, innerFunc, leafFunc, nop);
     }
 
     /**
@@ -247,6 +292,22 @@ namespace Dune {
     }
 
     /**
+     * \brief Traverse tree and visit each node (custom traverse strategy)
+     *
+     * The passed callback function is called with the
+     * node and corresponding treepath as arguments.
+     *
+     * \tparam TravVisitor Visitor to decide traversal strategy (e.g. StaticTraversal or DynamicTraversal)
+     * \param tree The tree to traverse
+     * \param nodeFunc This function is called for each node
+     */
+    template<class TravVisitor, class Tree, class NodeFunc>
+    void forEachNode(Tree&& tree, NodeFunc&& nodeFunc)
+    {
+      forEachNode<TravVisitor>(tree, nodeFunc, nodeFunc);
+    }
+
+    /**
      * \brief Traverse tree and visit each node
      *
      * The passed callback function is called with the
@@ -259,6 +320,23 @@ namespace Dune {
     void forEachNode(Tree&& tree, NodeFunc&& nodeFunc)
     {
       forEachNode(tree, nodeFunc, nodeFunc);
+    }
+
+    /**
+     * \brief Traverse tree and visit each leaf node (custom traverse strategy)
+     *
+     * The passed callback function is called with the
+     * node and corresponding treepath as arguments.
+     *
+     * \tparam TravVisitor Visitor to decide traversal strategy (e.g. StaticTraversal or DynamicTraversal)
+     * \param tree The tree to traverse
+     * \param leafFunc This function is called for each leaf node
+     */
+    template<class TravVisitor, class Tree, class LeafFunc>
+    void forEachLeafNode(Tree&& tree, LeafFunc&& leafFunc)
+    {
+      auto nop = [](auto&&... args) {};
+      forEachNode<TravVisitor>(tree, nop, leafFunc, nop);
     }
 
     /**
