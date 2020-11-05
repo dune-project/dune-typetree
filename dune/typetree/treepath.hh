@@ -199,10 +199,10 @@ namespace Dune {
     {};
 
     //! Returns the size (number of components) of the given `HybridTreePath`.
-    template<typename... T>
-    constexpr std::size_t treePathSize(const HybridTreePath<T...>&)
+    template<typename TreePath>
+    constexpr std::size_t treePathSize(const TreePath&)
     {
-      return sizeof...(T);
+      return TreePathSize<TreePath>{};
     }
 
     //! Returns a copy of the i-th element of the `HybridTreePath`.
@@ -338,13 +338,6 @@ namespace Dune {
     {
       return HybridTreePath<index_constant<i>,T...>(std::tuple_cat(std::make_tuple(_i),tp._data));
     }
-
-
-    template<std::size_t... i>
-    struct TreePathSize<HybridTreePath<index_constant<i>...> >
-      : public index_constant<sizeof...(i)>
-    {};
-
 
     template<std::size_t k, std::size_t... i>
     struct TreePathPushBack<HybridTreePath<index_constant<i>...>,k>
