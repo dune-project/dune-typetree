@@ -43,14 +43,9 @@ namespace Dune {
       //! The type tag that describes a LeafNode.
       typedef LeafNodeTag NodeTag;
 
-      constexpr friend Dune::index_constant<1> degree(const LeafNode&)
+      static constexpr auto degree()
       {
-        return {};
-      }
-
-      static constexpr std::size_t degree()
-      {
-        return 0;
+        return index_constant<1>{};
       }
 
     protected:
