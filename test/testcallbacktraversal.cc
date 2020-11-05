@@ -133,6 +133,8 @@ auto powerNode(P&& p, C0&& c0, C&&... c)
 
 int main()
 {
+  using namespace Dune::TypeTree;
+
   Dune::TestSuite test("tree traversal check");
 
   using Payload = std::size_t;
@@ -147,13 +149,23 @@ int main()
                 ),
                 leafNode(Payload(0)));
 
+
   {
     std::size_t all = 0;
-    forEachNode(tree, [&](auto&& node, auto&& path) {
+    forEachNode<StaticTraversal>(tree, [&](auto&& node, auto&& path) {
       ++all;
     });
     test.check(all==6)
-      << "Counting all nodes with forEachNode failed. Result is " << all << " but should be " << 6;
+      << "Counting all nodes with static forEachNode failed. Result is " << all << " but should be " << 6;
+  }
+
+  {
+    std::size_t all = 0;
+    forEachNode<DynamicTraversal>(tree, [&](auto&& node, auto&& path) {
+      ++all;
+    });
+    test.check(all==6)
+      << "Counting all nodes with dynamic forEachNode failed. Result is " << all << " but should be " << 6;
   }
 
   {

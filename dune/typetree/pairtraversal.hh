@@ -57,9 +57,9 @@ namespace Dune {
         using Visitor = std::remove_reference_t<V>;
         visitor.pre(tree1, tree2, treePath);
 
-        // Use statically encoded degree unless both trees
-        // are power nodes and dynamic traversal is requested.
-        constexpr auto useDynamicTraversal = (Tree1::isPower and Tree2::isPower and Visitor::treePathType==TreePathType::dynamic);
+        // Get traversal strategy from visitor
+        constexpr auto strategy = Visitor::template Strategy<Tree1,Tree2,TreePath>::value;
+        constexpr bool useDynamicTraversal = (strategy==TraversalStrategy::Dynamic);
         auto degree = conditionalValue<useDynamicTraversal>(Tree1::degree(), Dune::index_constant<Tree1::degree()>{});
 
         auto indices = Dune::range(degree);
