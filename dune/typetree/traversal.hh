@@ -118,9 +118,10 @@ namespace Dune {
           // even if there's a single child only.
           if (i>0)
             visitor.in(tree, treePath);
-          static const auto visitChild = Visitor::template VisitChild<Tree,Child,TreePath>::value;
-          if constexpr (visitChild)
-            applyToTree(child, childTreePath, visitor);
+          static const auto staticVisitChild = Visitor::template VisitChild<Tree,Child,TreePath>::value;
+          if constexpr (staticVisitChild)
+            if (visitor.visitChild(child,childTreePath))
+              applyToTree(child, childTreePath, visitor);
 
           visitor.afterChild(tree, child, treePath, i);
         });

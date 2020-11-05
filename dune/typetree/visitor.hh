@@ -312,19 +312,16 @@ namespace Dune {
     {
 
       template<typename Node,
-               typename Child,
-               typename TreePath>
-      inline bool visitChild(const Node& n, const Child& c, const TreePath& p)
+               typename ChildTreePath>
+      inline bool visitChild(const Node& n, const ChildTreePath& p)
       {
         return false;
       }
 
       template<typename Node1,
-               typename Child1,
                typename Node2,
-               typename Child2,
-               typename TreePath>
-      inline bool visitChild(const Node1& n1, const Child1& c1, const Node2& n2, const Child2& c2, const TreePath& p)
+               typename ChildTreePath>
+      inline bool visitChild(const Node1& n1, const Node2& n2, const ChildTreePath& p)
       {
         return false;
       }
@@ -371,19 +368,16 @@ namespace Dune {
     {
 
       template<typename Node,
-               typename Child,
-               typename TreePath>
-      inline bool visitChild(const Node& n, const Child& c, const TreePath& p)
+               typename ChildTreePath>
+      inline bool visitChild(const Node& n, const ChildTreePath& p)
       {
         return true;
       }
 
       template<typename Node1,
-               typename Child1,
                typename Node2,
-               typename Child2,
-               typename TreePath>
-      inline bool visitChild(const Node1& n1, const Child1& c1, const Node2& n2, const Child2& c2, const TreePath& p)
+               typename ChildTreePath>
+      inline bool visitChild(const Node1& n1, const Node2& n2, const ChildTreePath& p)
       {
         return true;
       }
