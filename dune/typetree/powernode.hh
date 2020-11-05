@@ -12,7 +12,6 @@
 #include <dune/common/indices.hh>
 #include <dune/common/typetraits.hh>
 #include <dune/common/std/type_traits.hh>
-#include <dune/common/indices.hh>
 
 #include <dune/typetree/nodetags.hh>
 #include <dune/typetree/utility.hh>

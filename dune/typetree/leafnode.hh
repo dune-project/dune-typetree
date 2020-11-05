@@ -45,7 +45,7 @@ namespace Dune {
 
       static constexpr auto degree()
       {
-        return index_constant<1>{};
+        return index_constant<0>{};
       }
 
     protected:
