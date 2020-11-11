@@ -108,7 +108,6 @@ namespace Dune {
         constexpr bool useDynamicTraversal = (strategy == TraversalStrategy::Dynamic);
         auto indices = Dune::range(traversalDegree<useDynamicTraversal>(tree));
         Hybrid::forEach(indices, [&](auto i) {
-          auto childTreePath = TypeTree::push_back(treePath, i);
           auto&& child = tree.child(i);
           using Child = std::decay_t<decltype(child)>;
 
@@ -119,10 +118,11 @@ namespace Dune {
           if (i>0)
             visitor.in(tree, treePath);
           static const auto staticVisitChild = Visitor::template VisitChild<Tree,Child,TreePath>::value;
-          if constexpr (staticVisitChild)
+          if constexpr (staticVisitChild) {
+            auto childTreePath = TypeTree::push_back(treePath, i);
             if (visitor.visitChild(child,childTreePath))
               applyToTree(child, childTreePath, visitor);
-
+          }
           visitor.afterChild(tree, child, treePath, i);
         });
         visitor.post(tree, treePath);
