@@ -102,6 +102,7 @@ namespace Dune {
         // using Visitor = std::decay_t<V>;
         using Tree = std::remove_reference_t<T>;
         using Visitor = std::remove_reference_t<V>;
+        visitor.pre(tree, treePath);
 
         // Get traversal strategy from visitor
         constexpr auto strategy = Visitor::template Strategy<Tree,TreePath>::value;
