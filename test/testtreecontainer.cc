@@ -115,6 +115,11 @@ int main(int argc, char** argv)
   test.subTest(checkTreeContainer(sp1, v1));
   test.subTest(checkTreeContainer(sp1, v2));
 
+  using SDP1 = SimpleDynamicPower<SimpleLeaf>;
+  SDP1 sdp1(sl1, sl1, sl1);
+  test.subTest(checkTreeContainer(sdp1, v1));
+  test.subTest(checkTreeContainer(sdp1, v2));
+
   using SL2 = SimpleLeaf;
   using SP2 = SimplePower<SimpleLeaf,2>;
   using SC1 = SimpleComposite<SL1,SP1,SP2>;

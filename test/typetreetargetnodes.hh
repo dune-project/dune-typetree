@@ -58,6 +58,37 @@ struct TargetPower
 
 };
 
+template<typename S, typename T>
+struct TargetDynamicPower
+  : public Dune::TypeTree::DynamicPowerNode<T>
+{
+
+  template<typename Transformation>
+  TargetDynamicPower(const S& sc, const Transformation& t, const std::vector<std::shared_ptr<T>>& children)
+    : Dune::TypeTree::DynamicPowerNode<T>(children)
+    , s(Dune::stackobject_to_shared_ptr(sc))
+  {}
+
+  template<typename Transformation>
+  TargetDynamicPower(std::shared_ptr<const S> sc, const Transformation& t, const std::vector<std::shared_ptr<T>>& children)
+    : Dune::TypeTree::DynamicPowerNode<T>(children)
+    , s(sc)
+  {}
+
+  std::shared_ptr<const S> s;
+
+  const char* name() const
+  {
+    return "TargetDynamicPower";
+  }
+
+  int id() const
+  {
+    return s->id();
+  }
+
+};
+
 template<typename S, typename... Children>
 struct TargetComposite
   : public Dune::TypeTree::CompositeNode<Children...>
@@ -101,6 +132,10 @@ registerNodeTransformation(SL* sl, TestTransformation* t, SimpleLeafTag* tag);
 template<typename SP>
 Dune::TypeTree::GenericPowerNodeTransformation<SP,TestTransformation,TargetPower>
 registerNodeTransformation(SP* sp, TestTransformation* t, SimplePowerTag* tag);
+
+template<typename SDP>
+Dune::TypeTree::GenericDynamicPowerNodeTransformation<SDP,TestTransformation,TargetDynamicPower>
+registerNodeTransformation(SDP* sdp, TestTransformation* t, SimpleDynamicPowerTag* tag);
 
 template<typename SC>
 Dune::TypeTree::GenericCompositeNodeTransformation<SC,TestTransformation,TargetComposite>

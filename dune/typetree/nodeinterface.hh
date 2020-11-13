@@ -8,6 +8,8 @@
 #include <type_traits>
 
 #include <dune/common/documentation.hh>
+#include <dune/common/std/type_traits.hh>
+#include <dune/common/indices.hh>
 
 namespace Dune {
   namespace TypeTree {
@@ -65,44 +67,30 @@ namespace Dune {
     template<typename T>
     using ImplementationTag = typename std::decay_t<T>::ImplementationTag;
 
+    template <class N>
+    using HasStaticDegree = index_constant<N::degree()>;
+
+    template <class N>
+    static constexpr bool hasStaticDegree = Std::is_detected<HasStaticDegree, N>::value;
+
 
     //! Returns the degree of node as run time information.
-    template<typename Node>
-    std::size_t degree(const Node& node)
-    {
-      return degree(&node,NodeTag<Node>());
-    }
-
-#ifndef DOXYGEN
-
-    //! Default implementation of degree dispatch function.
-    /**
-     * This dispatches using a pointer to the node instead of a reference,
-     * as we can easily create a constexpr pointer to the node, while a constexpr
-     * reference might not even be possible to manufacture (std::declval is not
-     * constexpr).
-     */
-    template<typename Node, typename NodeTag>
-    constexpr std::size_t degree(const Node* node, NodeTag)
+    template<typename Node, std::enable_if_t<hasStaticDegree<Node>,int> = 0>
+    constexpr auto degree(const Node&)
     {
       return Node::degree();
     }
 
-#endif // DOXYGEN
+    //! Returns the degree of node as run time information.
+    template<typename Node, std::enable_if_t<!hasStaticDegree<Node>,int> = 0>
+    auto degree(const Node& node)
+    {
+      return node.degree();
+    }
 
-    //! Returns the statically known degree of the given Node type as a std::integral_constant.
-    /**
-     * \note If you are only interested in the numeric value, take a look at staticDegree<Node>
-     *       instead.
-     */
-    template<typename Node>
-    using StaticDegree = std::integral_constant<
-      std::size_t,
-      degree(
-        static_cast<std::decay_t<Node>*>(nullptr),
-        NodeTag<std::decay_t<Node>>()
-        )
-      >;
+    //! Returns the statically known degree of the given Node type as a std::index_constant.
+    template<typename Node, std::enable_if_t<hasStaticDegree<Node>,int> = 0>
+    using StaticDegree = decltype(degree(std::declval<Node>()));
 
     //! \} group Nodes
 

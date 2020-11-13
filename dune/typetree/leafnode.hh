@@ -4,6 +4,8 @@
 #ifndef DUNE_TYPETREE_LEAFNODE_HH
 #define DUNE_TYPETREE_LEAFNODE_HH
 
+#include <dune/common/indices.hh>
+
 #include <dune/typetree/nodetags.hh>
 #include <cstddef>
 
@@ -41,9 +43,9 @@ namespace Dune {
       //! The type tag that describes a LeafNode.
       typedef LeafNodeTag NodeTag;
 
-      static constexpr std::size_t degree()
+      static constexpr auto degree()
       {
-        return 0;
+        return index_constant<0>{};
       }
 
     protected:

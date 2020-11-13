@@ -14,6 +14,14 @@ namespace Dune {
      *  \{
      */
 
+    //! Strategy for node traversals
+    enum class TraversalStrategy {
+      //! Compile time traversals. Only possible if static information is available.
+      Static,
+      //! Run time traversals. Only possible if children on nodes have same type.
+      Dynamic
+    };
+
     //! Visitor interface and base class for TypeTree visitors.
     /**
      * DefaultVisitor defines the interface for visitors that can be applied to a TypeTree
@@ -23,24 +31,36 @@ namespace Dune {
      * node within the TypeTree, encoded as child indices starting at the root node.
      *
      * In order to create a functioning visitor, an implementation will - in addition to providing the methods
-     * of this class - also have to contain the following template struct, which is used to determine
-     * whether to visit a given node:
+     * of this class - also have to contain the following template struct:
      *
-     * \code
-     * template<typename Node, typename Child, typename TreePath>
-     * struct VisitChild
-     * {
-     *   static const bool value = ...; // decide whether to visit Child
-     * };
-     * \endcode
+     *   * `Strategy`: used to decide traversal strategy of the node
      *
-     * For the two most common scenarios - visiting only direct children and visiting the whole tree - there
-     * are mixin classes VisitDirectChildren and VisitTree and combined base classes TreeVisitor and
-     * DirectChildrenVisitor. The latter two inherit from both DefaultVisitor and one of the two mixin classes
-     * and can thus be used as convenient base classes.
+     *    \code
+     *    template<typename Tree, typename TreePath>
+     *    struct Strategy
+     *    {
+     *      using type = ...; // decide traversal strategy
+     *    };
+     *    \endcode
+     *
+     *   * `VisitChild`: used to determine whether to visit a given node:
+     *
+     *    \code
+     *    template<typename Node, typename Child, typename TreePath>
+     *    struct VisitChild
+     *    {
+     *      static const bool value = ...; // decide whether to visit Child
+     *    };
+     *    \endcode
+     *
+     *  For the two most common scenarios - visiting only direct children and visiting the whole tree - there
+     *  are mixin classes VisitDirectChildren and VisitTree and combined base classes TreeVisitor and
+     *  DirectChildrenVisitor. The latter two inherit from both DefaultVisitor and one of the two mixin classes
+     *  and can thus be used as convenient base classes.
      *
      * \note This class can also be used as a convenient base class if the implemented visitor
      *       only needs to act on some of the possible callback sites, avoiding a lot of boilerplate code.
+     *
      */
     struct DefaultVisitor
     {
@@ -130,20 +150,30 @@ namespace Dune {
      * nodes within the TypeTrees, encoded as child indices starting at the root node.
      *
      * In order to create a functioning visitor, an implementation will - in addition to providing the methods
-     * of this class - also have to contain the following template struct, which is used to determine
-     * whether to visit a given node:
+     * of this class - also have to contain the following template struct:
+     *  * `Strategy`: used to decide traversal strategy of the node
      *
-     * \code
-     * template<typename Node1,
-     *          typename Child1,
-     *          typename Node2,
-     *          typename Child2,
-     *          typename TreePath>
-     * struct VisitChild
-     * {
-     *   static const bool value = ...; // decide whether to visit Child
-     * };
-     * \endcode
+     *    \code
+     *    template<typename Tree1, typename Tree2, typename TreePath>
+     *    struct Strategy
+     *    {
+     *      using type = ...; // decide traversal strategy
+     *    };
+     *    \endcode
+     *
+     *   * `VisitChild`: used to determine whether to visit a given node:
+     *
+     *    \code
+     *    template<typename Node1,
+     *             typename Child1,
+     *             typename Node2,
+     *             typename Child2,
+     *             typename TreePath>
+     *    struct VisitChild
+     *    {
+     *      static const bool value = ...; // decide whether to visit Child
+     *    };
+     *    \endcode
      *
      * For the two most common scenarios - visiting only direct children and visiting the whole tree - there
      * are mixin classes VisitDirectChildren and VisitTree and combined base classes TreePairVisitor and
@@ -252,7 +282,7 @@ namespace Dune {
      * only visit the root node and call DefaultVisitor::beforeChild() and DefaultVisitor::afterChild()
      * for its direct children.
      */
-    struct VisitDirectChildren
+    struct VisitDirectChildrenStatic
     {
 
       // the little trick with the default template arguments
@@ -272,13 +302,44 @@ namespace Dune {
 
     };
 
-
-    //! Mixin base class for visitors that want to visit the complete tree.
+    //! Mixin base class for visitors that only want to visit the direct children of a node.
     /**
-     * This mixin class will accept all children presented to it and thus make the iterator
-     * traverse the entire tree.
+     * This mixin class will reject all children presented to it, causing the algorithm to
+     * only visit the root node and call DefaultVisitor::beforeChild() and DefaultVisitor::afterChild()
+     * for its direct children.
      */
-    struct VisitTree
+    struct VisitDirectChildrenDynamic
+    {
+
+      template<typename Node,
+               typename ChildTreePath>
+      inline bool visitChild(const Node& n, const ChildTreePath& p)
+      {
+        return false;
+      }
+
+      template<typename Node1,
+               typename Node2,
+               typename ChildTreePath>
+      inline bool visitChild(const Node1& n1, const Node2& n2, const ChildTreePath& p)
+      {
+        return false;
+      }
+    };
+
+    //! Mixin base class for visitors that only want to visit the direct children of a node.
+    /**
+     * This mixin class will reject all children presented to it, causing the algorithm to
+     * only visit the root node and call DefaultVisitor::beforeChild() and DefaultVisitor::afterChild()
+     * for its direct children.
+     */
+    struct VisitDirectChildren : public VisitDirectChildrenStatic, public VisitDirectChildrenDynamic {};
+
+    //! Mixin base class for visitors that want to statically visit the complete tree.
+    /**
+     * This mixin class will accept and instantiate all children presented to it.
+     */
+    struct VisitTreeStatic
     {
 
       // the little trick with the default template arguments
@@ -298,9 +359,42 @@ namespace Dune {
 
     };
 
+    //! Mixin base class for visitors that want to visit the complete tree.
+    /**
+     * This mixin class will accept all children presented to it and thus make the iterator
+     * traverse the entire tree. Only instantiated childen may be visited.
+     */
+    struct VisitTreeDynamic
+    {
+
+      template<typename Node,
+               typename ChildTreePath>
+      inline bool visitChild(const Node& n, const ChildTreePath& p)
+      {
+        return true;
+      }
+
+      template<typename Node1,
+               typename Node2,
+               typename ChildTreePath>
+      inline bool visitChild(const Node1& n1, const Node2& n2, const ChildTreePath& p)
+      {
+        return true;
+      }
+    };
+
+    //! Mixin base class for visitors that want to visit the complete tree.
+    /**
+     * This mixin class will accept all children presented to it and thus make the iterator
+     * traverse the entire tree.
+     */
+    struct VisitTree : public VisitTreeStatic, public VisitTreeDynamic {};
+
     //! Mixin base class for visitors that require a static TreePath during traversal.
     /**
-     * \warning Static traversal should only be used if absolutely necessary, as it tends
+     *  \details For simple- or pair-traversals, this mixin make traversal
+     *            algorithms to be done at compile-time whenever is possible.
+     *  \warning Static traversal should only be used if absolutely necessary, as it tends
      *          to increase compilation times and object sizes (especially if compiling
      *          with debug information)!
      *
@@ -308,12 +402,27 @@ namespace Dune {
      */
     struct StaticTraversal
     {
+      // Pair traversal case
+      template <class Tree1, class Tree2, class TreePath = void>
+      struct Strategy {
+        static constexpr TraversalStrategy value =
+            (hasStaticDegree<Tree1> and hasStaticDegree<Tree2>)
+                ? TraversalStrategy::Static
+                : TraversalStrategy::Dynamic;
+      };
+
+      // Single tree traversal specialization
+      template <class Node, class TreePath>
+      struct Strategy<Node,TreePath,void> : public Strategy<Node,Node,TreePath> {};
+
       //! Use the static tree traversal algorithm.
-      static const TreePathType::Type treePathType = TreePathType::fullyStatic;
+      DUNE_DEPRECATED static const TreePathType::Type treePathType = TreePathType::fullyStatic;
     };
 
     //! Mixin base class for visitors that only need a dynamic TreePath during traversal.
     /**
+     *  \details For simple- or pair-traversals, this mixin make traversal
+     *            algorithms to be done at run-time whenever is possible.
      * \note Dynamic traversal is preferable to static traversal, as it causes fewer
      *       template instantiations, which improves compile time and reduces object
      *       size (especially if compiling with debug information).
@@ -322,8 +431,20 @@ namespace Dune {
      */
     struct DynamicTraversal
     {
+      // Pair traversal case
+      template <class Tree1, class Tree2, class TreePath = void> struct Strategy {
+        static constexpr TraversalStrategy value =
+            (Tree1::isComposite or Tree2::isComposite)
+                ? TraversalStrategy::Static
+                : TraversalStrategy::Dynamic;
+      };
+
+      // Single tree traversal specialization
+      template <class Node, class TreePath>
+      struct Strategy<Node,TreePath,void> : public Strategy<Node,Node,TreePath> {};
+
       //! Use the dynamic tree traversal algorithm.
-      static const TreePathType::Type treePathType = TreePathType::dynamic;
+      DUNE_DEPRECATED static const TreePathType::Type treePathType = TreePathType::dynamic;
     };
 
     //! Convenience base class for visiting the entire tree.
@@ -349,6 +470,24 @@ namespace Dune {
       : public DefaultPairVisitor
       , public VisitDirectChildren
     {};
+
+    //! Default visitor to count number of interior nodes and and leafs
+    struct CountVisitor : public TreeVisitor, public DynamicTraversal
+    {
+      template<typename T, typename TreePath>
+      void leaf(T&& t, TreePath treePath) const
+      {
+        leafCount += 1;
+        nodeCount += 1;
+      }
+      template<typename T, typename TreePath>
+      void post(T&& t, TreePath treePath) const
+      {
+        nodeCount += 1;
+      }
+
+      mutable std::size_t leafCount = 0, nodeCount = 0;
+    };
 
     //! \} group Tree Traversal
 

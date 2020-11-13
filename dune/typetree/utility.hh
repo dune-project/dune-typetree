@@ -13,6 +13,7 @@
 #include <dune/common/indices.hh>
 #include <dune/typetree/nodeinterface.hh>
 #include <dune/typetree/nodetags.hh>
+#include <dune/typetree/visitor.hh>
 
 namespace Dune {
   namespace TypeTree {
@@ -53,35 +54,6 @@ namespace Dune {
 
 #endif // DOXYGEN
 
-    //! Struct for obtaining some basic structural information about a TypeTree.
-    /**
-     * This struct extracts basic information about the passed TypeTree and
-     * presents them in a static way suitable for use as compile-time constants.
-     *
-     * \tparam Tree  The TypeTree to examine.
-     * \tparam Tag   Internal parameter, leave at default value.
-     */
-    template<typename Tree, typename Tag = StartTag>
-    struct TreeInfo
-    {
-
-    private:
-      // Start the tree traversal
-      typedef TreeInfo<Tree,NodeTag<Tree>> NodeInfo;
-
-    public:
-
-      //! The depth of the TypeTree.
-      static const std::size_t depth = NodeInfo::depth;
-
-      //! The total number of nodes in the TypeTree.
-      static const std::size_t nodeCount = NodeInfo::nodeCount;
-
-      //! The number of leaf nodes in the TypeTree.
-      static const std::size_t leafCount = NodeInfo::leafCount;
-
-    };
-
 
 #ifndef DOXYGEN
 
@@ -89,100 +61,259 @@ namespace Dune {
     // TreeInfo specializations for the different node types
     // ********************************************************************************
 
+    struct TreeVisitor;
 
-    // leaf node
-    template<typename Node>
-    struct TreeInfo<Node,LeafNodeTag>
-    {
+    namespace Impl {
 
-      static const std::size_t depth = 1;
-
-      static const std::size_t nodeCount = 1;
-
-      static const std::size_t leafCount = 1;
-
-    };
-
-
-    // power node - exploit the fact that all children are identical
-    template<typename Node>
-    struct TreeInfo<Node,PowerNodeTag>
-    {
-
-      typedef TreeInfo<typename Node::ChildType,NodeTag<typename Node::ChildType>> ChildInfo;
-
-      static const std::size_t depth = 1 + ChildInfo::depth;
-
-      static const std::size_t nodeCount = 1 + StaticDegree<Node>::value * ChildInfo::nodeCount;
-
-      static const std::size_t leafCount = StaticDegree<Node>::value * ChildInfo::leafCount;
-
-    };
-
-
-    namespace {
-
-      // TMP for iterating over the children of a composite node
-      // identical for both composite node implementations
-      template<typename Node, std::size_t k, std::size_t n>
-      struct generic_compositenode_children_info
+      template<typename Tree, typename Tag = StartTag>
+      struct BaseTreeInfo
       {
 
-        typedef generic_compositenode_children_info<Node,k+1,n> NextChild;
+      private:
+        // Start the tree traversal
+        typedef BaseTreeInfo<Tree,NodeTag<Tree>> NodeInfo;
 
-        // extract child info
-        typedef typename Node::template Child<k>::Type Child;
-        typedef NodeTag<Child> ChildTag;
-        typedef TreeInfo<Child,ChildTag> ChildInfo;
+      public:
 
-        // combine information of current child with info about following children
-        static const std::size_t maxDepth = ChildInfo::depth > NextChild::maxDepth ? ChildInfo::depth : NextChild::maxDepth;
+        //! True if the TypeTree has at least one dynamic node
+        static const bool dynamic = NodeInfo::dynamic;
 
-        static const std::size_t nodeCount = ChildInfo::nodeCount + NextChild::nodeCount;
+        //! The depth of the TypeTree.
+        static const std::size_t depth = NodeInfo::depth;
 
-        static const std::size_t leafCount = ChildInfo::leafCount + NextChild::leafCount;
+        //! The total number of nodes in the TypeTree.
+        static const std::size_t nodeCount = NodeInfo::nodeCount;
+
+        //! The number of leaf nodes in the TypeTree.
+        static const std::size_t leafCount = NodeInfo::leafCount;
 
       };
 
-      // End of recursion
-      template<typename Node, std::size_t n>
-      struct generic_compositenode_children_info<Node,n,n>
+      constexpr std::size_t voidCount = std::size_t(0);
+
+      // leaf node
+      template<typename Node>
+      struct BaseTreeInfo<Node,LeafNodeTag>
       {
-        static const std::size_t maxDepth = 0;
 
-        static const std::size_t nodeCount = 0;
+        static const bool dynamic = false;
 
-        static const std::size_t leafCount = 0;
+        static const std::size_t depth = 1;
+
+        static const std::size_t nodeCount = 1;
+
+        static const std::size_t leafCount = 1;
+
       };
 
-    } // anonymous namespace
+
+      // power node - exploit the fact that all children are identical
+      template<typename Node>
+      struct BaseTreeInfo<Node,PowerNodeTag>
+      {
+
+        typedef BaseTreeInfo<typename Node::ChildType,NodeTag<typename Node::ChildType>> ChildInfo;
+
+        static const bool dynamic = ChildInfo::dynamic;
+
+        static const std::size_t depth = 1 + ChildInfo::depth;
+
+        static const std::size_t nodeCount = 1 + StaticDegree<Node>::value * ChildInfo::nodeCount;
+
+        static const std::size_t leafCount = StaticDegree<Node>::value * ChildInfo::leafCount;
+
+      };
+
+      // power node - exploit the fact that all children are identical
+      template<typename Node>
+      struct BaseTreeInfo<Node,DynamicPowerNodeTag>
+      {
+
+        typedef BaseTreeInfo<typename Node::ChildType,NodeTag<typename Node::ChildType>> ChildInfo;
+
+        static const bool dynamic = true;
+
+        static const std::size_t depth = 1 + ChildInfo::depth;
+
+        static const std::size_t nodeCount = voidCount;
+
+        static const std::size_t leafCount = voidCount;
+
+      };
+
+      namespace {
+
+        // TMP for iterating over the children of a composite node
+        // identical for both composite node implementations
+        template<typename Node, std::size_t k, std::size_t n>
+        struct generic_compositenode_children_info
+        {
+
+          typedef generic_compositenode_children_info<Node,k+1,n> NextChild;
+
+          // extract child info
+          typedef typename Node::template Child<k>::Type Child;
+          typedef NodeTag<Child> ChildTag;
+          typedef BaseTreeInfo<Child,ChildTag> ChildInfo;
+
+          static const bool dynamic = ChildInfo::dynamic or NextChild::dynamic;
+
+          // combine information of current child with info about following children
+          static const std::size_t maxDepth = ChildInfo::depth > NextChild::maxDepth ? ChildInfo::depth : NextChild::maxDepth;
+
+          static const std::size_t nodeCount = ChildInfo::nodeCount + NextChild::nodeCount;
+
+          static const std::size_t leafCount = ChildInfo::leafCount + NextChild::leafCount;
+
+        };
+
+        // End of recursion
+        template<typename Node, std::size_t n>
+        struct generic_compositenode_children_info<Node,n,n>
+        {
+          static const bool dynamic = false;
+
+          static const std::size_t maxDepth = 0;
+
+          static const std::size_t nodeCount = 0;
+
+          static const std::size_t leafCount = 0;
+        };
+
+      } // anonymous namespace
 
 
-      // Struct for building information about composite node
-    template<typename Node>
-    struct GenericCompositeNodeInfo
-    {
+        // Struct for building information about composite node
+      template<typename Node>
+      struct GenericCompositeNodeInfo
+      {
 
-      typedef generic_compositenode_children_info<Node,0,StaticDegree<Node>::value> Children;
+        typedef generic_compositenode_children_info<Node,0,StaticDegree<Node>::value> Children;
 
-      static const std::size_t depth = 1 + Children::maxDepth;
+        static const bool dynamic = Children::dynamic;
 
-      static const std::size_t nodeCount = 1 + Children::nodeCount;
+        static const std::size_t depth = 1 + Children::maxDepth;
 
-      static const std::size_t leafCount = Children::leafCount;
+        static const std::size_t nodeCount = 1 + Children::nodeCount;
 
-    };
+        static const std::size_t leafCount = Children::leafCount;
 
-
-    // CompositeNode: delegate to GenericCompositeNodeInfo
-    template<typename Node>
-    struct TreeInfo<Node,CompositeNodeTag>
-      : public GenericCompositeNodeInfo<Node>
-    {};
+      };
 
 
+      // CompositeNode: delegate to GenericCompositeNodeInfo
+      template<typename Node>
+      struct BaseTreeInfo<Node,CompositeNodeTag>
+        : public GenericCompositeNodeInfo<Node>
+      {};
+
+      template<typename Node, bool d = BaseTreeInfo<Node>::dynamic>
+      struct TreeInfo;
+
+      template<typename Node>
+      struct TreeInfo<Node,false>
+      {
+        static const bool dynamic = false;
+
+        static const std::size_t depth = BaseTreeInfo<Node>::depth;
+
+        static const std::size_t nodeCount = BaseTreeInfo<Node>::nodeCount;
+
+        static const std::size_t leafCount = BaseTreeInfo<Node>::leafCount;
+      };
+
+      template<typename Node>
+      struct TreeInfo<Node,true>
+      {
+        static const bool dynamic = true;
+
+        static const std::size_t depth = BaseTreeInfo<Node>::depth;
+      };
+
+    }
 #endif // DOXYGEN
 
+    //! Struct for obtaining some basic structural information about a TypeTree.
+    /**
+     * This struct extracts basic information about the passed TypeTree and
+     * presents them in a static way when possible.
+     *
+     * \tparam Tree  The TypeTree to examine.
+     */
+    template<typename Tree>
+    struct TreeInfo
+#ifndef DOXYGEN
+    : public Impl::TreeInfo<Tree> {};
+#else
+    {
+      //! True if the TypeTree has at least one dynamic node
+      static const bool dynamic;
+
+      //! The depth of the TypeTree.
+      static const std::size_t depth;
+
+      //! The total number of nodes in the TypeTree. Only for static trees.
+      static const std::size_t nodeCount;
+
+      //! The number of leaf nodes in the TypeTree. Only for static trees.
+      static const std::size_t leafCount;
+
+    };
+#endif // DOXYGEN
+
+    //! True if the TypeTree has at least one dynamic node
+    template<typename Tree>
+    constexpr
+    bool dynamic(const Tree& tree)
+    {
+      return TreeInfo<Tree>::dynamic;
+    }
+
+    //! The depth of the TypeTree.
+    template<typename Tree>
+    constexpr
+    std::size_t depth(const Tree& tree)
+    {
+      return TreeInfo<Tree>::depth;
+    }
+
+    //! The total number of nodes in the TypeTree.
+    template<typename Tree>
+    std::enable_if_t<TreeInfo<Tree>::dynamic, std::size_t>
+    nodeCount(const Tree& tree)
+    {
+      CountVisitor counter;
+      applyToTree(tree,counter);
+      return counter.nodeCount;
+    }
+
+    //! The total number of nodes in the TypeTree.
+    template<typename Tree>
+    constexpr
+    std::enable_if_t<!TreeInfo<Tree>::dynamic, std::size_t>
+    nodeCount(const Tree& tree)
+    {
+      return TreeInfo<Tree>::nodeCount;
+    }
+
+    //! The number of leaf nodes in the TypeTree.
+    template<typename Tree>
+    std::enable_if_t<TreeInfo<Tree>::dynamic, std::size_t>
+    leafCount(const Tree& tree)
+    {
+      CountVisitor counter;
+      applyToTree(tree,counter);
+      return counter.leafCount;
+    }
+
+    //! The number of leaf nodes in the TypeTree.
+    template<typename Tree>
+    constexpr
+    std::enable_if_t<!TreeInfo<Tree>::dynamic, std::size_t>
+    leafCount(const Tree& tree)
+    {
+      return TreeInfo<Tree>::leafCount;
+    }
 
     using Dune::index_constant;
     namespace Indices = Dune::Indices;
