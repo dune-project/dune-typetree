@@ -350,6 +350,234 @@ namespace Dune {
       , public VisitDirectChildren
     {};
 
+
+    namespace Detail {
+
+      // This class tags a callback
+      template<class T, class F>
+      struct TaggedCallback : public F
+      {
+        TaggedCallback(F&& f) : F(f) {}
+      };
+
+      // Create a version of f that is tagged by T.
+      // This will store a copy of f.
+      template<class T, class F>
+      auto taggedCallback(F&& f) {
+        return TaggedCallback<T, std::decay_t<F>>(std::forward<F>(f));
+      }
+
+      // Callback tags for the different Visitor methods
+      struct PreCallbackTag {};
+      struct PostCallbackTag {};
+      struct InCallbackTag {};
+      struct LeafCallbackTag {};
+      struct BeforeChildCallbackTag {};
+      struct AfterChildCallbackTag {};
+
+      // A Visitor extending a BaseVisitor by a pre() method
+      // implemented by a given callback.  This stores a copy
+      // of the callback.
+      template<class BaseVisitor, class F>
+      struct PreVisitor : public BaseVisitor
+      {
+        template<typename T, typename TreePath>
+        void pre(T&& t, TreePath treePath) const {
+          BaseVisitor::pre(t, treePath);
+          callBack_(t, treePath);
+        }
+        F callBack_;
+      };
+
+      // Create PreVisitor by piping a BaseVisitor and a tagged callback
+      template<class BaseVisitor, class F>
+      auto operator|(BaseVisitor&& baseVisitor, TaggedCallback<PreCallbackTag, F>&& pre) {
+        return PreVisitor<std::decay_t<BaseVisitor>, F>{std::forward<BaseVisitor>(baseVisitor), std::move(pre)};
+      }
+
+      // A Visitor extending a BaseVisitor by a post() method
+      // implemented by a given callback.  This stores a copy
+      // of the callback.
+      template<class BaseVisitor, class F>
+      struct PostVisitor : public BaseVisitor
+      {
+        template<typename T, typename TreePath>
+        void post(T&& t, TreePath treePath) const {
+          BaseVisitor::post(t, treePath);
+          callBack_(t, treePath);
+        }
+        F callBack_;
+      };
+
+      // Create PostVisitor by piping a BaseVisitor and a tagged callback
+      template<class BaseVisitor, class F>
+      auto operator|(BaseVisitor&& baseVisitor, TaggedCallback<PostCallbackTag, F>&& pre) {
+        return PostVisitor<std::decay_t<BaseVisitor>, F>{std::forward<BaseVisitor>(baseVisitor), std::move(pre)};
+      }
+
+      // A Visitor extending a BaseVisitor by a in() method
+      // implemented by a given callback.  This stores a copy
+      // of the callback.
+      template<class BaseVisitor, class F>
+      struct InVisitor : public BaseVisitor
+      {
+        template<typename T, typename TreePath>
+        void in(T&& t, TreePath treePath) const {
+          BaseVisitor::in(t, treePath);
+          callBack_(t, treePath);
+        }
+        F callBack_;
+      };
+
+      // Create InVisitor by piping a BaseVisitor and a tagged callback
+      template<class BaseVisitor, class F>
+      auto operator|(BaseVisitor&& baseVisitor, TaggedCallback<InCallbackTag, F>&& pre) {
+        return InVisitor<std::decay_t<BaseVisitor>, F>{std::forward<BaseVisitor>(baseVisitor), std::move(pre)};
+      }
+
+      // A Visitor extending a BaseVisitor by a leaf() method
+      // implemented by a given callback.  This stores a copy
+      // of the callback.
+      template<class BaseVisitor, class F>
+      struct LeafVisitor : public BaseVisitor
+      {
+        template<typename T, typename TreePath>
+        void leaf(T&& t, TreePath treePath) const {
+          BaseVisitor::leaf(t, treePath);
+          callBack_(t, treePath);
+        }
+        F callBack_;
+      };
+
+      // Create LeafVisitor by piping a BaseVisitor and a tagged callback
+      template<class BaseVisitor, class F>
+      auto operator|(BaseVisitor&& baseVisitor, TaggedCallback<LeafCallbackTag, F>&& pre) {
+        return LeafVisitor<std::decay_t<BaseVisitor>, F>{std::forward<BaseVisitor>(baseVisitor), std::move(pre)};
+      }
+
+      // A Visitor extending a BaseVisitor by a beforeChild() method
+      // implemented by a given callback.  This stores a copy
+      // of the callback.
+      template<class BaseVisitor, class F>
+      struct BeforeChildVisitor : public BaseVisitor
+      {
+        template<typename T, typename Child, typename TreePath, typename ChildIndex>
+        void beforeChild(T&& t, Child&& child, TreePath treePath, ChildIndex childIndex) const {
+          BaseVisitor::beforeChild(t, child, treePath, childIndex);
+          callBack_(t, child, treePath, childIndex);
+        }
+        F callBack_;
+      };
+
+      // Create BeforeChildVisitor by piping a BaseVisitor and a tagged callback
+      template<class BaseVisitor, class F>
+      auto operator|(BaseVisitor&& baseVisitor, TaggedCallback<BeforeChildCallbackTag, F>&& pre) {
+        return BeforeChildVisitor<std::decay_t<BaseVisitor>, F>{std::forward<BaseVisitor>(baseVisitor), std::move(pre)};
+      }
+
+      // A Visitor extending a BaseVisitor by a afterChild() method
+      // implemented by a given callback.  This stores a copy
+      // of the callback.
+      template<class BaseVisitor, class F>
+      struct AfterChildVisitor : public BaseVisitor
+      {
+        template<typename T, typename Child, typename TreePath, typename ChildIndex>
+        void afterChild(T&& t, Child&& child, TreePath treePath, ChildIndex childIndex) const {
+          BaseVisitor::afterChild(t, child, treePath, childIndex);
+          callBack_(t, child, treePath, childIndex);
+        }
+        F callBack_;
+      };
+
+      // Create AfterChildVisitor by piping a BaseVisitor and a tagged callback
+      template<class BaseVisitor, class F>
+      auto operator|(BaseVisitor&& baseVisitor, TaggedCallback<AfterChildCallbackTag, F>&& pre) {
+        return AfterChildVisitor<std::decay_t<BaseVisitor>, F>{std::forward<BaseVisitor>(baseVisitor), std::move(pre)};
+      }
+
+      // A dummy visitor doing nothing. In contrast to DefaultVisitor
+      // this is parameterited by the traversal type
+      template<class TreePathType>
+      class NOPVisitor : public TreeVisitor, public TreePathType
+      {
+        public:
+      };
+
+    } // namespace Detail
+
+    /**
+     * \brief Create a tagged callback for implementing Visitor::pre().
+     *
+     * This can be chained with an existing Visitor using operator|
+     */
+    template<class F>
+    auto pre(F&& f) {
+      return Detail::taggedCallback<Detail::PreCallbackTag>(std::forward<F>(f));
+    }
+
+    /**
+     * \brief Create a tagged callback for implementing Visitor::post().
+     *
+     * This can be chained with an existing Visitor using operator|
+     */
+    template<class F>
+    auto post(F&& f) {
+      return Detail::taggedCallback<Detail::PostCallbackTag>(std::forward<F>(f));
+    }
+
+    /**
+     * \brief Create a tagged callback for implementing Visitor::in().
+     *
+     * This can be chained with an existing Visitor using operator|
+     */
+    template<class F>
+    auto in(F&& f) {
+      return Detail::taggedCallback<Detail::InCallbackTag>(std::forward<F>(f));
+    }
+
+    /**
+     * \brief Create a tagged callback for implementing Visitor::leaf().
+     *
+     * This can be chained with an existing Visitor using operator|
+     */
+    template<class F>
+    auto leaf(F&& f) {
+      return Detail::taggedCallback<Detail::LeafCallbackTag>(std::forward<F>(f));
+    }
+
+    /**
+     * \brief Create a tagged callback for implementing Visitor::beforeChild().
+     *
+     * This can be chained with an existing Visitor using operator|
+     */
+    template<class F>
+    auto beforeChild(F&& f) {
+      return Detail::taggedCallback<Detail::BeforeChildCallbackTag>(std::forward<F>(f));
+    }
+
+    /**
+     * \brief Create a tagged callback for implementing Visitor::afterChild().
+     *
+     * This can be chained with an existing Visitor using operator|
+     */
+    template<class F>
+    auto afterChild(F&& f) {
+      return Detail::taggedCallback<Detail::AfterChildCallbackTag>(std::forward<F>(f));
+    }
+
+    /**
+     * \brief Create a default Visitor doing nothing.
+     *
+     * This creates a Visitor with the given traversal type that
+     * does nothing. The resulting Visitor can be easily extended
+     * by piping tagged callbacks obtained by pre(), post(), in(),
+     * leaf(), beforeChild(), afterChild() with operator|.
+     */
+    template<class TraversalType = DynamicTraversal>
+    auto makeVisitor() {
+      return Detail::NOPVisitor<TraversalType>{};
+    }
+
     //! \} group Tree Traversal
 
   } // namespace TypeTree
