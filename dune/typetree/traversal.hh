@@ -23,10 +23,18 @@ namespace Dune {
      *  \{
      */
 
+#ifndef DOXYGEN
+    /// A functor with no operation
+    struct NoOp
+    {
+      template <class... T>
+      constexpr void operator()(T&&...) const { /* do nothing */ }
+    };
+#endif
 
     namespace Detail {
 
-      // This is a constexpr version of the ternery operator c?t1:t1.
+      // This is a constexpr version of the ternary operator c?t1:t1.
       // In contrast to the latter the type of t1 and t2 can be different.
       // Notice that std::conditional would not do the trick, because
       // it only selects between types.
@@ -99,10 +107,6 @@ namespace Dune {
         std::enable_if_t<not std::decay_t<T>::isLeaf, int> = 0>
       void applyToTree(T&& tree, TreePath treePath, V&& visitor)
       {
-        // Do we really want to take care for const-ness of the Tree
-        // when instantiating VisitChild below? I'd rather expect this:
-        // using Tree = std::decay_t<T>;
-        // using Visitor = std::decay_t<V>;
         using Tree = std::remove_reference_t<T>;
         using Visitor = std::remove_reference_t<V>;
         visitor.pre(tree, treePath);
@@ -113,21 +117,20 @@ namespace Dune {
         auto degree = conditionalValue<useDynamicTraversal>(Tree::degree(), Dune::index_constant<Tree::degree()>{});
 
         auto indices = Dune::range(degree);
-        Dune::Hybrid::forEach(indices, [&](auto i) {
+        Hybrid::forEach(indices, [&](auto i) {
           auto childTreePath = Dune::TypeTree::push_back(treePath, i);
           auto&& child = tree.child(i);
           using Child = std::decay_t<decltype(child)>;
 
           visitor.beforeChild(tree, child, treePath, i);
 
-          // This requires that visiotor.in(...) can always be instantiated,
+          // This requires that visitor.in(...) can always be instantiated,
           // even if there's a single child only.
           if (i>0)
             visitor.in(tree, treePath);
           static const auto visitChild = Visitor::template VisitChild<Tree,Child,TreePath>::value;
-          Dune::Hybrid::ifElse(Dune::Std::bool_constant<visitChild>{}, [&] (auto id) {
+          if constexpr (visitChild)
             applyToTree(child, childTreePath, visitor);
-          });
 
           visitor.afterChild(tree, child, treePath, i);
         });
@@ -148,21 +151,26 @@ namespace Dune {
       void forEachNode(Tree&& tree, TreePath treePath, PreFunc&& preFunc, LeafFunc&& leafFunc, PostFunc&& postFunc)
       {
         using TreeType = std::decay_t<Tree>;
-        Dune::Hybrid::ifElse(Dune::Std::bool_constant<TreeType::isLeaf>{}, [&] (auto id) {
-          // If we have a leaf tree just visit it using the leaf function.
-          leafFunc(id(tree), treePath);
-        }, [&] (auto id) {
-          // Otherwise visit the tree with the pre function,
-          // visit all children using a static loop, and
-          // finally visit the tree with the post function.
-          preFunc(id(tree), treePath);
-          auto indices = std::make_index_sequence<TreeType::degree()>{};
-          Dune::Hybrid::forEach(indices, [&](auto i) {
-            auto childTreePath = Dune::TypeTree::push_back(treePath, i);
-            forEachNode(id(tree).child(i), childTreePath, preFunc, leafFunc, postFunc);
-          });
-          postFunc(id(tree), treePath);
-        });
+        if constexpr(TreeType::isLeaf) {
+          leafFunc(tree, treePath);
+        } else {
+          preFunc(tree, treePath);
+          if constexpr(TreeType::isPower) {
+            // Specialization for dynamic traversal
+            for (std::size_t i = 0; i < TreeType::degree(); ++i) {
+              auto childTreePath = Dune::TypeTree::push_back(treePath, i);
+              forEachNode(tree.child(i), childTreePath, preFunc, leafFunc, postFunc);
+            }
+          } else {
+            // Specialization for static traversal
+            auto indices = std::make_index_sequence<TreeType::degree()>{};
+            Hybrid::forEach(indices, [&](auto i) {
+              auto childTreePath = Dune::TypeTree::push_back(treePath, i);
+              forEachNode(tree.child(i), childTreePath, preFunc, leafFunc, postFunc);
+            });
+          }
+          postFunc(tree, treePath);
+        }
       }
 
     } // namespace Detail
@@ -242,8 +250,7 @@ namespace Dune {
     template<class Tree, class InnerFunc, class LeafFunc>
     void forEachNode(Tree&& tree, InnerFunc&& innerFunc, LeafFunc&& leafFunc)
     {
-      auto nop = [](auto&&... args) {};
-      forEachNode(tree, innerFunc, leafFunc, nop);
+      Detail::forEachNode(tree, hybridTreePath(), innerFunc, leafFunc, NoOp{});
     }
 
     /**
@@ -258,7 +265,7 @@ namespace Dune {
     template<class Tree, class NodeFunc>
     void forEachNode(Tree&& tree, NodeFunc&& nodeFunc)
     {
-      forEachNode(tree, nodeFunc, nodeFunc);
+      Detail::forEachNode(tree, hybridTreePath(), nodeFunc, nodeFunc, NoOp{});
     }
 
     /**
@@ -273,8 +280,7 @@ namespace Dune {
     template<class Tree, class LeafFunc>
     void forEachLeafNode(Tree&& tree, LeafFunc&& leafFunc)
     {
-      auto nop = [](auto&&... args) {};
-      forEachNode(tree, nop, leafFunc, nop);
+      Detail::forEachNode(tree, hybridTreePath(), NoOp{}, leafFunc, NoOp{});
     }
 
     //! \} group Tree Traversal
