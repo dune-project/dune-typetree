@@ -9,6 +9,7 @@
 #include <dune/typetree/nodetags.hh>
 #include <dune/common/shared_ptr.hh>
 #include <dune/common/indices.hh>
+#include <dune/common/std/type_traits.hh>
 
 namespace Dune {
   namespace TypeTree {
@@ -242,8 +243,13 @@ namespace Dune {
     class ProxyNode
       : public ProxyNodeBase<Node,NodeTag<Node>>
     {
-
       static const bool proxiedNodeIsConst = std::is_const<typename std::remove_reference<Node>::type>::value;
+
+      template <class N>
+      using HasStaticDegree = index_constant<N::degree()>;
+
+      template <class N>
+      static constexpr bool hasStaticDegree = Std::is_detected<HasStaticDegree, N>::value;
 
       // accessor mixins need to be friends for access to proxiedNode()
       friend class StaticChildAccessors<Node>;
@@ -267,9 +273,18 @@ namespace Dune {
       //! The number of children.
       static const std::size_t CHILDREN = StaticDegree<Node>::value;
 
-      static constexpr std::size_t degree ()
+      template <class N = Node,
+        std::enable_if_t<hasStaticDegree<N>, int> = 0>
+      static constexpr auto degree ()
       {
-        return StaticDegree<Node>::value;
+        return N::degree();
+      }
+
+      template <class N = Node,
+        std::enable_if_t<not hasStaticDegree<N>, int> = 0>
+      auto degree () const
+      {
+        return proxiedNode().degree();
       }
 
 

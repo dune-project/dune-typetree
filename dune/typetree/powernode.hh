@@ -9,6 +9,7 @@
 #include <memory>
 #include <type_traits>
 
+#include <dune/common/indices.hh>
 #include <dune/common/typetraits.hh>
 #include <dune/common/std/type_traits.hh>
 
@@ -63,9 +64,10 @@ namespace Dune {
       //! The number of children.
       static const std::size_t CHILDREN = k;
 
-      static constexpr std::size_t degree ()
+      //! Return the number of children as an integral constant
+      static constexpr auto degree ()
       {
-        return k;
+        return index_constant<k>{};
       }
 
       //! The type tag that describes a PowerNode.
