@@ -253,7 +253,7 @@ namespace Dune {
     template<class Tree, class PreFunc, class LeafFunc, class PostFunc>
     void forEachNode(Tree&& tree, PreFunc&& preFunc, LeafFunc&& leafFunc, PostFunc&& postFunc)
     {
-      forEachNode<StaticTraversal>(tree, preFunc, leafFunc, postFunc);
+      forEachNode<DynamicTraversal>(tree, preFunc, leafFunc, postFunc);
     }
 
     /**
