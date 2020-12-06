@@ -345,7 +345,7 @@ namespace Dune {
       };
 
       //! Use the static tree traversal algorithm.
-      DUNE_DEPRECATED static const TreePathType::Type treePathType = TreePathType::fullyStatic;
+      [[deprecated]] static const TreePathType::Type treePathType = TreePathType::fullyStatic;
     };
 
     //! Mixin base class for visitors that only need a dynamic TreePath during traversal.
@@ -373,7 +373,7 @@ namespace Dune {
       struct Strategy<Node,TreePath,void> : public Strategy<Node,Node,TreePath> {};
 
       //! Use the dynamic tree traversal algorithm.
-      DUNE_DEPRECATED static const TreePathType::Type treePathType = TreePathType::dynamic;
+      [[deprecated]] static const TreePathType::Type treePathType = TreePathType::dynamic;
     };
 
     //! Convenience base class for visiting the entire tree.
