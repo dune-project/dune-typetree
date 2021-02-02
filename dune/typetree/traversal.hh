@@ -118,7 +118,6 @@ namespace Dune {
 
         auto indices = Dune::range(degree);
         Hybrid::forEach(indices, [&](auto i) {
-          auto childTreePath = Dune::TypeTree::push_back(treePath, i);
           auto&& child = tree.child(i);
           using Child = std::decay_t<decltype(child)>;
 
@@ -129,8 +128,10 @@ namespace Dune {
           if (i>0)
             visitor.in(tree, treePath);
           static const auto visitChild = Visitor::template VisitChild<Tree,Child,TreePath>::value;
-          if constexpr (visitChild)
+          if constexpr (visitChild) {
+            auto childTreePath = Dune::TypeTree::push_back(treePath, i);
             applyToTree(child, childTreePath, visitor);
+          }
 
           visitor.afterChild(tree, child, treePath, i);
         });
