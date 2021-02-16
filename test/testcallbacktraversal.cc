@@ -126,9 +126,31 @@ auto powerNode(P&& p, C0&& c0, C&&... c)
 }
 
 
+template<class PreOp = Dune::TypeTree::NoOp, class PostOp = Dune::TypeTree::NoOp, class LeafOp = Dune::TypeTree::NoOp>
+struct GenericVisitor
+    : Dune::TypeTree::TreeVisitor
+    , Dune::TypeTree::DynamicTraversal
+{
+  GenericVisitor(PreOp const& preOp = {}, LeafOp const& leafOp = {}, PostOp const& postOp = {})
+    : preOp_(preOp)
+    , leafOp_(leafOp)
+    , postOp_(postOp)
+  {}
 
+  template<class Node, class TreePath>
+  void pre(Node&& node, TreePath tp) const { preOp_(node, tp); }
 
+  template<class Node, class TreePath>
+  void leaf(Node&& node, TreePath tp) const { leafOp_(node, tp); }
 
+  template<class Node, class TreePath>
+  void post(Node&& node, TreePath tp) const { postOp_(node, tp); }
+
+private:
+  PreOp preOp_;
+  LeafOp leafOp_;
+  PostOp postOp_;
+};
 
 
 int main()
@@ -159,11 +181,12 @@ int main()
   {
     std::size_t inner = 0;
     std::size_t leaf = 0;
-    forEachNode(tree, [&](auto&& node, auto&& path) {
+    applyToTree(tree, GenericVisitor{
+       [&](auto&& node, auto&& path) {
       ++inner;
     }, [&](auto&& node, auto&& path) {
       ++leaf;
-    });
+    }});
     test.check(inner==2)
       << "Counting inner nodes with forEachNode failed. Result is " << inner << " but should be " << 2;
     test.check(leaf==4)
@@ -183,7 +206,7 @@ int main()
     auto countVisit = [] (auto&& node, auto&& path) {
       ++(node.value());
     };
-    forEachNode(tree, countVisit, countVisit, countVisit);
+    applyToTree(tree, GenericVisitor{countVisit, countVisit, countVisit});
 
     std::size_t visits=0;
     forEachNode(tree, [&](auto&& node, auto&& path) {

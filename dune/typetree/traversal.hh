@@ -231,9 +231,11 @@ namespace Dune {
      * \param preFunc This function is called for each inner node before visiting its children
      * \param leafFunc This function is called for each leaf node
      * \param postFunc This function is called for each inner node after visiting its children
+     *
+     * \deprecated Use the more general \ref applyToTree instead.
      */
     template<class Tree, class PreFunc, class LeafFunc, class PostFunc>
-    void forEachNode(Tree&& tree, PreFunc&& preFunc, LeafFunc&& leafFunc, PostFunc&& postFunc)
+    [[deprecated]] void forEachNode(Tree&& tree, PreFunc&& preFunc, LeafFunc&& leafFunc, PostFunc&& postFunc)
     {
       Detail::forEachNode(tree, hybridTreePath(), preFunc, leafFunc, postFunc);
     }
@@ -247,9 +249,11 @@ namespace Dune {
      * \param tree The tree to traverse
      * \param innerFunc This function is called for each inner node before visiting its children
      * \param leafFunc This function is called for each leaf node
+     *
+     * \deprecated Use the more general \ref applyToTree instead.
      */
     template<class Tree, class InnerFunc, class LeafFunc>
-    void forEachNode(Tree&& tree, InnerFunc&& innerFunc, LeafFunc&& leafFunc)
+    [[deprecated]] void forEachNode(Tree&& tree, InnerFunc&& innerFunc, LeafFunc&& leafFunc)
     {
       Detail::forEachNode(tree, hybridTreePath(), innerFunc, leafFunc, NoOp{});
     }
