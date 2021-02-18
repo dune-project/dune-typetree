@@ -9,15 +9,28 @@
 #include <dune/common/test/testsuite.hh>
 
 
+struct NameVisitor
+  : public Dune::TypeTree::TreeVisitor
+  , public Dune::TypeTree::DynamicTraversal
+{
+  std::string s;
+
+  template<typename T, typename TreePath>
+  void pre(const T& node, TreePath) { s += node.name(); s += "<"; }
+
+  template<typename T, typename TreePath>
+  void leaf(const T& node, TreePath) { s += node.name(); s += ","; }
+
+  template<typename T, typename TreePath>
+  void post(const T& node, TreePath) { s += ">"; }
+};
+
 template<class Tree>
 std::string treeName(const Tree& tree)
 {
-  std::string s;
-  Dune::TypeTree::forEachNode(tree,
-      [&](auto&& node, auto&& path){ s += node.name(); s += "<"; },
-      [&](auto&& node, auto&& path){ s += node.name(); s += ","; },
-      [&](auto&& node, auto&& path){ s += ">"; });
-  return s;
+  NameVisitor nameVisitor;
+  Dune::TypeTree::applyToTree(tree, nameVisitor);
+  return nameVisitor.s;
 }
 
 template<class F>
