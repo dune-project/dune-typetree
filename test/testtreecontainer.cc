@@ -54,17 +54,15 @@ Dune::TestSuite checkTreeContainer(const Tree& tree, const Value& value)
 {
   Dune::TestSuite test(treeName(tree));
 
-  // contruct a container using a factory function
+  // construct a container using a factory function
   auto container = Dune::TypeTree::makeTreeContainer<Value>(tree);
 
-  // default construct a container
-  Dune::TypeTree::UniformTreeContainer<Value,Tree> container2{};
-
   // copy construct the container
+  auto container2{container};
   auto container3{container};
 
   // copy-assign the container
-  container3 = container;
+  container2 = container;
 
   // move-construct the container
   auto container4{std::move(container2)};
@@ -83,12 +81,40 @@ Dune::TestSuite checkTreeContainer(const Tree& tree, const Value& value)
         << "Value in tree container does not match assigned value";
     });
 
+  // default construct a container
+  decltype(container) container5{};
+  container5.resize(tree);
+
+  Dune::TypeTree::forEachLeafNode(tree, [&] (auto&& node, auto treePath) {
+      test.check(notThrown([&]() {
+        container5[treePath] = value;
+      })) << "Assigning desired value to tree container entry failed";
+    });
+
+  Dune::TypeTree::forEachLeafNode(tree, [&] (auto&& node, auto treePath) {
+      test.check(container5[treePath] == value)
+        << "Value in tree container does not match assigned value";
+    });
+
+
+  // default construct a container with size information from tree
+  decltype(container) container6{tree};
+
+  Dune::TypeTree::forEachLeafNode(tree, [&] (auto&& node, auto treePath) {
+      test.check(notThrown([&]() {
+        container6[treePath] = value;
+      })) << "Assigning desired value to tree container entry failed";
+    });
+
+  Dune::TypeTree::forEachLeafNode(tree, [&] (auto&& node, auto treePath) {
+      test.check(container6[treePath] == value)
+        << "Value in tree container does not match assigned value";
+    });
+
+
   // construct a matrix-like container
   auto matrix = Dune::TypeTree::makeTreeContainer(tree,
     [&](auto const&) { return Dune::TypeTree::makeTreeContainer<Value>(tree); });
-
-  // default construct matrix-like container
-  UniformTreeMatrix<Value,Tree> matrix2{};
 
   Dune::TypeTree::forEachLeafNode(tree, [&] (auto&& rowNode, auto rowTreePath) {
     Dune::TypeTree::forEachLeafNode(tree, [&] (auto&& colNode, auto colTreePath) {

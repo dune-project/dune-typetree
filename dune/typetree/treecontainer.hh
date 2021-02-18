@@ -10,6 +10,8 @@
 #include <array>
 
 #include <dune/common/indices.hh>
+#include <dune/common/hybridutilities.hh>
+#include <dune/common/rangeutilities.hh>
 #include <dune/common/tuplevector.hh>
 
 #include <dune/typetree/treepath.hh>
@@ -33,6 +35,15 @@ namespace Dune {
       template<class LeafToValue>
       class ContainerFactory
       {
+        template<class N>
+        using DynamicDegreeConcept = decltype((std::size_t(std::declval<N>().degree()), true));
+
+        template<class N>
+        using StaticDegreeConcept = decltype((std::integral_constant<std::size_t, N::degree()>{}, true));
+
+        template<class N>
+        using DynamicChildAccessConcept = decltype((std::declval<N>().child(0u), true));
+
       public:
 
         /**
@@ -46,28 +57,51 @@ namespace Dune {
           leafToValue_(leafToValue)
         {}
 
-        template<class Node,
-          std::enable_if_t<Node::isLeaf, int> = 0>
+        template<class Node>
         auto operator()(const Node& node)
+        {
+          return (*this)(node, Dune::PriorityTag<5>{});
+        }
+
+      private:
+
+        template<class Node,
+          std::enable_if_t<Node::isLeaf, bool> = true>
+        auto operator()(const Node& node, Dune::PriorityTag<4>)
         {
           return leafToValue_(node);
         }
 
         template<class Node,
-          std::enable_if_t<Node::isPower, int> = 0>
-        auto operator()(const Node& node)
+          StaticDegreeConcept<Node> = true,
+          DynamicChildAccessConcept<Node> = true>
+        auto operator()(const Node& node, Dune::PriorityTag<3>)
         {
-          using TransformedChild = decltype((*this)(node.child(0)));
-          return std::array<TransformedChild, Node::degree()>();
+          return Dune::unpackIntegerSequence([&](auto... indices) {
+              return std::array{(*this)(node.child(indices))...};
+            }, std::make_index_sequence<std::size_t(Node::degree())>());
         }
 
         template<class Node,
-          std::enable_if_t<Node::isComposite, int> = 0>
-        auto operator()(const Node& node)
+          DynamicDegreeConcept<Node> = true,
+          DynamicChildAccessConcept<Node> = true>
+        auto operator()(const Node& node, Dune::PriorityTag<2>)
+        {
+          using TransformedChild = decltype((*this)(node.child(0)));
+          std::vector<TransformedChild> container;
+          container.reserve(node.degree());
+          for (std::size_t i = 0; i < node.degree(); ++i)
+            container.emplace_back((*this)(node.child(i)));
+          return container;
+        }
+
+        template<class Node,
+          StaticDegreeConcept<Node> = true>
+        auto operator()(const Node& node, Dune::PriorityTag<1>)
         {
           return Dune::unpackIntegerSequence([&](auto... indices) {
               return Dune::makeTupleVector((*this)(node.child(indices))...);
-            }, std::make_index_sequence<Node::degree()>());
+            }, std::make_index_sequence<std::size_t(Node::degree())>());
         }
 
       private:
@@ -97,15 +131,58 @@ namespace Dune {
           return accessByTreePath(container[head], tailPath);
         }
 
-      public:
-        //! Default constructor for the tree-container
-        TreeContainerVectorBackend() :
-          container_()
-        {}
+        template<class C, class Tree,
+          std::enable_if_t<Tree::isLeaf, bool> = true>
+        static void resizeImpl(C& /*container*/, const Tree& /*tree*/, Dune::PriorityTag<2>)
+        {
+          /* do nothing */
+        }
 
+        template<class C, class Tree,
+          class = decltype(std::declval<C>().resize(0u))>
+        static void resizeImpl(C& container, const Tree& tree, Dune::PriorityTag<1>)
+        {
+          container.resize(tree.degree());
+          Dune::Hybrid::forEach(Dune::range(tree.degree()), [&](auto i) {
+            resizeImpl(container[i], tree.child(i), Dune::PriorityTag<5>{});
+          });
+        }
+
+        template<class C, class Tree>
+        static void resizeImpl(C& container, const Tree& tree, Dune::PriorityTag<0>)
+        {
+          Dune::Hybrid::forEach(Dune::range(tree.degree()), [&](auto i) {
+            resizeImpl(container[i], tree.child(i), Dune::PriorityTag<5>{});
+          });
+        }
+
+        template<class T>
+        using TypeTreeConcept = decltype((
+          std::declval<T>().degree(),
+          T::isLeaf,
+          T::isPower,
+          T::isComposite,
+        true));
+
+      public:
         //! Move the passed container into the internal storage
         TreeContainerVectorBackend(Container&& container) :
           container_(std::move(container))
+        {}
+
+        //! Default construct the container and perform a resize depending on the tree-node degrees.
+        template <class Tree, TypeTreeConcept<Tree> = true>
+        TreeContainerVectorBackend(const Tree& tree) :
+          TreeContainerVectorBackend()
+        {
+          this->resize(tree);
+        }
+
+        //! Default constructor. The stored container might need to be resized before usage.
+        template <class C = Container,
+          std::enable_if_t<std::is_default_constructible_v<C>, bool> = true>
+        TreeContainerVectorBackend() :
+          container_()
         {}
 
         template<class... T>
@@ -118,6 +195,13 @@ namespace Dune {
         decltype(auto) operator[](const HybridTreePath<T...>&  path)
         {
           return accessByTreePath(container_, path);
+        }
+
+        //! Resize the (nested) container depending on the degree of the tree nodes
+        template<class Tree, TypeTreeConcept<Tree> = true>
+        void resize(const Tree& tree)
+        {
+          resizeImpl(container_, tree, Dune::PriorityTag<5>{});
         }
 
         const Container& data() const
