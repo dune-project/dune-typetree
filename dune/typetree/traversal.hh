@@ -33,7 +33,7 @@ namespace Dune {
 
     namespace Detail {
 
-      // SFINAE template check that Tree has a child() function accepting integer indices
+      // SFINAE template check that Tree has a degree() function and a child() function accepting integer indices
       template<class Tree>
       using DynamicTraversalConcept = decltype((
         std::declval<Tree>().degree(),
@@ -43,8 +43,7 @@ namespace Dune {
       // SFINAE template check that Tree has static (constexpr) function Tree::degree()
       template<class Tree>
       using StaticTraversalConcept = decltype((
-        std::integral_constant<std::size_t, Tree::degree()>{},
-        std::declval<Tree>().child(std::integral_constant<std::size_t, 0u>{})
+        std::integral_constant<std::size_t, Tree::degree()>{}
       ));
 
 
@@ -117,17 +116,15 @@ namespace Dune {
         static_assert(allowDynamicTraversal::value || allowStaticTraversal::value);
 
         // the visitor may specify preferred dynamic traversal
-        using preferDynamicTraversal = std::bool_constant<Visitor::treePathType == TreePathType::dynamic>;
+        using preferDynamicTraversal
+          = std::bool_constant<Visitor::treePathType == TreePathType::dynamic || !allowStaticTraversal::value>;
 
         // create a dynamic or static index range
         auto indices = [&]{
-          if constexpr((preferDynamicTraversal::value || !allowStaticTraversal::value)
-                      && allowDynamicTraversal::value)
+          if constexpr(preferDynamicTraversal::value && allowDynamicTraversal::value)
             return Dune::range(std::size_t(tree.degree()));
-          else if constexpr(allowStaticTraversal::value)
-            return std::make_index_sequence<Tree::degree()>{};
           else
-            return std::make_index_sequence<0>{}; // fallback implementation
+            return std::make_index_sequence<Tree::degree()>{};
         }();
 
         if constexpr(allowDynamicTraversal::value || allowStaticTraversal::value) {
