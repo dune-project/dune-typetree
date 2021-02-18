@@ -69,15 +69,14 @@ namespace Dune {
         static_assert(allowDynamicTraversal::value || allowStaticTraversal::value);
 
         // the visitor may specify preferred dynamic traversal
-        using preferDynamicTraversal
-          = std::bool_constant<Visitor::treePathType == TreePathType::dynamic || !allowStaticTraversal::value>;
+        using preferDynamicTraversal = std::bool_constant<Visitor::treePathType == TreePathType::dynamic>;
 
         // create a dynamic or static index range
         auto indices = [&]{
           if constexpr(preferDynamicTraversal::value && allowDynamicTraversal::value)
             return Dune::range(std::size_t(tree1.degree()));
           else
-            return std::make_index_sequence<Tree1::degree()>{};
+            return Dune::range(tree1.degree());
         }();
 
         if constexpr(allowDynamicTraversal::value || allowStaticTraversal::value) {

@@ -6,6 +6,7 @@
 
 #include <dune/typetree/nodetags.hh>
 #include <cstddef>
+#include <type_traits>
 
 namespace Dune {
   namespace TypeTree {
@@ -41,9 +42,9 @@ namespace Dune {
       //! The type tag that describes a LeafNode.
       typedef LeafNodeTag NodeTag;
 
-      static constexpr std::size_t degree()
+      static constexpr auto degree()
       {
-        return 0;
+        return std::integral_constant<std::size_t,0>{};
       }
 
     protected:
