@@ -163,6 +163,36 @@ struct SimpleComposite
 
 };
 
+struct SimpleDynamicPowerTag {};
+
+template<typename T>
+struct SimpleDynamicPower
+  : public Dune::TypeTree::DynamicPowerNode<T>
+  , public Counter
+{
+
+  typedef SimpleDynamicPowerTag ImplementationTag;
+
+  static const char* name()
+  {
+    return "SimpleDynamicPower";
+  }
+
+  typedef Dune::TypeTree::DynamicPowerNode<T> BaseT;
+
+  SimpleDynamicPower() {}
+
+  SimpleDynamicPower(T& c, bool copy)
+    : BaseT(c,copy)
+  {}
+
+  template<typename C1, typename C2, typename... Children>
+  SimpleDynamicPower(C1&& c1, C2&& c2, Children&&... children)
+    : BaseT(std::forward<C1>(c1),std::forward<C2>(c2),std::forward<Children>(children)...)
+  {}
+
+};
+
 
 struct TreePrinter
   : public Dune::TypeTree::TreeVisitor
