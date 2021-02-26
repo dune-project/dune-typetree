@@ -4,6 +4,7 @@ Changes
 TypeTree 2.8-git
 ----------------
 
+-   Allow tree traversal for nodes with runtime degree that are not necessarily power nodes.
 -   The `forEachNode()` traversal function with multiple callbacks is deprecated. Use the
     more general `applyToTree()` instead.
 -   Removed the type aliases for the storage type `Storage` and `ConstStorage` in the

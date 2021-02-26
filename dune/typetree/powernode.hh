@@ -63,9 +63,9 @@ namespace Dune {
       //! The number of children.
       static const std::size_t CHILDREN = k;
 
-      static constexpr std::size_t degree ()
+      static constexpr auto degree ()
       {
-        return k;
+        return std::integral_constant<std::size_t,k>{};
       }
 
       //! The type tag that describes a PowerNode.

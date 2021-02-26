@@ -115,9 +115,9 @@ namespace Dune {
       //! The number of children.
       static const std::size_t CHILDREN = filter_result::size;
 
-      static constexpr std::size_t degree ()
+      static constexpr auto degree ()
       {
-        return filter_result::size;
+        return std::integral_constant<std::size_t,filter_result::size>{};
       }
 
       //! Access to the type and storage type of the i-th child.

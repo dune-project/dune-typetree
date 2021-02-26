@@ -6,6 +6,7 @@
 
 #include <tuple>
 #include <memory>
+#include <type_traits>
 
 #include <dune/typetree/nodetags.hh>
 #include <dune/typetree/childextraction.hh>
@@ -47,9 +48,9 @@ namespace Dune {
       //! The number of children.
       static const std::size_t CHILDREN = sizeof...(Children);
 
-      static constexpr std::size_t degree ()
+      static constexpr auto degree ()
       {
-        return sizeof...(Children);
+        return std::integral_constant<std::size_t,sizeof...(Children)>{};
       }
 
       //! Access to the type and storage type of the i-th child.

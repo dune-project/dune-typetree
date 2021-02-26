@@ -6,9 +6,8 @@
 
 #include <utility>
 
-#include <dune/common/std/type_traits.hh>
-#include <dune/common/std/type_traits.hh>
 #include <dune/common/hybridutilities.hh>
+#include <dune/common/std/type_traits.hh>
 
 #include <dune/typetree/childextraction.hh>
 #include <dune/typetree/nodetags.hh>
@@ -27,28 +26,26 @@ namespace Dune {
     /// A functor with no operation
     struct NoOp
     {
-      template <class... T>
+      template<class... T>
       constexpr void operator()(T&&...) const { /* do nothing */ }
     };
 #endif
 
     namespace Detail {
 
-      // This is a constexpr version of the ternary operator c?t1:t1.
-      // In contrast to the latter the type of t1 and t2 can be different.
-      // Notice that std::conditional would not do the trick, because
-      // it only selects between types.
-      template<bool c, class T1, class T2,
-        std::enable_if_t<c, int> = 0>
-      constexpr auto conditionalValue(T1&& t1, T2&& t2) {
-        return std::forward<T1>(t1);
-      }
+      // SFINAE template check that Tree has a degree() function and a child() function accepting integer indices
+      template<class Tree>
+      using DynamicTraversalConcept = decltype((
+        std::declval<Tree>().degree(),
+        std::declval<Tree>().child(0u)
+      ));
 
-      template<bool c, class T1, class T2,
-        std::enable_if_t<not c, int> = 0>
-      constexpr auto conditionalValue(T1&& t1, T2&& t2) {
-        return std::forward<T2>(t2);
-      }
+      // SFINAE template check that Tree has static (constexpr) function Tree::degree()
+      template<class Tree>
+      using StaticTraversalConcept = decltype((
+        std::integral_constant<std::size_t, Tree::degree()>{}
+      ));
+
 
       template<class Tree, TreePathType::Type pathType, class Prefix,
         std::enable_if_t<Tree::isLeaf, int> = 0>
@@ -111,34 +108,47 @@ namespace Dune {
         using Visitor = std::remove_reference_t<V>;
         visitor.pre(tree, treePath);
 
-        // Use statically encoded degree unless tree
-        // is a power node and dynamic traversal is requested.
-        constexpr auto useDynamicTraversal = (Tree::isPower and Visitor::treePathType==TreePathType::dynamic);
-        auto degree = conditionalValue<useDynamicTraversal>(Tree::degree(), Dune::index_constant<Tree::degree()>{});
+        // check which type of traversal is supported by the tree
+        using allowDynamicTraversal = Dune::Std::is_detected<DynamicTraversalConcept,Tree>;
+        using allowStaticTraversal = Dune::Std::is_detected<StaticTraversalConcept,Tree>;
 
-        auto indices = Dune::range(degree);
-        Hybrid::forEach(indices, [&](auto i) {
-          auto&& child = tree.child(i);
-          using Child = std::decay_t<decltype(child)>;
+        // the tree must support either dynamic or static traversal
+        static_assert(allowDynamicTraversal::value || allowStaticTraversal::value);
 
-          visitor.beforeChild(tree, child, treePath, i);
+        // the visitor may specify preferred dynamic traversal
+        using preferDynamicTraversal = std::bool_constant<Visitor::treePathType == TreePathType::dynamic>;
 
-          // This requires that visitor.in(...) can always be instantiated,
-          // even if there's a single child only.
-          if (i>0)
-            visitor.in(tree, treePath);
-          static const auto visitChild = Visitor::template VisitChild<Tree,Child,TreePath>::value;
-          if constexpr (visitChild) {
-            auto childTreePath = Dune::TypeTree::push_back(treePath, i);
-            applyToTree(child, childTreePath, visitor);
-          }
+        // create a dynamic or static index range
+        auto indices = [&]{
+          if constexpr(preferDynamicTraversal::value && allowDynamicTraversal::value)
+            return Dune::range(std::size_t(tree.degree()));
+          else
+            return Dune::range(tree.degree());
+        }();
 
-          visitor.afterChild(tree, child, treePath, i);
-        });
+        if constexpr(allowDynamicTraversal::value || allowStaticTraversal::value) {
+          Hybrid::forEach(indices, [&](auto i) {
+            auto&& child = tree.child(i);
+            using Child = std::decay_t<decltype(child)>;
+
+            visitor.beforeChild(tree, child, treePath, i);
+
+            // This requires that visitor.in(...) can always be instantiated,
+            // even if there's a single child only.
+            if (i>0)
+              visitor.in(tree, treePath);
+
+            constexpr bool visitChild = Visitor::template VisitChild<Tree,Child,TreePath>::value;
+            if constexpr(visitChild) {
+              auto childTreePath = Dune::TypeTree::push_back(treePath, i);
+              applyToTree(child, childTreePath, visitor);
+            }
+
+            visitor.afterChild(tree, child, treePath, i);
+          });
+        }
         visitor.post(tree, treePath);
       }
-
-
 
       /* Traverse tree and visit each node. The signature is the same
        * as for the public forEachNode function in Dune::Typtree,
@@ -148,23 +158,31 @@ namespace Dune {
        * Hence the behavior of the public function is resembled
        * by passing an empty treePath.
        */
-      template<class Tree, class TreePath, class PreFunc, class LeafFunc, class PostFunc>
-      void forEachNode(Tree&& tree, TreePath treePath, PreFunc&& preFunc, LeafFunc&& leafFunc, PostFunc&& postFunc)
+      template<class T, class TreePath, class PreFunc, class LeafFunc, class PostFunc>
+      void forEachNode(T&& tree, TreePath treePath, PreFunc&& preFunc, LeafFunc&& leafFunc, PostFunc&& postFunc)
       {
-        using TreeType = std::decay_t<Tree>;
-        if constexpr(TreeType::isLeaf) {
+        using Tree = std::decay_t<T>;
+        if constexpr(Tree::isLeaf) {
           leafFunc(tree, treePath);
         } else {
           preFunc(tree, treePath);
-          if constexpr(TreeType::isPower) {
+
+          // check which type of traversal is supported by the tree, prefer dynamic traversal
+          using allowDynamicTraversal = Dune::Std::is_detected<DynamicTraversalConcept,Tree>;
+          using allowStaticTraversal = Dune::Std::is_detected<StaticTraversalConcept,Tree>;
+
+          // the tree must support either dynamic or static traversal
+          static_assert(allowDynamicTraversal::value || allowStaticTraversal::value);
+
+          if constexpr(allowDynamicTraversal::value) {
             // Specialization for dynamic traversal
-            for (std::size_t i = 0; i < TreeType::degree(); ++i) {
+            for (std::size_t i = 0; i < tree.degree(); ++i) {
               auto childTreePath = Dune::TypeTree::push_back(treePath, i);
               forEachNode(tree.child(i), childTreePath, preFunc, leafFunc, postFunc);
             }
-          } else {
+          } else if constexpr(allowStaticTraversal::value) {
             // Specialization for static traversal
-            auto indices = std::make_index_sequence<TreeType::degree()>{};
+            auto indices = std::make_index_sequence<Tree::degree()>{};
             Hybrid::forEach(indices, [&](auto i) {
               auto childTreePath = Dune::TypeTree::push_back(treePath, i);
               forEachNode(tree.child(i), childTreePath, preFunc, leafFunc, postFunc);
