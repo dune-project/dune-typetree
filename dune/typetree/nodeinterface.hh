@@ -39,7 +39,11 @@ namespace Dune {
       //! Whether this is a composite node in the \ref TypeTree.
       static const bool isComposite = implementationDefined;
 
-      //! Number of children of this node in the \ref TypeTree
+      //! Number of children of this node in the \ref TypeTree.
+      /**
+       * \note Might not be implemented for nodes with dynamic size.
+       * Use the function `node.degree()` or `degree(node)` instead.
+       */
       static const std::size_t CHILDREN = implementationDefined;
 
       //! The type tag that describes what kind of node this is
@@ -83,26 +87,20 @@ namespace Dune {
      * constexpr).
      */
     template<typename Node, typename NodeTag>
-    constexpr std::size_t degree(const Node* node, NodeTag)
+    std::size_t degree(const Node* node, NodeTag)
     {
-      return Node::degree();
+      return node->degree();
     }
 
 #endif // DOXYGEN
 
     //! Returns the statically known degree of the given Node type as a std::integral_constant.
     /**
-     * \note If you are only interested in the numeric value, take a look at staticDegree<Node>
-     *       instead.
+     * \note If a node has a static number of children, it returns directly the degree as
+     * integral-constant.
      */
     template<typename Node>
-    using StaticDegree = std::integral_constant<
-      std::size_t,
-      degree(
-        static_cast<std::decay_t<Node>*>(nullptr),
-        NodeTag<std::decay_t<Node>>()
-        )
-      >;
+    using StaticDegree = decltype(Node::degree());
 
     //! \} group Nodes
 
