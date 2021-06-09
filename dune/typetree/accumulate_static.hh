@@ -589,14 +589,14 @@ namespace Dune {
         auto pre_val = visitor.pre(tree, treePath, std::forward<U>(current_val));
 
         // check which type of traversal is supported by the tree
-        auto allowDynamicTraversal = Dune::Std::is_detected<Detail::DynamicTraversalConcept,Tree>{};
-        auto allowStaticTraversal = Dune::Std::is_detected<Detail::StaticTraversalConcept,Tree>{};
+        using allowDynamicTraversal = Dune::Std::is_detected<Detail::DynamicTraversalConcept,Tree>;
+        using allowStaticTraversal = Dune::Std::is_detected<Detail::StaticTraversalConcept,Tree>;
 
         // the tree must support either dynamic or static traversal
-        static_assert(allowDynamicTraversal || allowStaticTraversal);
+        static_assert(allowDynamicTraversal::value || allowStaticTraversal::value);
 
         // the visitor may specify preferred dynamic traversal
-        auto preferDynamicTraversal = std::bool_constant<Visitor::treePathType == TreePathType::dynamic>{};
+        using preferDynamicTraversal = std::bool_constant<Visitor::treePathType == TreePathType::dynamic>;
 
         // rule that applies visitor and current value to a child i and returns next value
         auto apply_i = [&](auto&& value, const auto& i){
@@ -626,7 +626,7 @@ namespace Dune {
         };
 
         auto in_val = [&](){
-          if constexpr (allowStaticTraversal && not preferDynamicTraversal) {
+          if constexpr (allowStaticTraversal::value && not preferDynamicTraversal::value) {
             // get list of static indices
             auto indices = std::make_index_sequence<Tree::degree()>{};
 
