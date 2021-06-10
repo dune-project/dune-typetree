@@ -570,6 +570,53 @@ namespace Dune {
 
     namespace Detail {
 
+    /**
+     * @brief Add pipe operator to a binary operator
+     * @details This function allows to pipe the result of one evaluation of a
+     *          binary operator into the next evaluation.
+     *
+     * @code {.c++}
+     *   auto p = std::plus<>{};
+     *   auto result_a = p(p(p(0,1),2),3)
+     *   auto result_b = (Pipe{std::move(p),0} | 1 | 2 | 3).value;
+     * @endcode
+     *
+     * This is in particular helpful to apply parameter packs in a given order
+     * by using c++17 fold expressions.
+     *
+     * @code {.c++}
+     *  // this makes a compile time accumulation of the index sequence
+     *  auto indices = std::make_index_sequence<10>{};
+     *  auto result = unpackIntegerSequence([&](auto... i) {
+     *     return (Pipe{std::plus<std::size_t>{},0} | ... | i).value;
+     *   }, indices);
+     * @endcode
+     *
+     *
+     * @tparam BinaryOp  A binary operator
+     * @tparam Init      Initial (left-most) value of the fold
+     */
+    template<class BinaryOp, class Init>
+      struct Pipe {
+
+        constexpr Pipe(BinaryOp&& op, Init&& val)
+          : value{std::move(val)}
+          , _op{std::move(op)}
+        {}
+
+        template<class Arg>
+        constexpr auto operator|(Arg&& arg)
+        {
+          auto result = _op(std::move(value),std::forward<Arg>(arg));
+          using Result = std::remove_reference_t<decltype(result)>;
+          return Pipe<BinaryOp,Result>{std::move(_op),std::move(result)};
+        }
+
+        Init value;
+        BinaryOp _op;
+      };
+
+
       template<class T, class TreePath, class V, class U,
         std::enable_if_t<std::decay_t<T>::isLeaf, int> = 0>
       auto accumulateToTree(T&& tree, TreePath treePath, V&& visitor, U&& current_val)
@@ -630,20 +677,35 @@ namespace Dune {
             // get list of static indices
             auto indices = std::make_index_sequence<Tree::degree()>{};
 
-            // apply static index to each child and forward result to next apply
-            auto f_unpack = [&](auto&&... args){
-              // this chains results of apply_i from left to right
-              // auto val_0 = apply_i(pre_val, 0);
-              // auto val_1 = apply_i(val_0,   1);
-              // auto val_2 = apply_i(val_1,   2);
-              return left_fold(apply_i, std::move(pre_val), args...);
-            };
-            auto f_pack = [](auto i){return i;}; // identity
-            return unpack(indices, f_pack, f_unpack);
+            // unfold apply_i left to right
+            return unpackIntegerSequence([&](auto... i) {
+              /**
+               * This one-line is hard to digest:
+               * * We need to call apply_i(pre_val,i) and pipe the result
+               *   into the next call of apply_i on the next i. Such result may
+               *   have any type so a simple loop or `Hybrid::forEach` does not
+               *   do the trick.
+               * * The Pipe object provides `apply_i` with a operator `|`
+               *   which will evaluate the current carried value with
+               *   the left hand side of the operator (in this case the index we
+               *   want to access). The result will be wrapped again in a Pipe
+               *   so that successive applications of `|` are possible.
+               * * So, this line essentialy becomes `pre_val (apply_i) ... (apply_i) i`
+               *   where the *binary operator* `apply_i` is unfolded from left
+               *   to right according to c++17 fold expression rules.
+               * * The direction of the fold here is important because it will
+               *   evaluate indices from 0 to (degree-1).
+               */
+              using PreVal = std::remove_reference_t<decltype(pre_val)>;
+              using ApplyI = std::remove_reference_t<decltype(apply_i)>;
+              using Op = Pipe<ApplyI,PreVal>;
+              return (Op{std::move(apply_i),std::move(pre_val)} | ... | i).value;
+            }, indices);
+
           } else {
             // unfold first child to get type
             auto i_val = apply_i(std::move(pre_val),std::size_t{0});
-            // dynamically loop rest of the childs to accumulate remindng values
+            // dynamically loop rest of the children to accumulate remindng values
             for(std::size_t i = 1; i < tree.degree(); i++)
               i_val = apply_i(i_val,i);
             return i_val;

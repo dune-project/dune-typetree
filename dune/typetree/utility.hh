@@ -53,34 +53,6 @@ namespace Dune {
       return std::make_shared<T>(std::forward<T>(t));
     }
 
-    template<class BinaryOp, class Arg>
-    constexpr decltype(auto)
-    left_fold(BinaryOp&&, Arg&& arg)
-    {
-      return std::forward<Arg>(arg);
-    }
-
-    template<class FApply, class FPack, template<class T,T...> class IntegerSequence, class T, T... I>
-    constexpr decltype(auto)
-    unpack(IntegerSequence<T,I...>, FApply&& f_apply, FPack&& f_pack)
-    {
-      return f_pack(f_apply(std::integral_constant<T, I>{})...);
-    }
-
-    // C++17:   (init op ... op pack);
-    // here:    left_fold(op, init, pack...);
-    // op is a binary operator. Left argument are operated first
-    template<class BinaryOp, class Init, class Arg0, class... Args>
-    constexpr decltype(auto)
-    left_fold(BinaryOp&& binary_op, Init&& init, Arg0&& arg_0, Args&&... args)
-    {
-      return left_fold(
-        std::forward<BinaryOp>(binary_op),
-        binary_op(std::forward<Init>(init), std::forward<Arg0>(arg_0)),
-        std::forward<Args>(args)...);
-    }
-
-
     namespace Hybrid {
       using namespace Dune::Hybrid;
 
