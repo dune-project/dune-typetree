@@ -577,8 +577,9 @@ namespace Dune {
      *
      * @code {.c++}
      *   auto p = std::plus<>{};
-     *   auto result_a = p(p(p(0,1),2),3)
+     *   auto result_a = p(p(p(0,1),2),3);
      *   auto result_b = (Pipe{std::move(p),0} | 1 | 2 | 3).value;
+     * // result_a is same as result_b
      * @endcode
      *
      * This is in particular helpful to apply parameter packs in a given order
@@ -634,6 +635,7 @@ namespace Dune {
         using Tree = std::remove_reference_t<T>;
         using Visitor = std::remove_reference_t<V>;
         auto pre_val = visitor.pre(tree, treePath, std::forward<U>(current_val));
+        using PreVal = std::remove_reference_t<decltype(pre_val)>;
 
         // check which type of traversal is supported by the tree
         using allowDynamicTraversal = Dune::Std::is_detected<Detail::DynamicTraversalConcept,Tree>;
@@ -671,6 +673,8 @@ namespace Dune {
 
           return visitor.afterChild(tree, child, treePath, i, std::move(val_visit));
         };
+        using ApplyI = std::remove_reference_t<decltype(apply_i)>;
+        using Op = Pipe<ApplyI,PreVal>;
 
         auto in_val = [&](){
           if constexpr (allowStaticTraversal::value && not preferDynamicTraversal::value) {
@@ -696,9 +700,6 @@ namespace Dune {
                * * The direction of the fold here is important because it will
                *   evaluate indices from 0 to (degree-1).
                */
-              using PreVal = std::remove_reference_t<decltype(pre_val)>;
-              using ApplyI = std::remove_reference_t<decltype(apply_i)>;
-              using Op = Pipe<ApplyI,PreVal>;
               return (Op{std::move(apply_i),std::move(pre_val)} | ... | i).value;
             }, indices);
 
