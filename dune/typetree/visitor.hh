@@ -422,30 +422,40 @@ namespace Dune {
       }
     };
 
-   //! The depth of the TypeTree.
-    template<typename Tree>
-    auto depth(const Tree& tree)
-    {
-      return accumulateToTree(tree,DepthVisitor{},Indices::_0);
+    namespace Info {
+
+    //! The depth of the TypeTree.
+      template<typename Tree>
+      auto depth(const Tree& tree)
+      {
+        return accumulateToTree(tree,DepthVisitor{},Indices::_0);
+      }
+
+      //! The depth of the TypeTree.
+      template<typename Tree>
+      constexpr auto depth()
+      {
+        return decltype(accumulateToTree(std::declval<Tree>(),DepthVisitor{},Indices::_0)){};
+      }
+
+      //! The total number of nodes in the TypeTree.
+      template<typename Tree>
+      auto nodeCount(const Tree& tree)
+      {
+        return accumulateToTree(tree,NodeCounterVisitor{},Indices::_0);
+      }
+
+      //! The number of leaf nodes in the TypeTree.
+      template<typename Tree>
+      auto leafCount(const Tree& tree)
+      {
+        return accumulateToTree(tree,LeafCounterVisitor{},Dune::Indices::_0);
+      }
+
+      template<typename Tree>
+      constexpr bool isDynamic = std::is_same<std::size_t, decltype(leafCount(std::declval<Tree>()))>{};
+
     }
-
-    //! The total number of nodes in the TypeTree.
-    template<typename Tree>
-    auto nodeCount(const Tree& tree)
-    {
-      return accumulateToTree(tree,NodeCounterVisitor{},Indices::_0);
-    }
-
-    //! The number of leaf nodes in the TypeTree.
-    template<typename Tree>
-    auto leafCount(const Tree& tree)
-    {
-      return accumulateToTree(tree,LeafCounterVisitor{},Dune::Indices::_0);
-    }
-
-    template<typename Tree>
-    constexpr bool isDynamic = std::is_same<std::size_t, decltype(leafCount(std::declval<Tree>()))>{};
-
     //! \} group Tree Traversal
 
   } // namespace TypeTree

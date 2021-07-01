@@ -59,9 +59,9 @@ void testFilteredCompositeNode(Node& node, Filter filter)
   typedef SimpleFilteredNode<Node,Filter> FN;
   FN filteredNode(node);
   Dune::TypeTree::applyToTree(filteredNode,TreePrinter());
-  std::cout << "depth: " << Dune::TypeTree::depth(filteredNode) << std::endl
-            << "nodes: " << Dune::TypeTree::nodeCount(filteredNode) << std::endl
-            << "leafs: " << Dune::TypeTree::leafCount(filteredNode) << std::endl;
+  std::cout << "depth: " << Dune::TypeTree::Info::depth(filteredNode) << std::endl
+            << "nodes: " << Dune::TypeTree::Info::nodeCount(filteredNode) << std::endl
+            << "leafs: " << Dune::TypeTree::Info::leafCount(filteredNode) << std::endl;
 
   typedef Dune::TypeTree::TransformTree<FN,TestTransformation> Transformation;
 
@@ -69,7 +69,7 @@ void testFilteredCompositeNode(Node& node, Filter filter)
 
   TFN tfn = Transformation::transform(filteredNode);
 
-  using namespace Dune::TypeTree;
+  using namespace Dune::TypeTree::Info;
 
   static_assert(decltype(depth(filteredNode)){} == decltype(depth(tfn)){}, "error in transformation with filtered node");
   static_assert(decltype(nodeCount(filteredNode)){} == decltype(nodeCount(tfn)){}, "error in transformation with filtered node");

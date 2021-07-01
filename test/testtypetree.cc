@@ -20,27 +20,30 @@ void check(const Tree& tree)
 {
   std::cout << "==================================" << std::endl
             << "class: " << Dune::className<Tree>() << std::endl
-            << "dynamic: " << Dune::TypeTree::isDynamic<Tree> << std::endl
-            << "depth: " << Dune::TypeTree::depth(tree) << std::endl
-            << "nodes: " << Dune::TypeTree::nodeCount(tree) << std::endl
-            << "leafs: " << Dune::TypeTree::leafCount(tree) << std::endl;
+            << "dynamic: " << Dune::TypeTree::Info::isDynamic<Tree> << std::endl
+            << "depth: " << Dune::TypeTree::Info::depth(tree) << std::endl
+            << "nodes: " << Dune::TypeTree::Info::nodeCount(tree) << std::endl
+            << "leafs: " << Dune::TypeTree::Info::leafCount(tree) << std::endl;
+
+  if constexpr (Dune::TypeTree::Info::isDynamic<Tree>)
+    static_assert(Dune::Std::is_detected<Dune::TypeTree::Detail::DynamicTraversalConcept,Tree>{});
 
   TreePrinter treePrinter;
   Dune::TypeTree::applyToTree(tree,treePrinter);
 
-  static_assert((decltype(Dune::TypeTree::depth(tree)){} == depth),
+  static_assert((decltype(Dune::TypeTree::Info::depth(tree)){} == depth),
                 "TreeInfo yields wrong information");
 
-  assert(leafCount == Dune::TypeTree::leafCount(tree));
-  assert(nodeCount == Dune::TypeTree::nodeCount(tree));
+  assert(leafCount == Dune::TypeTree::Info::leafCount(tree));
+  assert(nodeCount == Dune::TypeTree::Info::nodeCount(tree));
 
-  if constexpr (not Dune::TypeTree::isDynamic<Tree>)
+  if constexpr (not Dune::TypeTree::Info::isDynamic<Tree>)
   {
 
-    static_assert((decltype(Dune::TypeTree::nodeCount(tree)){} == nodeCount),
+    static_assert((decltype(Dune::TypeTree::Info::nodeCount(tree)){} == nodeCount),
                   "TreeInfo yields wrong information");
 
-    static_assert((decltype(Dune::TypeTree::leafCount(tree)){} == leafCount),
+    static_assert((decltype(Dune::TypeTree::Info::leafCount(tree)){} == leafCount),
                   "TreeInfo yields wrong information");
   }
 
