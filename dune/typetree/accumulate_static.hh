@@ -24,7 +24,7 @@ namespace Dune {
       template<result_type r1, result_type r2>
       struct reduce
       {
-        [[deprecated]] static const result_type result = r1 || r2;
+        static const result_type result = r1 || r2;
       };
     };
 
@@ -35,7 +35,7 @@ namespace Dune {
       template<result_type r1, result_type r2>
       struct reduce
       {
-        [[deprecated]] static const result_type result = r1 && r2;
+        static const result_type result = r1 && r2;
       };
     };
 
@@ -46,7 +46,7 @@ namespace Dune {
       template<result_type r1, result_type r2>
       struct reduce
       {
-        [[deprecated]] static const result_type result = r1 + r2;
+        static const result_type result = r1 + r2;
       };
     };
 
@@ -57,7 +57,7 @@ namespace Dune {
       template<result_type r1, result_type r2>
       struct reduce
       {
-        [[deprecated]] static const result_type result = r1 - r2;
+        static const result_type result = r1 - r2;
       };
     };
 
@@ -68,7 +68,7 @@ namespace Dune {
       template<result_type r1, result_type r2>
       struct reduce
       {
-        [[deprecated]] static const result_type result = r1 * r2;
+        static const result_type result = r1 * r2;
       };
     };
 
@@ -79,7 +79,7 @@ namespace Dune {
       template<result_type r1, result_type r2>
       struct reduce
       {
-        [[deprecated]] static const result_type result = r1 < r2 ? r1 : r2;
+        static const result_type result = r1 < r2 ? r1 : r2;
       };
     };
 
@@ -90,7 +90,7 @@ namespace Dune {
       template<result_type r1, result_type r2>
       struct reduce
       {
-        [[deprecated]] static const result_type result = r1 > r2 ? r1 : r2;
+        static const result_type result = r1 > r2 ? r1 : r2;
       };
     };
 
@@ -261,7 +261,7 @@ namespace Dune {
       typedef typename Functor::result_type result_type;
 
       //! The accumulated result of the computation.
-      [[deprecated]] static const result_type result = accumulate_value<Tree,Functor,Reduction,ParentChildReduction,startValue,HybridTreePath<>,NodeTag<Tree>>::result;
+      static const result_type result = accumulate_value<Tree,Functor,Reduction,ParentChildReduction,startValue,HybridTreePath<>,NodeTag<Tree>>::result;
 
     };
 
@@ -552,7 +552,7 @@ namespace Dune {
     {
 
       //! The accumulated result of the computation.
-      [[deprecated]] typedef typename accumulate_type<
+      typedef typename accumulate_type<
         Tree,
         Policy,
         typename Policy::start_type,
