@@ -53,6 +53,54 @@ namespace Dune {
       return std::make_shared<T>(std::forward<T>(t));
     }
 
+
+    /**
+     * @brief Applies left fold to a binary operator
+     * @details End of recursion of the fold operator
+     *
+     * @param binary_op  Binary functor (discarded)
+     * @param arg        Final result of the fold expansion
+     * @return constexpr decltype(auto)  Final result of the fold expansion
+     */
+    template<class BinaryOp, class Arg>
+    constexpr decltype(auto)
+    left_fold(BinaryOp&& binary_op, Arg&& arg)
+    {
+      return std::forward<Arg>(arg);
+    }
+
+    /**
+     * @brief Applies left fold to a binary operator
+     * @details This function allows to pipe the result of one evaluation of a
+     *          binary operator into the next evaluation.
+     *
+     * - C++17:   `(init op ... op pack);`
+     * - here:    `left_fold(op, init, pack...);`
+     *
+     * @code {.c++}
+     *   auto p = std::plus<>{};
+     *   auto result_a = p(p(p(0,1),2),3);
+     *   auto result_b = left_fold(std::move(p), 0, 1, 2, 3);
+     * // result_a is same as result_b
+     * @endcode
+     *
+     * @param binary_op  Binary functor
+     * @param init       Initial (left-most) value of the fold
+     * @param arg_0      First argument of the right side of the fold
+     * @param args       Additional arguments of the right side of the fold
+     * @return constexpr decltype(auto)  Final result of the fold expansion
+     */
+    template<class BinaryOp, class Init, class Arg0, class... Args>
+    constexpr decltype(auto)
+    left_fold(BinaryOp&& binary_op, Init&& init, Arg0&& arg_0, Args&&... args)
+    {
+      return left_fold(
+        std::forward<BinaryOp>(binary_op),
+        binary_op(std::forward<Init>(init), std::forward<Arg0>(arg_0)),
+        std::forward<Args>(args)...);
+    }
+
+
     namespace Hybrid {
       using namespace Dune::Hybrid;
 

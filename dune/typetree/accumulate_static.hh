@@ -570,54 +570,6 @@ namespace Dune {
 
     namespace Detail {
 
-    /**
-     * @brief Add pipe operator to a binary operator
-     * @details This function allows to pipe the result of one evaluation of a
-     *          binary operator into the next evaluation.
-     *
-     * @code {.c++}
-     *   auto p = std::plus<>{};
-     *   auto result_a = p(p(p(0,1),2),3);
-     *   auto result_b = (Pipe{std::move(p),0} | 1 | 2 | 3).value;
-     * // result_a is same as result_b
-     * @endcode
-     *
-     * This is in particular helpful to apply parameter packs in a given order
-     * by using c++17 fold expressions.
-     *
-     * @code {.c++}
-     *  // this makes a compile time accumulation of the index sequence
-     *  auto indices = std::make_index_sequence<10>{};
-     *  auto result = unpackIntegerSequence([&](auto... i) {
-     *     return (Pipe{std::plus<std::size_t>{},0} | ... | i).value;
-     *   }, indices);
-     * @endcode
-     *
-     *
-     * @tparam BinaryOp  A binary operator
-     * @tparam Init      Initial (left-most) value of the fold
-     */
-    template<class BinaryOp, class Init>
-      struct Pipe {
-
-        constexpr Pipe(BinaryOp&& op, Init&& val)
-          : value{std::move(val)}
-          , _op{std::move(op)}
-        {}
-
-        template<class Arg>
-        constexpr auto operator|(Arg&& arg)
-        {
-          auto result = _op(std::move(value),std::forward<Arg>(arg));
-          using Result = std::remove_reference_t<decltype(result)>;
-          return Pipe<BinaryOp,Result>{std::move(_op),std::move(result)};
-        }
-
-        Init value;
-        BinaryOp _op;
-      };
-
-
       template<class T, class TreePath, class V, class U,
         std::enable_if_t<std::decay_t<T>::isLeaf, int> = 0>
       auto accumulateToTree(T&& tree, TreePath treePath, V&& visitor, U&& current_val)
@@ -635,7 +587,6 @@ namespace Dune {
         using Tree = std::remove_reference_t<T>;
         using Visitor = std::remove_reference_t<V>;
         auto pre_val = visitor.pre(tree, treePath, std::forward<U>(current_val));
-        using PreVal = std::remove_reference_t<decltype(pre_val)>;
 
         // check which type of traversal is supported by the tree
         using allowDynamicTraversal = Dune::Std::is_detected<Detail::DynamicTraversalConcept,Tree>;
@@ -673,8 +624,6 @@ namespace Dune {
 
           return visitor.afterChild(tree, child, treePath, i, std::move(val_visit));
         };
-        using ApplyI = std::remove_reference_t<decltype(apply_i)>;
-        using Op = Pipe<ApplyI,PreVal>;
 
         auto in_val = [&](){
           if constexpr (allowStaticTraversal::value && not preferDynamicTraversal::value) {
@@ -689,18 +638,20 @@ namespace Dune {
                *   into the next call of apply_i on the next i. Such result may
                *   have any type so a simple loop or `Hybrid::forEach` does not
                *   do the trick.
-               * * The Pipe object provides `apply_i` with a operator `|`
-               *   which will evaluate the current carried value with
-               *   the left hand side of the operator (in this case the index we
-               *   want to access). The result will be wrapped again in a Pipe
-               *   so that successive applications of `|` are possible.
-               * * So, this line essentialy becomes `pre_val (apply_i) ... (apply_i) i`
+               * * The left_fold function will apply the lambda consuming the
+               *   first two arguments `r0=apply_i(pre_val,0)`, the result
+               *   will be used as left argument of the next evaluation of the
+               *   lambda `r1=apply_i(r0,1)` and so on.
+               * * In other words, it pipes the binary operator to the left and
+               *   this line essentialy becomes `pre_val (apply_i) ... (apply_i) i`
                *   where the *binary operator* `apply_i` is unfolded from left
                *   to right according to c++17 fold expression rules.
-               * * The direction of the fold here is important because it will
-               *   evaluate indices from 0 to (degree-1).
+               *   (we do not use c++17 fold expressions because gcc-7 fails to
+               *   deduce the lambdas types here).
+               * * Additionally, the direction of the fold here is important
+               *   because it will evaluate indices from 0 to (degree-1).
                */
-              return (Op{std::move(apply_i),std::move(pre_val)} | ... | i).value;
+              return left_fold(std::move(apply_i),std::move(pre_val), i...);
             }, indices);
 
           } else {
