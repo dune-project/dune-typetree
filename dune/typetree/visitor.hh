@@ -247,26 +247,97 @@ namespace Dune {
 
     };
 
+
+
+    /**
+     * @brief Accumulate visitor interface and base class for TypeTree accumulate visitors.
+     *
+     * DefaultAccumulateVisitor defines the interface for visitors that can be applied to a TypeTree
+     * using accumulateToTree(). Each method of the visitor is passed a node of the tree (either as
+     * a mutable or a const reference, depending on the constness of the tree accumulateToTree() was
+     * called with). The second argument is of type TreePath and denotes the exact position of the
+     * node within the TypeTree, encoded as child indices starting at the root node.
+     *
+     * An accumulate visitor is different from a plain visitor because each method receives a carried value
+     * (last argument) on the accumulation process and is required to return a transformed value from it.
+     *
+     * In order to create a functioning visitor, an implementation will - in addition to providing the methods
+     * of this class - also have to contain the following template struct, which is used to determine
+     * whether to visit a given node:
+     *
+     * \code
+     * template<typename Node, typename Child, typename TreePath>
+     * struct VisitChild
+     * {
+     *   static const bool value = ...; // decide whether to visit Child
+     * };
+     * \endcode
+     *
+     * \note This class can also be used as a convenient base class if the implemented visitor
+     *       only needs to act on some of the possible callback sites, avoiding a lot of boilerplate code.
+     */
     struct DefaultAccumulateVisitor
     {
 
+      /**
+       * \copybrief DefaultVisitor::pre
+       * \copydetails DefaultVisitor::pre
+       *
+       * \param u        The carry value from previous accumulation.
+       * \return         The result of applying this visitor to u.
+       */
       template<typename T, typename TreePath, typename U>
-      auto pre(T&& t, TreePath treePath, U u) const { return u;}
+      auto pre(T&& t, TreePath treePath, const U& u) const { return u;}
 
+      /**
+       * \copybrief DefaultVisitor::in
+       * \copydetails DefaultVisitor::in
+       *
+       * \param u        The carry value from previous accumulation.
+       * \return         The result of applying this visitor to u.
+       */
       template<typename T, typename TreePath, typename U>
-      auto in(T&& t, TreePath treePath, U u) const {return u;}
+      auto in(T&& t, TreePath treePath, const U& u) const {return u;}
 
+      /**
+       * \copybrief DefaultVisitor::post
+       * \copydetails DefaultVisitor::post
+       *
+       * \param u        The carry value from previous accumulation.
+       * \return         The result of applying this visitor to u.
+       */
       template<typename T, typename TreePath, typename U>
-      auto post(T&& t, TreePath treePath, U u) const {return u;}
+      auto post(T&& t, TreePath treePath, const U& u) const {return u;}
 
+      /**
+       * \copybrief DefaultVisitor::leaf
+       * \copydetails DefaultVisitor::leaf
+       *
+       * \param u        The carry value from previous accumulation.
+       * \return         The result of applying this visitor to u.
+       */
       template<typename T, typename TreePath, typename U>
-      auto leaf(T&& t, TreePath treePath, U u) const { return u;}
+      auto leaf(T&& t, TreePath treePath, const U& u) const { return u;}
 
+      /**
+       * \copybrief DefaultVisitor::beforeChild
+       * \copydetails DefaultVisitor::beforeChild
+       *
+       * \param u        The carry value from previous accumulation.
+       * \return         The result of applying this visitor to u.
+       */
       template<typename T, typename Child, typename TreePath, typename ChildIndex, typename U>
-      auto beforeChild(T&& t, Child&& child, TreePath treePath, ChildIndex childIndex, U u) const {return u;}
+      auto beforeChild(T&& t, Child&& child, TreePath treePath, ChildIndex childIndex, const U& u) const {return u;}
 
+      /**
+       * \copybrief DefaultVisitor::afterChild
+       * \copydetails DefaultVisitor::afterChild
+       *
+       * \param u        The carry value from previous accumulation.
+       * \return         The result of applying this visitor to u.
+       */
       template<typename T, typename Child, typename TreePath, typename ChildIndex, typename U>
-      auto afterChild(T&& t, Child&& child, TreePath treePath, ChildIndex childIndex, U u) const {return u;}
+      auto afterChild(T&& t, Child&& child, TreePath treePath, ChildIndex childIndex, const U& u) const {return u;}
 
     };
 
