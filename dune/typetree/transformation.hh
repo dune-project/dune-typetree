@@ -9,6 +9,7 @@
 #include <memory>
 #include <utility>
 
+#include <dune/common/hybridutilities.hh>
 #include <dune/common/exceptions.hh>
 #include <dune/common/typetraits.hh>
 #include <dune/typetree/typetraits.hh>
@@ -422,7 +423,7 @@ namespace Dune {
       static transformed_type transform(const S& s, Trafo&& t, std::index_sequence<i...> indices)
       {
         std::tuple<typename ChildTransformation<i>::transformed_storage_type...> storage;
-        std::initializer_list<int>{(setElement<i>(storage, ChildTransformation<i>::transform_storage(s.template childStorage<i>(), std::forward<Trafo>(t))),0)...};
+        Dune::Hybrid::Impl::evaluateFoldExpression<int>({(setElement<i>(storage, ChildTransformation<i>::transform_storage(s.template childStorage<i>(), std::forward<Trafo>(t))),0)...});
         return NodeTransformation::transform(s, std::forward<Trafo>(t), std::get<i>(storage)...);
       }
 
@@ -430,7 +431,7 @@ namespace Dune {
       static transformed_storage_type transform_storage(std::shared_ptr<const S> sp, Trafo&& t, std::index_sequence<i...> indices)
       {
         std::tuple<typename ChildTransformation<i>::transformed_storage_type...> storage;
-        std::initializer_list<int>{(setElement<i>(storage, ChildTransformation<i>::transform_storage(sp->template childStorage<i>(), std::forward<Trafo>(t))),0)...};
+        Dune::Hybrid::Impl::evaluateFoldExpression<int>({(setElement<i>(storage, ChildTransformation<i>::transform_storage(sp->template childStorage<i>(), std::forward<Trafo>(t))),0)...});
         return NodeTransformation::transform_storage(sp, std::forward<Trafo>(t), std::get<i>(storage)...);
       }
     };
