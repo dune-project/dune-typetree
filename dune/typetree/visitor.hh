@@ -250,16 +250,18 @@ namespace Dune {
 
 
     /**
-     * @brief Accumulate visitor interface and base class for TypeTree accumulate visitors.
+     * @brief Hybrid visitor interface and base class for TypeTree hybrid visitors.
      *
-     * DefaultAccumulateVisitor defines the interface for visitors that can be applied to a TypeTree
-     * using accumulateToTree(). Each method of the visitor is passed a node of the tree (either as
-     * a mutable or a const reference, depending on the constness of the tree accumulateToTree() was
+     * DefaultHybridVisitor defines the interface for visitors that can be applied to a TypeTree
+     * using hybridApplyToTree(). Each method of the visitor is passed a node of the tree (either as
+     * a mutable or a const reference, depending on the constness of the tree hybridApplyToTree() was
      * called with). The second argument is of type TreePath and denotes the exact position of the
      * node within the TypeTree, encoded as child indices starting at the root node.
      *
-     * An accumulate visitor is different from a plain visitor because each method receives a carried value
-     * (last argument) on the accumulation process and is required to return a transformed value from it.
+     * An hybrid visitor is different from a plain visitor because each method receives a carried value
+     * (last argument) on the node visit and is required to return a transformed value from it.
+     * Transformations of the carried value type are allowed as long as they are expected on the
+     * next visited node.
      *
      * In order to create a functioning visitor, an implementation will - in addition to providing the methods
      * of this class - also have to contain the following template struct, which is used to determine
@@ -273,17 +275,18 @@ namespace Dune {
      * };
      * \endcode
      *
+     * 
      * \note This class can also be used as a convenient base class if the implemented visitor
      *       only needs to act on some of the possible callback sites, avoiding a lot of boilerplate code.
      */
-    struct DefaultAccumulateVisitor
+    struct DefaultHybridVisitor
     {
 
       /**
        * \copybrief DefaultVisitor::pre
        * \copydetails DefaultVisitor::pre
        *
-       * \param u        The carry value from previous accumulation.
+       * \param u        The carry value from previous visit.
        * \return         The result of applying this visitor to u.
        */
       template<typename T, typename TreePath, typename U>
@@ -293,7 +296,7 @@ namespace Dune {
        * \copybrief DefaultVisitor::in
        * \copydetails DefaultVisitor::in
        *
-       * \param u        The carry value from previous accumulation.
+       * \param u        The carry value from previous visit.
        * \return         The result of applying this visitor to u.
        */
       template<typename T, typename TreePath, typename U>
@@ -303,7 +306,7 @@ namespace Dune {
        * \copybrief DefaultVisitor::post
        * \copydetails DefaultVisitor::post
        *
-       * \param u        The carry value from previous accumulation.
+       * \param u        The carry value from previous visit.
        * \return         The result of applying this visitor to u.
        */
       template<typename T, typename TreePath, typename U>
@@ -313,7 +316,7 @@ namespace Dune {
        * \copybrief DefaultVisitor::leaf
        * \copydetails DefaultVisitor::leaf
        *
-       * \param u        The carry value from previous accumulation.
+       * \param u        The carry value from previous visit.
        * \return         The result of applying this visitor to u.
        */
       template<typename T, typename TreePath, typename U>
@@ -323,7 +326,7 @@ namespace Dune {
        * \copybrief DefaultVisitor::beforeChild
        * \copydetails DefaultVisitor::beforeChild
        *
-       * \param u        The carry value from previous accumulation.
+       * \param u        The carry value from previous visit.
        * \return         The result of applying this visitor to u.
        */
       template<typename T, typename Child, typename TreePath, typename ChildIndex, typename U>
@@ -333,7 +336,7 @@ namespace Dune {
        * \copybrief DefaultVisitor::afterChild
        * \copydetails DefaultVisitor::afterChild
        *
-       * \param u        The carry value from previous accumulation.
+       * \param u        The carry value from previous visit.
        * \return         The result of applying this visitor to u.
        */
       template<typename T, typename Child, typename TreePath, typename ChildIndex, typename U>
@@ -446,7 +449,7 @@ namespace Dune {
     {};
 
     struct LeafCounterVisitor
-      : public DefaultAccumulateVisitor
+      : public DefaultHybridVisitor
       , public StaticTraversal
       , public VisitTree
     {
@@ -480,7 +483,7 @@ namespace Dune {
     };
 
     struct DepthVisitor
-      : public DefaultAccumulateVisitor
+      : public DefaultHybridVisitor
       , public StaticTraversal
       , public VisitTree
     {
@@ -499,28 +502,28 @@ namespace Dune {
       template<typename Tree>
       auto depth(const Tree& tree)
       {
-        return accumulateToTree(tree,DepthVisitor{},Indices::_0);
+        return hybridApplyToTree(tree,DepthVisitor{},Indices::_0);
       }
 
       //! The depth of the TypeTree.
       template<typename Tree>
       constexpr auto depth()
       {
-        return decltype(accumulateToTree(std::declval<Tree>(),DepthVisitor{},Indices::_0)){};
+        return decltype(hybridApplyToTree(std::declval<Tree>(),DepthVisitor{},Indices::_0)){};
       }
 
       //! The total number of nodes in the TypeTree.
       template<typename Tree>
       auto nodeCount(const Tree& tree)
       {
-        return accumulateToTree(tree,NodeCounterVisitor{},Indices::_0);
+        return hybridApplyToTree(tree,NodeCounterVisitor{},Indices::_0);
       }
 
       //! The number of leaf nodes in the TypeTree.
       template<typename Tree>
       auto leafCount(const Tree& tree)
       {
-        return accumulateToTree(tree,LeafCounterVisitor{},Dune::Indices::_0);
+        return hybridApplyToTree(tree,LeafCounterVisitor{},Dune::Indices::_0);
       }
 
       template<typename Tree>

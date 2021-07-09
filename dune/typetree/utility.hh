@@ -193,11 +193,11 @@ namespace Dune {
     struct TreeInfo<Node,LeafNodeTag>
     {
 
-      [[deprecated]] static const std::size_t depth = 1;
+      static const std::size_t depth = 1;
 
-      [[deprecated]] static const std::size_t nodeCount = 1;
+      static const std::size_t nodeCount = 1;
 
-      [[deprecated]] static const std::size_t leafCount = 1;
+      static const std::size_t leafCount = 1;
 
     };
 
@@ -209,11 +209,11 @@ namespace Dune {
 
       typedef TreeInfo<typename Node::ChildType,NodeTag<typename Node::ChildType>> ChildInfo;
 
-      [[deprecated]] static const std::size_t depth = 1 + ChildInfo::depth;
+      static const std::size_t depth = 1 + ChildInfo::depth;
 
-      [[deprecated]] static const std::size_t nodeCount = 1 + StaticDegree<Node>::value * ChildInfo::nodeCount;
+      static const std::size_t nodeCount = 1 + StaticDegree<Node>::value * ChildInfo::nodeCount;
 
-      [[deprecated]] static const std::size_t leafCount = StaticDegree<Node>::value * ChildInfo::leafCount;
+      static const std::size_t leafCount = StaticDegree<Node>::value * ChildInfo::leafCount;
 
     };
 
@@ -263,11 +263,11 @@ namespace Dune {
 
       typedef generic_compositenode_children_info<Node,0,StaticDegree<Node>::value> Children;
 
-      [[deprecated]] static const std::size_t depth = 1 + Children::maxDepth;
+      static const std::size_t depth = 1 + Children::maxDepth;
 
-      [[deprecated]] static const std::size_t nodeCount = 1 + Children::nodeCount;
+      static const std::size_t nodeCount = 1 + Children::nodeCount;
 
-      [[deprecated]] static const std::size_t leafCount = Children::leafCount;
+      static const std::size_t leafCount = Children::leafCount;
 
     };
 
