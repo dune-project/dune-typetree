@@ -9,6 +9,7 @@
 #include <dune/typetree/nodetags.hh>
 #include <dune/typetree/treepath.hh>
 
+
 namespace Dune {
   namespace TypeTree {
 
@@ -573,7 +574,7 @@ namespace Dune {
       //! This is the specialization overload doing leaf traversal.
       template<class T, class TreePath, class V, class U,
         std::enable_if_t<std::decay_t<T>::isLeaf, int> = 0>
-      auto accumulateToTree(T&& tree, TreePath treePath, V&& visitor, U&& current_val)
+      auto hybridApplyToTree(T&& tree, TreePath treePath, V&& visitor, U&& current_val)
       {
         return visitor.leaf(tree, treePath, std::forward<U>(current_val));
       }
@@ -581,7 +582,7 @@ namespace Dune {
       //! This is the general overload doing child traversal.
       template<class T, class TreePath, class V, class U,
         std::enable_if_t<not std::decay_t<T>::isLeaf, int> = 0>
-      auto accumulateToTree(T&& tree, TreePath treePath, V&& visitor, U&& current_val)
+      auto hybridApplyToTree(T&& tree, TreePath treePath, V&& visitor, U&& current_val)
       {
         using Tree = std::remove_reference_t<T>;
         using Visitor = std::remove_reference_t<V>;
@@ -615,7 +616,7 @@ namespace Dune {
           auto val_visit = [&](){
             if constexpr (visitChild) {
               auto childTreePath = Dune::TypeTree::push_back(treePath, i);
-              return accumulateToTree(child, childTreePath, visitor, std::move(val_in));
+              return hybridApplyToTree(child, childTreePath, visitor, std::move(val_in));
             }
             else
               return std::move(val_in);
@@ -670,31 +671,32 @@ namespace Dune {
     }
 
     /**
-     * @brief Apply accumulate visitor to TypeTree.
-     * @details This function applies the given accumulate visitor to the
+     * @brief Apply hybrid visitor to TypeTree.
+     * @details This function applies the given hybrid visitor to the
      *   tree in a depth-first traversal and returns the accumulated value.
-     *   This method is able to accumulate different types on both dynamic and
+     *   This method is able to accumulate/transform different types on both dynamic and
      *   static trees as long as they match on consecutive calls of the visitor.
-     *   On calls between dynamic childen, the accumulated type should be
-     *   consistent. On static children types may differ.
+     *   On calls between dynamic childen, the carried type should be
+     *   consistent. On static children types may differ as long as they are expected
+     *    on the next visited node.
      *
      * @note Tree may be const or non-const
-     * @note If the accumulate type is always the same, consider applyToTree
+     * @note If the carried type is always the same, consider applyToTree
      * which is less demanding on the compiler.
      *
-     * @note The visitor must implement the interface laid out by DefaultAccumulateVisitor (most easily achieved by
+     * @note The visitor must implement the interface laid out by DefaultHybridVisitor (most easily achieved by
      *       inheriting from it) and specify the required type of tree traversal preference (static or dynamic) by
      *       inheriting from either StaticTraversal or DynamicTraversal.
      *
-     * @param tree   The tree the visitor will be applied to.
-     * @param visitor The accumulate visitor to apply to the tree.
-     * @param init  Initial value of the accumulation
-     * @return auto  Result of the last call on the visitor
+     * @param tree     The tree the visitor will be applied to.
+     * @param visitor  The hybrid visitor to apply to the tree.
+     * @param init     Initial value to pass to the visitor
+     * @return auto    Result of the last call on the visitor
      */
     template<typename Tree, typename Visitor, typename Init>
-    auto accumulateToTree(Tree&& tree, Visitor&& visitor, Init&& init)
+    auto hybridApplyToTree(Tree&& tree, Visitor&& visitor, Init&& init)
     {
-      return Detail::accumulateToTree(tree, hybridTreePath(), visitor, init);
+      return Detail::hybridApplyToTree(tree, hybridTreePath(), visitor, init);
     }
 
     //! \} group Tree Traversal
