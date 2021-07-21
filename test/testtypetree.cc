@@ -114,6 +114,10 @@ int main(int argc, char** argv)
   SVC1 svc1_1(sl1,sp1_1,sl2,sc1_1);
   Dune::TypeTree::applyToTree(svc1_1,treePrinter);
 
+  typedef SimpleDynamicPower<SVC1> SDP1;
+  SDP1 sdp_1(svc1_1, svc1_1);
+  Dune::TypeTree::applyToTree(sdp_1,treePrinter);
+
   SP1 sp1_3(SimpleLeaf(),SimpleLeaf(),sl1);
   Dune::TypeTree::applyToTree(sp1_3,TreePrinter());
 
