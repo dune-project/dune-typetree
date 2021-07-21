@@ -247,121 +247,141 @@ namespace Dune {
     };
 
 
-    // handle power tag - a little more tricky
-    template<typename S, typename T>
-    struct TransformTree<S,T,PowerNodeTag,true>
-    {
-      // get transformed type from specification
-      // Handling this transformation in a way that makes the per-node specification easy to write
-      // is a little involved:
-      // The problem is that the transformed power node must be parameterized on the transformed child
-      // type. So we need to transform the child type and pass the transformed child type to an inner
-      // template of the node transformation struct called result (see example of such a specification
-      // further down).
-      typedef typename LookupNodeTransformation<S,T,ImplementationTag<S>>::type NodeTransformation;
-      typedef typename LookupNodeTransformation<typename S::ChildType,T,ImplementationTag<typename S::ChildType>>::type ChildNodeTransformation;
+    namespace Impl {
 
-      typedef typename NodeTransformation::template result<typename TransformTree<typename S::ChildType,
-                                                                                  T,
-                                                                                  NodeTag<typename S::ChildType>,
-                                                                                  ChildNodeTransformation::recursive>::transformed_type
-                                                           >::type transformed_type;
-
-      typedef typename NodeTransformation::template result<typename TransformTree<typename S::ChildType,
-                                                                                  T,
-                                                                                  NodeTag<typename S::ChildType>,
-                                                                                  ChildNodeTransformation::recursive>::transformed_type
-                                                           >::storage_type transformed_storage_type;
-
-      // Transform an instance of S.
-      static transformed_type transform(const S& s, T& t)
+      // Helper class to handle recursive power nodes
+      template<class Source, class Transformation, class Tag>
+      class RecursivePowerTransformTree
       {
-        // transform children
-        typedef TransformTree<typename S::ChildType,T,NodeTag<typename S::ChildType>,ChildNodeTransformation::recursive> ChildTreeTransformation;
-        typedef typename ChildTreeTransformation::transformed_type transformed_child;
-        const std::size_t child_count = StaticDegree<S>::value;
-        std::array<std::shared_ptr<transformed_child>,child_count> children;
-        for (std::size_t k = 0; k < child_count; ++k) {
-          children[k] = ChildTreeTransformation::transform_storage(s.childStorage(k),t);
-        }
-        // transform node
-        return NodeTransformation::transform(s,t,children);
-      }
+        // We only know two types of tags!
+        static_assert(std::is_same_v<Tag,PowerNodeTag> or std::is_same_v<Tag,DynamicPowerNodeTag>);
 
-      static transformed_type transform(const S& s, const T& t)
-      {
-        // transform children
-        typedef TransformTree<typename S::ChildType,T,NodeTag<typename S::ChildType>,ChildNodeTransformation::recursive> ChildTreeTransformation;
-        typedef typename ChildTreeTransformation::transformed_type transformed_child;
-        const std::size_t child_count = StaticDegree<S>::value;
-        std::array<std::shared_ptr<transformed_child>,child_count> children;
-        for (std::size_t k = 0; k < child_count; ++k) {
-          children[k] = ChildTreeTransformation::transform_storage(s.childStorage(k),t);
-        }
-        // transform node
-        return NodeTransformation::transform(s,t,children);
-      }
+        using ChildType = typename Source::ChildType;
 
-      // Transform an instance of S.
-      static transformed_type transform(std::shared_ptr<const S> sp, T& t)
-      {
-        // transform children
-        typedef TransformTree<typename S::ChildType,T,NodeTag<typename S::ChildType>,ChildNodeTransformation::recursive> ChildTreeTransformation;
-        typedef typename ChildTreeTransformation::transformed_type transformed_child;
-        const std::size_t child_count = StaticDegree<S>::value;
-        std::array<std::shared_ptr<transformed_child>,child_count> children;
-        for (std::size_t k = 0; k < child_count; ++k) {
-          children[k] = ChildTreeTransformation::transform_storage(sp->childStorage(k),t);
+        // in case degree is dynamic, provid a vector correctly initialized
+        template<class NodeStorage>
+        static auto node_storage_provider(const std::size_t& degree)
+        {
+          return std::vector<NodeStorage>(degree);
         }
-        // transform node
-        return NodeTransformation::transform(sp,t,children);
-      }
 
-      static transformed_type transform(std::shared_ptr<const S> sp, const T& t)
-      {
-        // transform children
-        typedef TransformTree<typename S::ChildType,T,NodeTag<typename S::ChildType>,ChildNodeTransformation::recursive> ChildTreeTransformation;
-        typedef typename ChildTreeTransformation::transformed_type transformed_child;
-        const std::size_t child_count = StaticDegree<S>::value;
-        std::array<std::shared_ptr<transformed_child>,child_count> children;
-        for (std::size_t k = 0; k < child_count; ++k) {
-          children[k] = ChildTreeTransformation::transform_storage(sp->childStorage(k),t);
+        // in case degree is static, provid an array
+        template<class NodeStorage, class StaticIndex>
+        static auto node_storage_provider(StaticIndex)
+        {
+          return std::array<NodeStorage,std::size_t(StaticIndex{})>();
         }
-        // transform node
-        return NodeTransformation::transform(sp,t,children);
-      }
 
-      static transformed_storage_type transform_storage(std::shared_ptr<const S> sp, T& t)
-      {
-        // transform children
-        typedef TransformTree<typename S::ChildType,T,NodeTag<typename S::ChildType>,ChildNodeTransformation::recursive> ChildTreeTransformation;
-        typedef typename ChildTreeTransformation::transformed_storage_type transformed_child_storage;
-        const std::size_t child_count = StaticDegree<S>::value;
-        std::array<transformed_child_storage,child_count> children;
-        for (std::size_t k = 0; k < child_count; ++k) {
-          children[k] = ChildTreeTransformation::transform_storage(sp->childStorage(k),t);
+      public:
+        // get transformed type from specification
+        // Handling this transformation in a way that makes the per-node specification easy to write
+        // is a little involved:
+        // The problem is that the transformed power node must be parameterized on the transformed child
+        // type. So we need to transform the child type and pass the transformed child type to an inner
+        // template of the node transformation struct called result (see example of such a specification
+        // further down).
+        using NodeTransformation = typename LookupNodeTransformation<Source,Transformation,ImplementationTag<Source>>::type;
+        using ChildNodeTransformation = typename LookupNodeTransformation<ChildType,Transformation,ImplementationTag<ChildType>>::type;
+
+      private:
+        // Since every child is same type, is enough to get transformation once
+        using ChildTreeTransformation = TransformTree<ChildType,
+                                                      Transformation,
+                                                      NodeTag<ChildType>,
+                                                      ChildNodeTransformation::recursive>;
+
+        // Get transformed type of children
+        using transformed_child_type = typename ChildTreeTransformation::transformed_type;
+        using transformed_child_storage_type = typename ChildTreeTransformation::transformed_storage_type;
+      public:
+        // Apply transformation from children to current node
+        using transformed_type = typename NodeTransformation::template result<transformed_child_type>::type;
+        using transformed_storage_type = typename NodeTransformation::template result<transformed_child_type>::storage_type;
+
+        // Transform an instance of source tree.
+        static transformed_type transform(const Source& source, Transformation& transformation)
+        {
+          auto children_storage = node_storage_provider<std::shared_ptr<transformed_child_type>>(source.degree());
+          for (std::size_t k = 0; k < source.degree(); ++k) {
+            children_storage[k] = ChildTreeTransformation::transform_storage(source.childStorage(k),transformation);
+          }
+          return NodeTransformation::transform(source,transformation,children_storage);
         }
-        return NodeTransformation::transform_storage(sp,t,children);
-      }
 
-      static transformed_storage_type transform_storage(std::shared_ptr<const S> sp, const T& t)
-      {
-        // transform children
-        typedef TransformTree<typename S::ChildType,T,NodeTag<typename S::ChildType>,ChildNodeTransformation::recursive> ChildTreeTransformation;
-        typedef typename ChildTreeTransformation::transformed_storage_type transformed_child_storage;
-        const std::size_t child_count = StaticDegree<S>::value;
-        std::array<transformed_child_storage,child_count> children;
-        for (std::size_t k = 0; k < child_count; ++k) {
-          children[k] = ChildTreeTransformation::transform_storage(sp->childStorage(k),t);
+        // Transform an instance of source tree.
+        static transformed_type transform(const Source& source, const Transformation& transformation)
+        {
+          auto children_storage = node_storage_provider<std::shared_ptr<transformed_child_type>>(source.degree());
+          for (std::size_t k = 0; k < source.degree(); ++k) {
+            children_storage[k] = ChildTreeTransformation::transform_storage(source.childStorage(k),transformation);
+          }
+          return NodeTransformation::transform(source,transformation,children_storage);
         }
-        return NodeTransformation::transform_storage(sp,t,children);
-      }
 
-    };
+        // Transform an instance of source tree.
+        static transformed_type transform(std::shared_ptr<const Source> source_ptr, Transformation& transformation)
+        {
+          auto children_storage = node_storage_provider<std::shared_ptr<transformed_child_type>>(source_ptr->degree());
+          for (std::size_t k = 0; k < source_ptr->degree(); ++k) {
+            children_storage[k] = ChildTreeTransformation::transform_storage(source_ptr->childStorage(k),transformation);
+          }
+          return NodeTransformation::transform(source_ptr,transformation,children_storage);
+        }
+
+        // Transform an instance of source tree.
+        static transformed_type transform(std::shared_ptr<const Source> source_ptr, const Transformation& transformation)
+        {
+          auto children_storage = node_storage_provider<std::shared_ptr<transformed_child_type>>(source_ptr->degree());
+          for (std::size_t k = 0; k < source_ptr->degree(); ++k) {
+            children_storage[k] = ChildTreeTransformation::transform_storage(source_ptr->childStorage(k),transformation);
+          }
+          return NodeTransformation::transform(source_ptr,transformation,children_storage);
+        }
+
+        // Transform an instance of source tree ptr.
+        static transformed_storage_type transform_storage(std::shared_ptr<const Source> source_ptr, Transformation& transformation)
+        {
+          auto children_storage = node_storage_provider<transformed_child_storage_type>(source_ptr->degree());
+          for (std::size_t k = 0; k < source_ptr->degree(); ++k) {
+            children_storage[k] = ChildTreeTransformation::transform_storage(source_ptr->childStorage(k),transformation);
+          }
+          return NodeTransformation::transform_storage(source_ptr,transformation,children_storage);
+        }
+
+        // Transform an instance of source tree ptr.
+        static transformed_storage_type transform_storage(std::shared_ptr<const Source> source_ptr, const Transformation& transformation)
+        {
+          auto children_storage = node_storage_provider<transformed_child_storage_type>(source_ptr->degree());
+          for (std::size_t k = 0; k < source_ptr->degree(); ++k) {
+            children_storage[k] = ChildTreeTransformation::transform_storage(source_ptr->childStorage(k),transformation);
+          }
+          return NodeTransformation::transform_storage(source_ptr,transformation,children_storage);
+        }
+
+      };
+    } // namespace Impl
+
+    // Recursive version of the PowerNode transformation for static nodes.
+    template<typename Source, typename Transformation>
+    struct TransformTree<Source,Transformation,PowerNodeTag,true>
+      : public Impl::RecursivePowerTransformTree<Source,Transformation,PowerNodeTag>
+    {};
+
+    // Recursive version of the DynamicPowerNode transformation for static nodes.
+    template<typename Source, typename Transformation>
+    struct TransformTree<Source,Transformation,DynamicPowerNodeTag,true>
+      : public Impl::RecursivePowerTransformTree<Source,Transformation,DynamicPowerNodeTag>
+    {};
 
     // non-recursive version of the PowerNode transformation.
     template<typename S, typename T>
     struct TransformTree<S,T,PowerNodeTag,false>
+      : public TransformTreeNonRecursive<S,T>
+    {};
+
+    // non-recursive version of the DynamicPowerNodeTag transformation.
+    template<typename S, typename T>
+    struct TransformTree<S,T,DynamicPowerNodeTag,false>
       : public TransformTreeNonRecursive<S,T>
     {};
 

@@ -146,7 +146,7 @@ namespace Dune {
 
         typedef typename Functor::result_type result_type;
 
-        typedef typename TreePathPushBack<TreePath,i>::type child_tree_path;
+        typedef decltype(push_back(TreePath{},index_constant<i>{})) child_tree_path;
 
         typedef typename Node::template Child<i>::Type child;
 
@@ -365,7 +365,7 @@ namespace Dune {
       struct accumulate_type_over_children
       {
 
-        typedef typename TreePathPushBack<TreePath,i>::type child_tree_path;
+        typedef decltype(push_back(TreePath{},index_constant<i>{})) child_tree_path;
 
         typedef typename Node::template Child<i>::Type child;
 

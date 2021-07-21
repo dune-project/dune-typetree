@@ -27,6 +27,16 @@ namespace Dune {
     };
 
 
+    template<typename SourceNode, typename Transformation, template<typename,typename> class TransformedNode>
+    struct GenericDynamicPowerNodeTransformationTemplate
+    {
+      template<typename TC>
+      struct result
+      {
+        typedef TransformedNode<SourceNode,TC> type;
+      };
+    };
+
     template<typename SourceNode, typename Transformation, template<typename,typename...> class TransformedNode>
     struct GenericCompositeNodeTransformationTemplate
     {
