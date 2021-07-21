@@ -5,6 +5,7 @@
 #define DUNE_TYPETREE_VISITOR_HH
 
 #include <dune/typetree/treepath.hh>
+#include <dune/typetree/utility.hh>
 
 namespace Dune {
   namespace TypeTree {
@@ -246,6 +247,29 @@ namespace Dune {
 
     };
 
+    struct DefaultAccumulateVisitor
+    {
+
+      template<typename T, typename TreePath, typename U>
+      auto pre(T&& t, TreePath treePath, U u) const { return u;}
+
+      template<typename T, typename TreePath, typename U>
+      auto in(T&& t, TreePath treePath, U u) const {return u;}
+
+      template<typename T, typename TreePath, typename U>
+      auto post(T&& t, TreePath treePath, U u) const {return u;}
+
+      template<typename T, typename TreePath, typename U>
+      auto leaf(T&& t, TreePath treePath, U u) const { return u;}
+
+      template<typename T, typename Child, typename TreePath, typename ChildIndex, typename U>
+      auto beforeChild(T&& t, Child&& child, TreePath treePath, ChildIndex childIndex, U u) const {return u;}
+
+      template<typename T, typename Child, typename TreePath, typename ChildIndex, typename U>
+      auto afterChild(T&& t, Child&& child, TreePath treePath, ChildIndex childIndex, U u) const {return u;}
+
+    };
+
     //! Mixin base class for visitors that only want to visit the direct children of a node.
     /**
      * This mixin class will reject all children presented to it, causing the algorithm to
@@ -349,6 +373,78 @@ namespace Dune {
       : public DefaultPairVisitor
       , public VisitDirectChildren
     {};
+
+    struct LeafCounterVisitor
+      : public DefaultAccumulateVisitor
+      , public StaticTraversal
+      , public VisitTree
+    {
+      template<class Tree, class Child, class TreePath, class ChildIndex, class U>
+      auto beforeChild(Tree&&, Child&&, TreePath, ChildIndex, U u) const {
+        // in this case child index is an integral constant: forward u
+        return u;
+      }
+
+      template<class Tree, class Child, class TreePath, class U>
+      std::size_t beforeChild(Tree&&, Child&&, TreePath, std::size_t childIndex, U u) const {
+        // in this case child index is a run-time index: cast accumulated u to std::size_t
+        return std::size_t{u};
+      }
+
+      template<class Tree, class TreePath, class U>
+      auto leaf(Tree&&, TreePath, U u) const
+      {
+        return Hybrid::plus(u,Dune::Indices::_1);
+      }
+
+    };
+
+    struct NodeCounterVisitor
+      : public LeafCounterVisitor
+    {
+      template<typename Tree, typename TreePath, typename U>
+      auto pre(Tree&& tree, TreePath treePath, U u) const {
+        return Hybrid::plus(u,Indices::_1);
+      }
+    };
+
+    struct DepthVisitor
+      : public DefaultAccumulateVisitor
+      , public StaticTraversal
+      , public VisitTree
+    {
+      template<class Tree, class TreePath, class U>
+      auto leaf(Tree&&, TreePath, U u) const
+      {
+        auto path_size = index_constant<treePathSize(TreePath{})>{};
+        auto depth = Hybrid::plus(path_size,Indices::_1);
+        return Hybrid::max(depth,u);
+      }
+    };
+
+   //! The depth of the TypeTree.
+    template<typename Tree>
+    auto depth(const Tree& tree)
+    {
+      return accumulateToTree(tree,DepthVisitor{},Indices::_0);
+    }
+
+    //! The total number of nodes in the TypeTree.
+    template<typename Tree>
+    auto nodeCount(const Tree& tree)
+    {
+      return accumulateToTree(tree,NodeCounterVisitor{},Indices::_0);
+    }
+
+    //! The number of leaf nodes in the TypeTree.
+    template<typename Tree>
+    auto leafCount(const Tree& tree)
+    {
+      return accumulateToTree(tree,LeafCounterVisitor{},Dune::Indices::_0);
+    }
+
+    template<typename Tree>
+    constexpr bool isDynamic = std::is_same<std::size_t, decltype(leafCount(std::declval<Tree>()))>{};
 
     //! \} group Tree Traversal
 

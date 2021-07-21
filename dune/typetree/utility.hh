@@ -8,9 +8,11 @@
 #include <tuple>
 #include <type_traits>
 #include <utility>
+#include <algorithm>
 
 #include <dune/common/shared_ptr.hh>
 #include <dune/common/indices.hh>
+#include <dune/common/hybridutilities.hh>
 #include <dune/typetree/nodeinterface.hh>
 #include <dune/typetree/nodetags.hh>
 
@@ -50,6 +52,82 @@ namespace Dune {
     {
       return std::make_shared<T>(std::forward<T>(t));
     }
+
+    template<class BinaryOp, class Arg>
+    constexpr decltype(auto)
+    left_fold(BinaryOp&&, Arg&& arg)
+    {
+      return std::forward<Arg>(arg);
+    }
+
+    template<class FApply, class FPack, template<class T,T...> class IntegerSequence, class T, T... I>
+    constexpr decltype(auto)
+    unpack(IntegerSequence<T,I...>, FApply&& f_apply, FPack&& f_pack)
+    {
+      return f_pack(f_apply(std::integral_constant<T, I>{})...);
+    }
+
+    // C++17:   (init op ... op pack);
+    // here:    left_fold(op, init, pack...);
+    // op is a binary operator. Left argument are operated first
+    template<class BinaryOp, class Init, class Arg0, class... Args>
+    constexpr decltype(auto)
+    left_fold(BinaryOp&& binary_op, Init&& init, Arg0&& arg_0, Args&&... args)
+    {
+      return left_fold(
+        std::forward<BinaryOp>(binary_op),
+        binary_op(std::forward<Init>(init), std::forward<Arg0>(arg_0)),
+        std::forward<Args>(args)...);
+    }
+
+
+    namespace Hybrid {
+      using namespace Dune::Hybrid;
+
+      namespace Detail {
+        template<class Op, class... Args>
+        constexpr auto applyOperator(Op&& op, Args&&... args)
+        {
+          using T = std::common_type_t<Args...>;
+          return op(static_cast<T>(args)...);
+        }
+
+        template<class Op, class T, T... Args>
+        constexpr auto applyOperator(Op, std::integral_constant<T,Args>...)
+        {
+          static_assert(std::is_default_constructible_v<Op>,
+            "Operator in integral expressions shall be default constructible");
+          constexpr auto result = Op{}(T{Args}...);
+          return std::integral_constant<std::decay_t<decltype(result)>,result>{};
+        }
+
+        // FIXME: use lambda when we adpot c++20
+        struct Max {
+          template<class... Args>
+          constexpr auto operator()(Args&&... args) const
+          {
+            using T = std::common_type_t<Args...>;
+            return std::max({static_cast<T>(args)...});
+          }
+        };
+      }
+
+      static constexpr auto max = [](const auto& a, const auto& b)
+      {
+        return Detail::applyOperator(Detail::Max{}, a, b);
+      };
+
+      static constexpr auto plus = [](const auto& a, const auto& b)
+      {
+        return Detail::applyOperator(std::plus<>{}, a, b);
+      };
+
+      static constexpr auto minus = [](const auto& a, const auto& b)
+      {
+        return Detail::applyOperator(std::minus<>{}, a, b);
+      };
+    }
+
 
 #endif // DOXYGEN
 
@@ -95,11 +173,11 @@ namespace Dune {
     struct TreeInfo<Node,LeafNodeTag>
     {
 
-      static const std::size_t depth = 1;
+      [[deprecated]] static const std::size_t depth = 1;
 
-      static const std::size_t nodeCount = 1;
+      [[deprecated]] static const std::size_t nodeCount = 1;
 
-      static const std::size_t leafCount = 1;
+      [[deprecated]] static const std::size_t leafCount = 1;
 
     };
 
@@ -111,11 +189,11 @@ namespace Dune {
 
       typedef TreeInfo<typename Node::ChildType,NodeTag<typename Node::ChildType>> ChildInfo;
 
-      static const std::size_t depth = 1 + ChildInfo::depth;
+      [[deprecated]] static const std::size_t depth = 1 + ChildInfo::depth;
 
-      static const std::size_t nodeCount = 1 + StaticDegree<Node>::value * ChildInfo::nodeCount;
+      [[deprecated]] static const std::size_t nodeCount = 1 + StaticDegree<Node>::value * ChildInfo::nodeCount;
 
-      static const std::size_t leafCount = StaticDegree<Node>::value * ChildInfo::leafCount;
+      [[deprecated]] static const std::size_t leafCount = StaticDegree<Node>::value * ChildInfo::leafCount;
 
     };
 
@@ -165,11 +243,11 @@ namespace Dune {
 
       typedef generic_compositenode_children_info<Node,0,StaticDegree<Node>::value> Children;
 
-      static const std::size_t depth = 1 + Children::maxDepth;
+      [[deprecated]] static const std::size_t depth = 1 + Children::maxDepth;
 
-      static const std::size_t nodeCount = 1 + Children::nodeCount;
+      [[deprecated]] static const std::size_t nodeCount = 1 + Children::nodeCount;
 
-      static const std::size_t leafCount = Children::leafCount;
+      [[deprecated]] static const std::size_t leafCount = Children::leafCount;
 
     };
 

@@ -9,7 +9,6 @@
 #include <dune/typetree/nodetags.hh>
 #include <dune/typetree/treepath.hh>
 
-
 namespace Dune {
   namespace TypeTree {
 
@@ -25,7 +24,7 @@ namespace Dune {
       template<result_type r1, result_type r2>
       struct reduce
       {
-        static const result_type result = r1 || r2;
+        [[deprecated]] static const result_type result = r1 || r2;
       };
     };
 
@@ -36,7 +35,7 @@ namespace Dune {
       template<result_type r1, result_type r2>
       struct reduce
       {
-        static const result_type result = r1 && r2;
+        [[deprecated]] static const result_type result = r1 && r2;
       };
     };
 
@@ -47,7 +46,7 @@ namespace Dune {
       template<result_type r1, result_type r2>
       struct reduce
       {
-        static const result_type result = r1 + r2;
+        [[deprecated]] static const result_type result = r1 + r2;
       };
     };
 
@@ -58,7 +57,7 @@ namespace Dune {
       template<result_type r1, result_type r2>
       struct reduce
       {
-        static const result_type result = r1 - r2;
+        [[deprecated]] static const result_type result = r1 - r2;
       };
     };
 
@@ -69,7 +68,7 @@ namespace Dune {
       template<result_type r1, result_type r2>
       struct reduce
       {
-        static const result_type result = r1 * r2;
+        [[deprecated]] static const result_type result = r1 * r2;
       };
     };
 
@@ -80,7 +79,7 @@ namespace Dune {
       template<result_type r1, result_type r2>
       struct reduce
       {
-        static const result_type result = r1 < r2 ? r1 : r2;
+        [[deprecated]] static const result_type result = r1 < r2 ? r1 : r2;
       };
     };
 
@@ -91,7 +90,7 @@ namespace Dune {
       template<result_type r1, result_type r2>
       struct reduce
       {
-        static const result_type result = r1 > r2 ? r1 : r2;
+        [[deprecated]] static const result_type result = r1 > r2 ? r1 : r2;
       };
     };
 
@@ -262,7 +261,7 @@ namespace Dune {
       typedef typename Functor::result_type result_type;
 
       //! The accumulated result of the computation.
-      static const result_type result = accumulate_value<Tree,Functor,Reduction,ParentChildReduction,startValue,HybridTreePath<>,NodeTag<Tree>>::result;
+      [[deprecated]] static const result_type result = accumulate_value<Tree,Functor,Reduction,ParentChildReduction,startValue,HybridTreePath<>,NodeTag<Tree>>::result;
 
     };
 
@@ -553,7 +552,7 @@ namespace Dune {
     {
 
       //! The accumulated result of the computation.
-      typedef typename accumulate_type<
+      [[deprecated]] typedef typename accumulate_type<
         Tree,
         Policy,
         typename Policy::start_type,
@@ -563,6 +562,104 @@ namespace Dune {
 
     };
 
+
+
+
+
+    /***************************************************/
+
+    namespace Detail {
+
+      template<class T, class TreePath, class V, class U,
+        std::enable_if_t<std::decay_t<T>::isLeaf, int> = 0>
+      auto accumulateToTree(T&& tree, TreePath treePath, V&& visitor, U&& current_val)
+      {
+        return visitor.leaf(tree, treePath, std::forward<U>(current_val));
+      }
+
+      /*
+        * This is the general overload doing child traversal.
+        */
+      template<class T, class TreePath, class V, class U,
+        std::enable_if_t<not std::decay_t<T>::isLeaf, int> = 0>
+      auto accumulateToTree(T&& tree, TreePath treePath, V&& visitor, U&& current_val)
+      {
+        using Tree = std::remove_reference_t<T>;
+        using Visitor = std::remove_reference_t<V>;
+        auto pre_val = visitor.pre(tree, treePath, std::forward<U>(current_val));
+
+        // check which type of traversal is supported by the tree
+        auto allowDynamicTraversal = Dune::Std::is_detected<Detail::DynamicTraversalConcept,Tree>{};
+        auto allowStaticTraversal = Dune::Std::is_detected<Detail::StaticTraversalConcept,Tree>{};
+
+        // the tree must support either dynamic or static traversal
+        static_assert(allowDynamicTraversal || allowStaticTraversal);
+
+        // the visitor may specify preferred dynamic traversal
+        auto preferDynamicTraversal = std::bool_constant<Visitor::treePathType == TreePathType::dynamic>{};
+
+        // rule that applies visitor and current value to a child i and returns next value
+        auto apply_i = [&](auto&& value, const auto& i){
+          auto&& child = tree.child(i);
+          using Child = std::decay_t<decltype(child)>;
+
+          auto val_before = visitor.beforeChild(tree, child, treePath, i, std::move(value));
+
+          // visits between children
+          auto val_in = Hybrid::ifElse(
+            Hybrid::equals(i,Indices::_0),
+              [&](auto id){return std::move(val_before);},
+              [&](auto id){return visitor.in(tree, treePath, std::move(val_before));}
+          );
+
+          constexpr bool visitChild = Visitor::template VisitChild<Tree,Child,TreePath>::value;
+          auto val_visit = [&](){
+            if constexpr (visitChild) {
+              auto childTreePath = Dune::TypeTree::push_back(treePath, i);
+              return accumulateToTree(child, childTreePath, visitor, std::move(val_in));
+            }
+            else
+              return std::move(val_in);
+          }();
+
+          return visitor.afterChild(tree, child, treePath, i, std::move(val_visit));
+        };
+
+        auto in_val = [&](){
+          if constexpr (allowStaticTraversal && not preferDynamicTraversal) {
+            // get list of static indices
+            auto indices = std::make_index_sequence<Tree::degree()>{};
+
+            // apply static index to each child and forward result to next apply
+            auto f_unpack = [&](auto&&... args){
+              // this chains results of apply_i from left to right
+              // auto val_0 = apply_i(pre_val, 0);
+              // auto val_1 = apply_i(val_0,   1);
+              // auto val_2 = apply_i(val_1,   2);
+              return left_fold(apply_i, std::move(pre_val), args...);
+            };
+            auto f_pack = [](auto i){return i;}; // identity
+            return unpack(indices, f_pack, f_unpack);
+          } else {
+            // unfold first child to get type
+            auto i_val = apply_i(std::move(pre_val),std::size_t{0});
+            // dynamically loop rest of the childs to accumulate remindng values
+            for(std::size_t i = 1; i < tree.degree(); i++)
+              i_val = apply_i(i_val,i);
+            return i_val;
+          }
+        }();
+
+        return visitor.post(tree, treePath, in_val);
+      }
+
+    }
+
+    template<typename Tree, typename Visitor, typename Init>
+    auto accumulateToTree(Tree&& tree, Visitor&& visitor, Init&& init)
+    {
+      return Detail::accumulateToTree(tree, hybridTreePath(), visitor, init);
+    }
 
     //! \} group Tree Traversal
 
