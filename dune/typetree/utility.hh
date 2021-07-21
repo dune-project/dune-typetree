@@ -54,99 +54,103 @@ namespace Dune {
     }
 
 
-    /**
-     * @brief Applies left fold to a binary operator
-     * @details End of recursion of the fold operator
-     *
-     * @param binary_op  Binary functor (discarded)
-     * @param arg        Final result of the fold expansion
-     * @return constexpr decltype(auto)  Final result of the fold expansion
-     */
-    template<class BinaryOp, class Arg>
-    constexpr decltype(auto)
-    left_fold(BinaryOp&& binary_op, Arg&& arg)
-    {
-      return std::forward<Arg>(arg);
-    }
+    namespace Experimental {
 
-    /**
-     * @brief Applies left fold to a binary operator
-     * @details This function allows to pipe the result of one evaluation of a
-     *          binary operator into the next evaluation.
-     *
-     * - C++17:   `(init op ... op pack);`
-     * - here:    `left_fold(op, init, pack...);`
-     *
-     * @code {.c++}
-     *   auto p = std::plus<>{};
-     *   auto result_a = p(p(p(0,1),2),3);
-     *   auto result_b = left_fold(std::move(p), 0, 1, 2, 3);
-     * // result_a is same as result_b
-     * @endcode
-     *
-     * @param binary_op  Binary functor
-     * @param init       Initial (left-most) value of the fold
-     * @param arg_0      First argument of the right side of the fold
-     * @param args       Additional arguments of the right side of the fold
-     * @return constexpr decltype(auto)  Final result of the fold expansion
-     */
-    template<class BinaryOp, class Init, class Arg0, class... Args>
-    constexpr decltype(auto)
-    left_fold(BinaryOp&& binary_op, Init&& init, Arg0&& arg_0, Args&&... args)
-    {
-      return left_fold(
-        std::forward<BinaryOp>(binary_op),
-        binary_op(std::forward<Init>(init), std::forward<Arg0>(arg_0)),
-        std::forward<Args>(args)...);
-    }
-
-
-    namespace Hybrid {
-      using namespace Dune::Hybrid;
-
-      namespace Detail {
-        template<class Op, class... Args>
-        constexpr auto applyOperator(Op&& op, Args&&... args)
-        {
-          using T = std::common_type_t<Args...>;
-          return op(static_cast<T>(args)...);
-        }
-
-        template<class Op, class T, T... Args>
-        constexpr auto applyOperator(Op, std::integral_constant<T,Args>...)
-        {
-          static_assert(std::is_default_constructible_v<Op>,
-            "Operator in integral expressions shall be default constructible");
-          constexpr auto result = Op{}(T{Args}...);
-          return std::integral_constant<std::decay_t<decltype(result)>,result>{};
-        }
-
-        // FIXME: use lambda when we adpot c++20
-        struct Max {
-          template<class... Args>
-          constexpr auto operator()(Args&&... args) const
-          {
-            using T = std::common_type_t<Args...>;
-            return std::max({static_cast<T>(args)...});
-          }
-        };
+      /**
+       * @brief Applies left fold to a binary operator
+       * @details End of recursion of the fold operator
+       *
+       * @param binary_op  Binary functor (discarded)
+       * @param arg        Final result of the fold expansion
+       * @return constexpr decltype(auto)  Final result of the fold expansion
+       */
+      template<class BinaryOp, class Arg>
+      constexpr decltype(auto)
+      left_fold(BinaryOp&& binary_op, Arg&& arg)
+      {
+        return std::forward<Arg>(arg);
       }
 
-      static constexpr auto max = [](const auto& a, const auto& b)
+      /**
+       * @brief Applies left fold to a binary operator
+       * @details This function allows to pipe the result of one evaluation of a
+       *          binary operator into the next evaluation.
+       *
+       * - C++17:   `(init op ... op pack);`
+       * - here:    `left_fold(op, init, pack...);`
+       *
+       * @code {.c++}
+       *   auto p = std::plus<>{};
+       *   auto result_a = p(p(p(0,1),2),3);
+       *   auto result_b = left_fold(std::move(p), 0, 1, 2, 3);
+       * // result_a is same as result_b
+       * @endcode
+       *
+       * @param binary_op  Binary functor
+       * @param init       Initial (left-most) value of the fold
+       * @param arg_0      First argument of the right side of the fold
+       * @param args       Additional arguments of the right side of the fold
+       * @return constexpr decltype(auto)  Final result of the fold expansion
+       */
+      template<class BinaryOp, class Init, class Arg0, class... Args>
+      constexpr decltype(auto)
+      left_fold(BinaryOp&& binary_op, Init&& init, Arg0&& arg_0, Args&&... args)
       {
-        return Detail::applyOperator(Detail::Max{}, a, b);
-      };
+        return left_fold(
+          std::forward<BinaryOp>(binary_op),
+          binary_op(std::forward<Init>(init), std::forward<Arg0>(arg_0)),
+          std::forward<Args>(args)...);
+      }
 
-      static constexpr auto plus = [](const auto& a, const auto& b)
-      {
-        return Detail::applyOperator(std::plus<>{}, a, b);
-      };
 
-      static constexpr auto minus = [](const auto& a, const auto& b)
-      {
-        return Detail::applyOperator(std::minus<>{}, a, b);
-      };
-    }
+      namespace Hybrid {
+        using namespace Dune::Hybrid;
+
+        namespace Detail {
+          template<class Op, class... Args>
+          constexpr auto applyOperator(Op&& op, Args&&... args)
+          {
+            using T = std::common_type_t<Args...>;
+            return op(static_cast<T>(args)...);
+          }
+
+          template<class Op, class T, T... Args>
+          constexpr auto applyOperator(Op, std::integral_constant<T,Args>...)
+          {
+            static_assert(std::is_default_constructible_v<Op>,
+              "Operator in integral expressions shall be default constructible");
+            constexpr auto result = Op{}(T{Args}...);
+            return std::integral_constant<std::decay_t<decltype(result)>,result>{};
+          }
+
+          // FIXME: use lambda when we adpot c++20
+          struct Max {
+            template<class... Args>
+            constexpr auto operator()(Args&&... args) const
+            {
+              using T = std::common_type_t<Args...>;
+              return std::max({static_cast<T>(args)...});
+            }
+          };
+        }
+
+        static constexpr auto max = [](const auto& a, const auto& b)
+        {
+          return Detail::applyOperator(Detail::Max{}, a, b);
+        };
+
+        static constexpr auto plus = [](const auto& a, const auto& b)
+        {
+          return Detail::applyOperator(std::plus<>{}, a, b);
+        };
+
+        static constexpr auto minus = [](const auto& a, const auto& b)
+        {
+          return Detail::applyOperator(std::minus<>{}, a, b);
+        };
+      } // namespace Hybrid
+
+    } // namespace Experimental
 
 
 #endif // DOXYGEN

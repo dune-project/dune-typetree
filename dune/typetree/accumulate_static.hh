@@ -569,138 +569,140 @@ namespace Dune {
 
     /***************************************************/
 
-    namespace Detail {
+    namespace Experimental {
+      namespace Impl {
 
-      //! This is the specialization overload doing leaf traversal.
-      template<class T, class TreePath, class V, class U,
-        std::enable_if_t<std::decay_t<T>::isLeaf, int> = 0>
-      auto hybridApplyToTree(T&& tree, TreePath treePath, V&& visitor, U&& current_val)
-      {
-        return visitor.leaf(tree, treePath, std::forward<U>(current_val));
-      }
+        //! This is the specialization overload doing leaf traversal.
+        template<class T, class TreePath, class V, class U,
+          std::enable_if_t<std::decay_t<T>::isLeaf, int> = 0>
+        auto hybridApplyToTree(T&& tree, TreePath treePath, V&& visitor, U&& current_val)
+        {
+          return visitor.leaf(tree, treePath, std::forward<U>(current_val));
+        }
 
-      //! This is the general overload doing child traversal.
-      template<class T, class TreePath, class V, class U,
-        std::enable_if_t<not std::decay_t<T>::isLeaf, int> = 0>
-      auto hybridApplyToTree(T&& tree, TreePath treePath, V&& visitor, U&& current_val)
-      {
-        using Tree = std::remove_reference_t<T>;
-        using Visitor = std::remove_reference_t<V>;
-        auto pre_val = visitor.pre(tree, treePath, std::forward<U>(current_val));
+        //! This is the general overload doing child traversal.
+        template<class T, class TreePath, class V, class U,
+          std::enable_if_t<not std::decay_t<T>::isLeaf, int> = 0>
+        auto hybridApplyToTree(T&& tree, TreePath treePath, V&& visitor, U&& current_val)
+        {
+          using Tree = std::remove_reference_t<T>;
+          using Visitor = std::remove_reference_t<V>;
+          auto pre_val = visitor.pre(tree, treePath, std::forward<U>(current_val));
 
-        // check which type of traversal is supported by the tree
-        using allowDynamicTraversal = Dune::Std::is_detected<Detail::DynamicTraversalConcept,Tree>;
-        using allowStaticTraversal = Dune::Std::is_detected<Detail::StaticTraversalConcept,Tree>;
+          // check which type of traversal is supported by the tree
+          using allowDynamicTraversal = Dune::Std::is_detected<Detail::DynamicTraversalConcept,Tree>;
+          using allowStaticTraversal = Dune::Std::is_detected<Detail::StaticTraversalConcept,Tree>;
 
-        // the tree must support either dynamic or static traversal
-        static_assert(allowDynamicTraversal::value || allowStaticTraversal::value);
+          // the tree must support either dynamic or static traversal
+          static_assert(allowDynamicTraversal::value || allowStaticTraversal::value);
 
-        // the visitor may specify preferred dynamic traversal
-        using preferDynamicTraversal = std::bool_constant<Visitor::treePathType == TreePathType::dynamic>;
+          // the visitor may specify preferred dynamic traversal
+          using preferDynamicTraversal = std::bool_constant<Visitor::treePathType == TreePathType::dynamic>;
 
-        // declare rule that applies visitor and current value to a child i. Returns next value
-        auto apply_i = [&](auto&& value, const auto& i){
-          auto&& child = tree.child(i);
-          using Child = std::decay_t<decltype(child)>;
+          // declare rule that applies visitor and current value to a child i. Returns next value
+          auto apply_i = [&](auto&& value, const auto& i){
+            auto&& child = tree.child(i);
+            using Child = std::decay_t<decltype(child)>;
 
-          auto val_before = visitor.beforeChild(tree, child, treePath, i, std::move(value));
+            auto val_before = visitor.beforeChild(tree, child, treePath, i, std::move(value));
 
-          // visits between children
-          auto val_in = Hybrid::ifElse(
-            Hybrid::equals(i,Indices::_0),
-              [&](auto id){return std::move(val_before);},
-              [&](auto id){return visitor.in(tree, treePath, std::move(val_before));}
-          );
+            // visits between children
+            auto val_in = Hybrid::ifElse(
+              Hybrid::equals(i,Indices::_0),
+                [&](auto id){return std::move(val_before);},
+                [&](auto id){return visitor.in(tree, treePath, std::move(val_before));}
+            );
 
-          constexpr bool visitChild = Visitor::template VisitChild<Tree,Child,TreePath>::value;
-          auto val_visit = [&](){
-            if constexpr (visitChild) {
-              auto childTreePath = Dune::TypeTree::push_back(treePath, i);
-              return hybridApplyToTree(child, childTreePath, visitor, std::move(val_in));
+            constexpr bool visitChild = Visitor::template VisitChild<Tree,Child,TreePath>::value;
+            auto val_visit = [&](){
+              if constexpr (visitChild) {
+                auto childTreePath = Dune::TypeTree::push_back(treePath, i);
+                return hybridApplyToTree(child, childTreePath, visitor, std::move(val_in));
+              }
+              else
+                return std::move(val_in);
+            }();
+
+            return visitor.afterChild(tree, child, treePath, i, std::move(val_visit));
+          };
+
+          // apply visitor to children
+          auto in_val = [&](){
+            if constexpr (allowStaticTraversal::value && not preferDynamicTraversal::value) {
+              // get list of static indices
+              auto indices = std::make_index_sequence<Tree::degree()>{};
+
+              // unfold apply_i left to right
+              return unpackIntegerSequence([&](auto... i) {
+                /**
+                 * This one-line is hard to digest:
+                 * * We need to call apply_i(pre_val,i) and pipe the result
+                 *   into the next call of apply_i on the next i. Such result may
+                 *   have any type so a simple loop or `Hybrid::forEach` does not
+                 *   do the trick.
+                 * * The left_fold function will apply the lambda consuming the
+                 *   first two arguments `r0=apply_i(pre_val,0)`, the result
+                 *   will be used as left argument of the next evaluation of the
+                 *   lambda `r1=apply_i(r0,1)` and so on.
+                 * * In other words, it pipes the binary operator to the left and
+                 *   this line essentialy becomes `pre_val (apply_i) ... (apply_i) i`
+                 *   where the *binary operator* `apply_i` is unfolded from left
+                 *   to right according to c++17 fold expression rules.
+                 *   (we do not use c++17 fold expressions because gcc-7 fails to
+                 *   deduce the lambdas types here).
+                 * * Additionally, the direction of the fold here is important
+                 *   because it will evaluate indices from 0 to (degree-1).
+                 */
+                return left_fold(std::move(apply_i),std::move(pre_val), i...);
+              }, indices);
+
+            } else {
+              // unfold first child to get type
+              auto i_val = apply_i(std::move(pre_val),std::size_t{0});
+              // dynamically loop rest of the children to accumulate remindng values
+              for(std::size_t i = 1; i < tree.degree(); i++)
+                i_val = apply_i(i_val,i);
+              return i_val;
             }
-            else
-              return std::move(val_in);
           }();
 
-          return visitor.afterChild(tree, child, treePath, i, std::move(val_visit));
-        };
+          return visitor.post(tree, treePath, in_val);
+        }
 
-        // apply visitor to children
-        auto in_val = [&](){
-          if constexpr (allowStaticTraversal::value && not preferDynamicTraversal::value) {
-            // get list of static indices
-            auto indices = std::make_index_sequence<Tree::degree()>{};
-
-            // unfold apply_i left to right
-            return unpackIntegerSequence([&](auto... i) {
-              /**
-               * This one-line is hard to digest:
-               * * We need to call apply_i(pre_val,i) and pipe the result
-               *   into the next call of apply_i on the next i. Such result may
-               *   have any type so a simple loop or `Hybrid::forEach` does not
-               *   do the trick.
-               * * The left_fold function will apply the lambda consuming the
-               *   first two arguments `r0=apply_i(pre_val,0)`, the result
-               *   will be used as left argument of the next evaluation of the
-               *   lambda `r1=apply_i(r0,1)` and so on.
-               * * In other words, it pipes the binary operator to the left and
-               *   this line essentialy becomes `pre_val (apply_i) ... (apply_i) i`
-               *   where the *binary operator* `apply_i` is unfolded from left
-               *   to right according to c++17 fold expression rules.
-               *   (we do not use c++17 fold expressions because gcc-7 fails to
-               *   deduce the lambdas types here).
-               * * Additionally, the direction of the fold here is important
-               *   because it will evaluate indices from 0 to (degree-1).
-               */
-              return left_fold(std::move(apply_i),std::move(pre_val), i...);
-            }, indices);
-
-          } else {
-            // unfold first child to get type
-            auto i_val = apply_i(std::move(pre_val),std::size_t{0});
-            // dynamically loop rest of the children to accumulate remindng values
-            for(std::size_t i = 1; i < tree.degree(); i++)
-              i_val = apply_i(i_val,i);
-            return i_val;
-          }
-        }();
-
-        return visitor.post(tree, treePath, in_val);
       }
 
-    }
+      /**
+       * @brief Apply hybrid visitor to TypeTree.
+       * @details This function applies the given hybrid visitor to the
+       *   tree in a depth-first traversal and returns the accumulated value.
+       *   This method is able to accumulate/transform different types on both dynamic and
+       *   static trees as long as they match on consecutive calls of the visitor.
+       *   On calls between dynamic childen, the carried type should be
+       *   consistent. On static children types may differ as long as they are expected
+       *    on the next visited node.
+       *
+       * @note Tree may be const or non-const
+       * @note If the carried type is always the same, consider applyToTree
+       * which is less demanding on the compiler.
+       *
+       * @note The visitor must implement the interface laid out by DefaultHybridVisitor (most easily achieved by
+       *       inheriting from it) and specify the required type of tree traversal preference (static or dynamic) by
+       *       inheriting from either StaticTraversal or DynamicTraversal.
+       *
+       * @param tree     The tree the visitor will be applied to.
+       * @param visitor  The hybrid visitor to apply to the tree.
+       * @param init     Initial value to pass to the visitor
+       * @return auto    Result of the last call on the visitor
+       */
+      template<typename Tree, typename Visitor, typename Init>
+      auto hybridApplyToTree(Tree&& tree, Visitor&& visitor, Init&& init)
+      {
+        return Impl::hybridApplyToTree(tree, hybridTreePath(), visitor, init);
+      }
 
-    /**
-     * @brief Apply hybrid visitor to TypeTree.
-     * @details This function applies the given hybrid visitor to the
-     *   tree in a depth-first traversal and returns the accumulated value.
-     *   This method is able to accumulate/transform different types on both dynamic and
-     *   static trees as long as they match on consecutive calls of the visitor.
-     *   On calls between dynamic childen, the carried type should be
-     *   consistent. On static children types may differ as long as they are expected
-     *    on the next visited node.
-     *
-     * @note Tree may be const or non-const
-     * @note If the carried type is always the same, consider applyToTree
-     * which is less demanding on the compiler.
-     *
-     * @note The visitor must implement the interface laid out by DefaultHybridVisitor (most easily achieved by
-     *       inheriting from it) and specify the required type of tree traversal preference (static or dynamic) by
-     *       inheriting from either StaticTraversal or DynamicTraversal.
-     *
-     * @param tree     The tree the visitor will be applied to.
-     * @param visitor  The hybrid visitor to apply to the tree.
-     * @param init     Initial value to pass to the visitor
-     * @return auto    Result of the last call on the visitor
-     */
-    template<typename Tree, typename Visitor, typename Init>
-    auto hybridApplyToTree(Tree&& tree, Visitor&& visitor, Init&& init)
-    {
-      return Detail::hybridApplyToTree(tree, hybridTreePath(), visitor, init);
-    }
+    } // namespace Experimental
 
     //! \} group Tree Traversal
-
   } // namespace TypeTree
 } //namespace Dune
 

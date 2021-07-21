@@ -248,101 +248,103 @@ namespace Dune {
     };
 
 
-
-    /**
-     * @brief Hybrid visitor interface and base class for TypeTree hybrid visitors.
-     *
-     * DefaultHybridVisitor defines the interface for visitors that can be applied to a TypeTree
-     * using hybridApplyToTree(). Each method of the visitor is passed a node of the tree (either as
-     * a mutable or a const reference, depending on the constness of the tree hybridApplyToTree() was
-     * called with). The second argument is of type TreePath and denotes the exact position of the
-     * node within the TypeTree, encoded as child indices starting at the root node.
-     *
-     * An hybrid visitor is different from a plain visitor because each method receives a carried value
-     * (last argument) on the node visit and is required to return a transformed value from it.
-     * Transformations of the carried value type are allowed as long as they are expected on the
-     * next visited node.
-     *
-     * In order to create a functioning visitor, an implementation will - in addition to providing the methods
-     * of this class - also have to contain the following template struct, which is used to determine
-     * whether to visit a given node:
-     *
-     * \code
-     * template<typename Node, typename Child, typename TreePath>
-     * struct VisitChild
-     * {
-     *   static const bool value = ...; // decide whether to visit Child
-     * };
-     * \endcode
-     *
-     * 
-     * \note This class can also be used as a convenient base class if the implemented visitor
-     *       only needs to act on some of the possible callback sites, avoiding a lot of boilerplate code.
-     */
-    struct DefaultHybridVisitor
-    {
+    namespace Experimental {
 
       /**
-       * \copybrief DefaultVisitor::pre
-       * \copydetails DefaultVisitor::pre
+       * @brief Hybrid visitor interface and base class for TypeTree hybrid visitors.
        *
-       * \param u        The carry value from previous visit.
-       * \return         The result of applying this visitor to u.
-       */
-      template<typename T, typename TreePath, typename U>
-      auto pre(T&& t, TreePath treePath, const U& u) const { return u;}
-
-      /**
-       * \copybrief DefaultVisitor::in
-       * \copydetails DefaultVisitor::in
+       * DefaultHybridVisitor defines the interface for visitors that can be applied to a TypeTree
+       * using hybridApplyToTree(). Each method of the visitor is passed a node of the tree (either as
+       * a mutable or a const reference, depending on the constness of the tree hybridApplyToTree() was
+       * called with). The second argument is of type TreePath and denotes the exact position of the
+       * node within the TypeTree, encoded as child indices starting at the root node.
        *
-       * \param u        The carry value from previous visit.
-       * \return         The result of applying this visitor to u.
-       */
-      template<typename T, typename TreePath, typename U>
-      auto in(T&& t, TreePath treePath, const U& u) const {return u;}
-
-      /**
-       * \copybrief DefaultVisitor::post
-       * \copydetails DefaultVisitor::post
+       * An hybrid visitor is different from a plain visitor because each method receives a carried value
+       * (last argument) on the node visit and is required to return a transformed value from it.
+       * Transformations of the carried value type are allowed as long as they are expected on the
+       * next visited node.
        *
-       * \param u        The carry value from previous visit.
-       * \return         The result of applying this visitor to u.
-       */
-      template<typename T, typename TreePath, typename U>
-      auto post(T&& t, TreePath treePath, const U& u) const {return u;}
-
-      /**
-       * \copybrief DefaultVisitor::leaf
-       * \copydetails DefaultVisitor::leaf
+       * In order to create a functioning visitor, an implementation will - in addition to providing the methods
+       * of this class - also have to contain the following template struct, which is used to determine
+       * whether to visit a given node:
        *
-       * \param u        The carry value from previous visit.
-       * \return         The result of applying this visitor to u.
-       */
-      template<typename T, typename TreePath, typename U>
-      auto leaf(T&& t, TreePath treePath, const U& u) const { return u;}
-
-      /**
-       * \copybrief DefaultVisitor::beforeChild
-       * \copydetails DefaultVisitor::beforeChild
+       * \code
+       * template<typename Node, typename Child, typename TreePath>
+       * struct VisitChild
+       * {
+       *   static const bool value = ...; // decide whether to visit Child
+       * };
+       * \endcode
        *
-       * \param u        The carry value from previous visit.
-       * \return         The result of applying this visitor to u.
-       */
-      template<typename T, typename Child, typename TreePath, typename ChildIndex, typename U>
-      auto beforeChild(T&& t, Child&& child, TreePath treePath, ChildIndex childIndex, const U& u) const {return u;}
-
-      /**
-       * \copybrief DefaultVisitor::afterChild
-       * \copydetails DefaultVisitor::afterChild
        *
-       * \param u        The carry value from previous visit.
-       * \return         The result of applying this visitor to u.
+       * \note This class can also be used as a convenient base class if the implemented visitor
+       *       only needs to act on some of the possible callback sites, avoiding a lot of boilerplate code.
        */
-      template<typename T, typename Child, typename TreePath, typename ChildIndex, typename U>
-      auto afterChild(T&& t, Child&& child, TreePath treePath, ChildIndex childIndex, const U& u) const {return u;}
+      struct DefaultHybridVisitor
+      {
 
-    };
+        /**
+         * \copybrief DefaultVisitor::pre
+         * \copydetails DefaultVisitor::pre
+         *
+         * \param u        The carry value from previous visit.
+         * \return         The result of applying this visitor to u.
+         */
+        template<typename T, typename TreePath, typename U>
+        auto pre(T&& t, TreePath treePath, const U& u) const { return u;}
+
+        /**
+         * \copybrief DefaultVisitor::in
+         * \copydetails DefaultVisitor::in
+         *
+         * \param u        The carry value from previous visit.
+         * \return         The result of applying this visitor to u.
+         */
+        template<typename T, typename TreePath, typename U>
+        auto in(T&& t, TreePath treePath, const U& u) const {return u;}
+
+        /**
+         * \copybrief DefaultVisitor::post
+         * \copydetails DefaultVisitor::post
+         *
+         * \param u        The carry value from previous visit.
+         * \return         The result of applying this visitor to u.
+         */
+        template<typename T, typename TreePath, typename U>
+        auto post(T&& t, TreePath treePath, const U& u) const {return u;}
+
+        /**
+         * \copybrief DefaultVisitor::leaf
+         * \copydetails DefaultVisitor::leaf
+         *
+         * \param u        The carry value from previous visit.
+         * \return         The result of applying this visitor to u.
+         */
+        template<typename T, typename TreePath, typename U>
+        auto leaf(T&& t, TreePath treePath, const U& u) const { return u;}
+
+        /**
+         * \copybrief DefaultVisitor::beforeChild
+         * \copydetails DefaultVisitor::beforeChild
+         *
+         * \param u        The carry value from previous visit.
+         * \return         The result of applying this visitor to u.
+         */
+        template<typename T, typename Child, typename TreePath, typename ChildIndex, typename U>
+        auto beforeChild(T&& t, Child&& child, TreePath treePath, ChildIndex childIndex, const U& u) const {return u;}
+
+        /**
+         * \copybrief DefaultVisitor::afterChild
+         * \copydetails DefaultVisitor::afterChild
+         *
+         * \param u        The carry value from previous visit.
+         * \return         The result of applying this visitor to u.
+         */
+        template<typename T, typename Child, typename TreePath, typename ChildIndex, typename U>
+        auto afterChild(T&& t, Child&& child, TreePath treePath, ChildIndex childIndex, const U& u) const {return u;}
+
+      };
+    } // namespace Experimental
 
     //! Mixin base class for visitors that only want to visit the direct children of a node.
     /**
@@ -448,88 +450,94 @@ namespace Dune {
       , public VisitDirectChildren
     {};
 
-    struct LeafCounterVisitor
-      : public DefaultHybridVisitor
-      , public StaticTraversal
-      , public VisitTree
-    {
-      template<class Tree, class Child, class TreePath, class ChildIndex, class U>
-      auto beforeChild(Tree&&, Child&&, TreePath, ChildIndex, U u) const {
-        // in this case child index is an integral constant: forward u
-        return u;
-      }
+    namespace Experimental::Info {
 
-      template<class Tree, class Child, class TreePath, class U>
-      std::size_t beforeChild(Tree&&, Child&&, TreePath, std::size_t childIndex, U u) const {
-        // in this case child index is a run-time index: cast accumulated u to std::size_t
-        return std::size_t{u};
-      }
-
-      template<class Tree, class TreePath, class U>
-      auto leaf(Tree&&, TreePath, U u) const
+      struct LeafCounterVisitor
+        : public DefaultHybridVisitor
+        , public StaticTraversal
+        , public VisitTree
       {
-        return Hybrid::plus(u,Dune::Indices::_1);
-      }
+        template<class Tree, class Child, class TreePath, class ChildIndex, class U>
+        auto beforeChild(Tree&&, Child&&, TreePath, ChildIndex, U u) const {
+          // in this case child index is an integral constant: forward u
+          return u;
+        }
 
-    };
+        template<class Tree, class Child, class TreePath, class U>
+        std::size_t beforeChild(Tree&&, Child&&, TreePath, std::size_t childIndex, U u) const {
+          // in this case child index is a run-time index: cast accumulated u to std::size_t
+          return std::size_t{u};
+        }
 
-    struct NodeCounterVisitor
-      : public LeafCounterVisitor
-    {
-      template<typename Tree, typename TreePath, typename U>
-      auto pre(Tree&& tree, TreePath treePath, U u) const {
-        return Hybrid::plus(u,Indices::_1);
-      }
-    };
+        template<class Tree, class TreePath, class U>
+        auto leaf(Tree&&, TreePath, U u) const
+        {
+          return Hybrid::plus(u,Dune::Indices::_1);
+        }
 
-    struct DepthVisitor
-      : public DefaultHybridVisitor
-      , public StaticTraversal
-      , public VisitTree
-    {
-      template<class Tree, class TreePath, class U>
-      auto leaf(Tree&&, TreePath, U u) const
+      };
+
+      struct NodeCounterVisitor
+        : public LeafCounterVisitor
       {
-        auto path_size = index_constant<treePathSize(TreePath{})>{};
-        auto depth = Hybrid::plus(path_size,Indices::_1);
-        return Hybrid::max(depth,u);
-      }
-    };
+        template<typename Tree, typename TreePath, typename U>
+        auto pre(Tree&& tree, TreePath treePath, U u) const {
+          return Hybrid::plus(u,Indices::_1);
+        }
+      };
 
-    namespace Info {
+      struct DepthVisitor
+        : public DefaultHybridVisitor
+        , public StaticTraversal
+        , public VisitTree
+      {
+        template<class Tree, class TreePath, class U>
+        auto leaf(Tree&&, TreePath, U u) const
+        {
+          auto path_size = index_constant<treePathSize(TreePath{})>{};
+          auto depth = Hybrid::plus(path_size,Indices::_1);
+          return Hybrid::max(depth,u);
+        }
+      };
 
     //! The depth of the TypeTree.
+    // result is alwayas an integral constant
       template<typename Tree>
       auto depth(const Tree& tree)
       {
         return hybridApplyToTree(tree,DepthVisitor{},Indices::_0);
       }
 
-      //! The depth of the TypeTree.
+      //! The depth of the Tree.
+      // return types is std::integral_constant.
       template<typename Tree>
       constexpr auto depth()
       {
         return decltype(hybridApplyToTree(std::declval<Tree>(),DepthVisitor{},Indices::_0)){};
       }
 
-      //! The total number of nodes in the TypeTree.
+      //! The total number of nodes in the Tree.
+      // if Tree is dynamic, return type is std::size_t, otherwise std::integral_constant.
       template<typename Tree>
       auto nodeCount(const Tree& tree)
       {
         return hybridApplyToTree(tree,NodeCounterVisitor{},Indices::_0);
       }
 
-      //! The number of leaf nodes in the TypeTree.
+      //! The number of leaf nodes in the Tree.
+      // if Tree is dynamic, return type is std::size_t, otherwise std::integral_constant.
       template<typename Tree>
       auto leafCount(const Tree& tree)
       {
         return hybridApplyToTree(tree,LeafCounterVisitor{},Dune::Indices::_0);
       }
 
+      //! true if any of the nodes in the tree only has dynamic degree.
       template<typename Tree>
       constexpr bool isDynamic = std::is_same<std::size_t, decltype(leafCount(std::declval<Tree>()))>{};
 
-    }
+    } // namespace Experimental::Info
+
     //! \} group Tree Traversal
 
   } // namespace TypeTree
