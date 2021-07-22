@@ -33,14 +33,13 @@ public:
 template<typename Node>
 void testProxyNode(Node& node)
 {
+  namespace Info = Dune::TypeTree::Experimental::Info;
   typedef SimpleProxy<Node> ProxyNode;
   ProxyNode proxyNode(node);
   Dune::TypeTree::applyToTree(proxyNode,TreePrinter());
-  typedef Dune::TypeTree::TreeInfo<Node> TI_Node;
-  typedef Dune::TypeTree::TreeInfo<ProxyNode> TI_ProxyNode;
-  static_assert(TI_Node::depth == TI_ProxyNode::depth, "Proxy node has wrong depth");
-  static_assert(TI_Node::nodeCount == TI_ProxyNode::nodeCount, "Proxy node has wrong node count");
-  static_assert(TI_Node::leafCount == TI_ProxyNode::leafCount, "Proxy node has wrong leaf count");
+  static_assert(decltype(Info::depth(node)){} == decltype(Info::depth(proxyNode)){}, "Proxy node has wrong depth");
+  static_assert(decltype(Info::nodeCount(node)){} == decltype(Info::nodeCount(proxyNode)){}, "Proxy node has wrong node count");
+  static_assert(decltype(Info::leafCount(node)){} == decltype(Info::leafCount(proxyNode)){}, "Proxy node has wrong leaf count");
 }
 
 

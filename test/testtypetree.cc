@@ -1,5 +1,7 @@
 #include "config.h"
 
+#include <dune/common/classname.hh>
+
 #include "typetreetestswitch.hh"
 
 #if TEST_TYPETREE_INVALID
@@ -13,65 +15,42 @@ int main()
 
 #include "typetreetestutility.hh"
 
-
-struct NodeCountingFunctor
+template<class Tree, std::size_t depth, std::size_t nodeCount, std::size_t leafCount>
+void check(const Tree& tree)
 {
+  namespace Info = Dune::TypeTree::Experimental::Info;
 
-  typedef std::size_t result_type;
+  std::cout << "==================================" << std::endl
+            << "class: " << Dune::className<Tree>() << std::endl
+            << "dynamic: " << Info::isDynamic<Tree> << std::endl
+            << "depth: " << Info::depth(tree) << std::endl
+            << "nodes: " << Info::nodeCount(tree) << std::endl
+            << "leafs: " << Info::leafCount(tree) << std::endl;
 
-  template<typename Node, typename TreePath>
-  struct doVisit
+  if constexpr (Info::isDynamic<Tree>)
+    static_assert(Dune::Std::is_detected<Dune::TypeTree::Detail::DynamicTraversalConcept,Tree>{});
+
+  TreePrinter treePrinter;
+  Dune::TypeTree::applyToTree(tree,treePrinter);
+
+  static_assert((decltype(Info::depth(tree)){} == depth),
+                "TreeInfo yields wrong information");
+
+  assert(leafCount == Info::leafCount(tree));
+  assert(nodeCount == Info::nodeCount(tree));
+
+  if constexpr (not Info::isDynamic<Tree>)
   {
-    static const bool value = true;
-  };
 
-  template<typename Node, typename TreePath>
-  struct visit
-  {
-    static const result_type result = 1;
-  };
+    static_assert((decltype(Info::nodeCount(tree)){} == nodeCount),
+                  "TreeInfo yields wrong information");
 
-};
+    static_assert((decltype(Info::leafCount(tree)){} == leafCount),
+                  "TreeInfo yields wrong information");
+  }
 
-struct LeafCountingFunctor
-{
-
-  typedef std::size_t result_type;
-
-  template<typename Node, typename TreePath>
-  struct doVisit
-  {
-    static const bool value = Node::isLeaf;
-  };
-
-  template<typename Node, typename TreePath>
-  struct visit
-  {
-    static const result_type result = 1;
-  };
-
-};
-
-
-struct DepthFunctor
-{
-
-  typedef std::size_t result_type;
-
-  template<typename Node, typename TreePath>
-  struct doVisit
-  {
-    static const bool value = Node::isLeaf;
-  };
-
-  template<typename Node, typename TreePath>
-  struct visit
-  {
-    // the TreePath is always one entry shorter than the actual depth of the tree
-    static const result_type result = Dune::TypeTree::TreePathSize<TreePath>::value + 1;
-  };
-
-};
+  std::cout << "==================================" << std::endl;
+}
 
 
 int main(int argc, char** argv)
@@ -80,10 +59,9 @@ int main(int argc, char** argv)
   // basic tests
 
   // leaf node
-  TreePrinter treePrinter;
   SimpleLeaf sl1;
 
-  Dune::TypeTree::applyToTree(sl1,treePrinter);
+  check<SimpleLeaf,1,1,1>(sl1);
 
   typedef SimplePower<SimpleLeaf,3> SP1;
   SP1 sp1_1;
@@ -91,28 +69,29 @@ int main(int argc, char** argv)
   sp1_1.setChild(1,sl1);
   sp1_1.setChild(2,sl1);
 
-  Dune::TypeTree::applyToTree(sp1_1,TreePrinter());
-
   SimpleLeaf sl2;
   SP1 sp1_2(sl2,false);
 
-  Dune::TypeTree::applyToTree(sp1_2,TreePrinter());
-
   SP1 sp1_2a(sl2,true);
 
-  Dune::TypeTree::applyToTree(sp1_2a,TreePrinter());
-
+  check<SP1,2,4,3>(sp1_2a);
 
   typedef SimpleComposite<SimpleLeaf,SP1,SimpleLeaf> SC1;
   SC1 sc1_1(sl1,sp1_2,sl2);
+
+  check<SC1,3,7,5>(sc1_1);
+  TreePrinter treePrinter;
   Dune::TypeTree::applyToTree(const_cast<const SC1&>(sc1_1),treePrinter);
 
   typedef SimpleComposite<SimpleLeaf,SimpleLeaf,SimpleLeaf> SC2;
   SC2 sc2(sl1,sl1,sl1);
 
+  check<SC2,2,4,3>(sc2);
+
   typedef SimpleComposite<SimpleLeaf,SP1,SimpleLeaf,SC1> SVC1;
   SVC1 svc1_1(sl1,sp1_1,sl2,sc1_1);
-  Dune::TypeTree::applyToTree(svc1_1,treePrinter);
+
+  check<SVC1,4,14,10>(svc1_1);
 
   typedef SimpleDynamicPower<SVC1> SDP1;
   SDP1 sdp_1(svc1_1, svc1_1);
@@ -122,43 +101,18 @@ int main(int argc, char** argv)
   Dune::TypeTree::applyToTree(sp1_3,TreePrinter());
 
   SVC1 svc1_2(SimpleLeaf(),SP1(sp1_2),sl2,const_cast<const SC1&>(sc1_1));
-  Dune::TypeTree::applyToTree(svc1_2,TreePrinter());
 
   typedef SimpleComposite<SimpleLeaf,SC2,SimpleLeaf,SC1> SVC2;
   SVC2 svc2_1(sl1,sc2,sl2,sc1_1);
 
   Dune::TypeTree::applyToTreePair(svc1_2,svc2_1,PairPrinter());
 
-  typedef Dune::TypeTree::TreeInfo<SVC2> TI;
+  check<SVC2,4,14,10>(svc2_1);
 
-  // test TreeInfo
-  static_assert(TI::depth == 4 && TI::nodeCount == 14 && TI::leafCount == 10,
-                "TreeInfo yields wrong information");
+  typedef SimpleDynamicPower<SimpleLeaf> SDP;
+  SDP sdp(sl1,sl1);
 
-  std::cout << "depth: " << TI::depth << std::endl
-            << "nodes: " << TI::nodeCount << std::endl
-            << "leafs: " << TI::leafCount << std::endl;
-
-  static_assert((Dune::TypeTree::AccumulateValue<
-                 SVC2,
-                 NodeCountingFunctor,
-                 Dune::TypeTree::plus<std::size_t>,
-                 0>::result == TI::nodeCount),
-                "Error in AccumulateValue");
-
-  static_assert((Dune::TypeTree::AccumulateValue<
-                 SVC2,
-                 LeafCountingFunctor,
-                 Dune::TypeTree::plus<std::size_t>,
-                 0>::result == TI::leafCount),
-                "Error in AccumulateValue");
-
-  static_assert((Dune::TypeTree::AccumulateValue<
-                 SVC2,
-                 DepthFunctor,
-                 Dune::TypeTree::max<std::size_t>,
-                 0>::result == TI::depth),
-                "Error in AccumulateValue");
+  check<SDP,2,3,2>(sdp);
 
   // Test valid and invalid child access. Invalid access should be caught at compile time
   auto const _0 = Dune::TypeTree::index_constant<0>();

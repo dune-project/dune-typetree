@@ -56,13 +56,13 @@ public:
 template<typename Node, typename Filter>
 void testFilteredCompositeNode(Node& node, Filter filter)
 {
+  namespace Info = Dune::TypeTree::Experimental::Info;
   typedef SimpleFilteredNode<Node,Filter> FN;
   FN filteredNode(node);
   Dune::TypeTree::applyToTree(filteredNode,TreePrinter());
-  typedef Dune::TypeTree::TreeInfo<FN> TI;
-  std::cout << "depth: " << TI::depth << std::endl
-            << "nodes: " << TI::nodeCount << std::endl
-            << "leafs: " << TI::leafCount << std::endl;
+  std::cout << "depth: " << Info::depth(filteredNode) << std::endl
+            << "nodes: " << Info::nodeCount(filteredNode) << std::endl
+            << "leafs: " << Info::leafCount(filteredNode) << std::endl;
 
   typedef Dune::TypeTree::TransformTree<FN,TestTransformation> Transformation;
 
@@ -70,13 +70,9 @@ void testFilteredCompositeNode(Node& node, Filter filter)
 
   TFN tfn = Transformation::transform(filteredNode);
 
-  typedef Dune::TypeTree::TreeInfo<TFN> TTI;
-
-  static_assert(TTI::depth == TI::depth, "error in transformation with filtered node");
-
-  static_assert(TTI::nodeCount == TI::nodeCount, "error in transformation with filtered node");
-
-  static_assert(TTI::leafCount == TI::leafCount, "error in transformation with filtered node");
+  static_assert(decltype(Info::depth(filteredNode)){} == decltype(Info::depth(tfn)){}, "error in transformation with filtered node");
+  static_assert(decltype(Info::nodeCount(filteredNode)){} == decltype(Info::nodeCount(tfn)){}, "error in transformation with filtered node");
+  static_assert(decltype(Info::leafCount(filteredNode)){} == decltype(Info::leafCount(tfn)){}, "error in transformation with filtered node");
 
   Dune::TypeTree::applyToTree(tfn,TreePrinter());
 }
