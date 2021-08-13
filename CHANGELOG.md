@@ -1,8 +1,13 @@
 Changes
 =======
 
-TypeTree 2.8-git
+TypeTree 2.9-git
 ----------------
+
+
+TypeTree 2.8
+------------
+
 -   Add support for tree transformations for `DynamicPowerNode`.
 -   A power node with runtime degree, `DynamicPowerNode`, is added.
 -   Allow tree traversal for nodes with runtime degree that are not necessarily power nodes.
