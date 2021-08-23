@@ -34,7 +34,7 @@ namespace Dune {
       : public std::enable_if<std::is_same<
                            typename PowerNode::ChildType,
                            T>::value &&
-    PowerNode::CHILDREN == k,
+    PowerNode::degree() == k,
                          T>
     {};
 
@@ -61,6 +61,7 @@ namespace Dune {
       static const bool isComposite = false;
 
       //! The number of children.
+      [[deprecated("Will be removed after release 2.9. Use degree()")]]
       static const std::size_t CHILDREN = k;
 
       static constexpr auto degree ()
@@ -83,7 +84,7 @@ namespace Dune {
       struct Child
       {
 
-        static_assert((i < CHILDREN), "child index out of range");
+        static_assert((i < degree()), "child index out of range");
 
         //! The type of the child.
         typedef T Type;
@@ -102,7 +103,7 @@ namespace Dune {
       template<std::size_t i>
       T& child (index_constant<i> = {})
       {
-        static_assert((i < CHILDREN), "child index out of range");
+        static_assert((i < degree()), "child index out of range");
         return *_children[i];
       }
 
@@ -113,7 +114,7 @@ namespace Dune {
       template<std::size_t i>
       const T& child (index_constant<i> = {}) const
       {
-        static_assert((i < CHILDREN), "child index out of range");
+        static_assert((i < degree()), "child index out of range");
         return *_children[i];
       }
 
@@ -124,7 +125,7 @@ namespace Dune {
       template<std::size_t i>
       std::shared_ptr<T> childStorage (index_constant<i> = {})
       {
-        static_assert((i < CHILDREN), "child index out of range");
+        static_assert((i < degree()), "child index out of range");
         return _children[i];
       }
 
@@ -135,7 +136,7 @@ namespace Dune {
       template<std::size_t i>
       std::shared_ptr<const T> childStorage (index_constant<i> = {}) const
       {
-        static_assert((i < CHILDREN), "child index out of range");
+        static_assert((i < degree()), "child index out of range");
         return _children[i];
       }
 
@@ -143,7 +144,7 @@ namespace Dune {
       template<std::size_t i>
       void setChild (T& t, index_constant<i> = {})
       {
-        static_assert((i < CHILDREN), "child index out of range");
+        static_assert((i < degree()), "child index out of range");
         _children[i] = stackobject_to_shared_ptr(t);
       }
 
@@ -151,7 +152,7 @@ namespace Dune {
       template<std::size_t i>
       void setChild (T&& t, index_constant<i> = {})
       {
-        static_assert((i < CHILDREN), "child index out of range");
+        static_assert((i < degree()), "child index out of range");
         _children[i] = convert_arg(std::move(t));
       }
 
@@ -159,7 +160,7 @@ namespace Dune {
       template<std::size_t i>
       void setChild (std::shared_ptr<T> st, index_constant<i> = {})
       {
-        static_assert((i < CHILDREN), "child index out of range");
+        static_assert((i < degree()), "child index out of range");
         _children[i] = std::move(st);
       }
 
@@ -175,7 +176,7 @@ namespace Dune {
        */
       T& child (std::size_t i)
       {
-        assert(i < CHILDREN && "child index out of range");
+        assert(i < degree() && "child index out of range");
         return *_children[i];
       }
 
@@ -185,7 +186,7 @@ namespace Dune {
        */
       const T& child (std::size_t i) const
       {
-        assert(i < CHILDREN && "child index out of range");
+        assert(i < degree() && "child index out of range");
         return *_children[i];
       }
 
@@ -195,7 +196,7 @@ namespace Dune {
        */
       std::shared_ptr<T> childStorage (std::size_t i)
       {
-        assert(i < CHILDREN && "child index out of range");
+        assert(i < degree() && "child index out of range");
         return _children[i];
       }
 
@@ -205,28 +206,28 @@ namespace Dune {
        */
       std::shared_ptr<const T> childStorage (std::size_t i) const
       {
-        assert(i < CHILDREN && "child index out of range");
+        assert(i < degree() && "child index out of range");
         return _children[i];
       }
 
       //! Sets the i-th child to the passed-in value.
       void setChild (std::size_t i, T& t)
       {
-        assert(i < CHILDREN && "child index out of range");
+        assert(i < degree() && "child index out of range");
         _children[i] = stackobject_to_shared_ptr(t);
       }
 
       //! Store the passed value in i-th child.
       void setChild (std::size_t i, T&& t)
       {
-        assert(i < CHILDREN && "child index out of range");
+        assert(i < degree() && "child index out of range");
         _children[i] = convert_arg(std::move(t));
       }
 
       //! Sets the stored value representing the i-th child to the passed-in value.
       void setChild (std::size_t i, std::shared_ptr<T> st)
       {
-        assert(i < CHILDREN && "child index out of range");
+        assert(i < degree() && "child index out of range");
         _children[i] = std::move(st);
       }
 
@@ -350,7 +351,7 @@ namespace Dune {
           ,int> = 0>
       PowerNode (Children&&... children)
       {
-        static_assert(CHILDREN == sizeof...(Children), "PowerNode constructor is called with incorrect number of children");
+        static_assert(degree() == sizeof...(Children), "PowerNode constructor is called with incorrect number of children");
         _children = NodeStorage{convert_arg(std::forward<Children>(children))...};
       }
 
@@ -360,7 +361,7 @@ namespace Dune {
           ,int> = 0>
       PowerNode (std::shared_ptr<Children>... children)
       {
-        static_assert(CHILDREN == sizeof...(Children), "PowerNode constructor is called with incorrect number of children");
+        static_assert(degree() == sizeof...(Children), "PowerNode constructor is called with incorrect number of children");
         _children = NodeStorage{children...};
       }
 
