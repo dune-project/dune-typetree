@@ -332,6 +332,23 @@ namespace Dune {
       return HybridTreePath<index_constant<i>,T...>(std::tuple_cat(std::make_tuple(_i),tp._data));
     }
 
+    template <class... T>
+    constexpr auto pop_front(const HybridTreePath<T...>& tp)
+    {
+      static_assert(sizeof...(T) != 0, "HybridTreePath must not be empty");
+      return unpackIntegerSequence([&](auto... i){
+        return HybridTreePath{std::make_tuple(std::get<i+1>(tp._data)...)};
+      }, std::make_index_sequence<(sizeof...(T) - 1)>{});
+    }
+
+    template <class... T>
+    constexpr auto pop_back(const HybridTreePath<T...>& tp)
+    {
+      static_assert(sizeof...(T) != 0, "HybridTreePath must not be empty");
+      return unpackIntegerSequence([&](auto... i){
+        return HybridTreePath{std::make_tuple(std::get<i>(tp._data)...)};
+      }, std::make_index_sequence<(sizeof...(T) - 1)>{});
+    }
 
     template<std::size_t... i>
     struct TreePathSize<HybridTreePath<index_constant<i>...> >
