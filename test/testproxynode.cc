@@ -1,7 +1,9 @@
 #include "config.h"
 
-#include <dune/typetree/proxynode.hh>
+#include <dune/common/classname.hh>
+#include <dune/common/test/testsuite.hh>
 
+#include <dune/typetree/proxynode.hh>
 
 #include "typetreetestutility.hh"
 
@@ -33,13 +35,14 @@ public:
 template<typename Node>
 void testProxyNode(Node& node)
 {
+  Dune::TestSuite suite{"Check ProxyNode on " + Dune::className<Node>()};
   namespace Info = Dune::TypeTree::Experimental::Info;
   typedef SimpleProxy<Node> ProxyNode;
   ProxyNode proxyNode(node);
   Dune::TypeTree::applyToTree(proxyNode,TreePrinter());
   static_assert(decltype(Info::depth(node)){} == decltype(Info::depth(proxyNode)){}, "Proxy node has wrong depth");
-  static_assert(decltype(Info::nodeCount(node)){} == decltype(Info::nodeCount(proxyNode)){}, "Proxy node has wrong node count");
-  static_assert(decltype(Info::leafCount(node)){} == decltype(Info::leafCount(proxyNode)){}, "Proxy node has wrong leaf count");
+  suite.check(Info::nodeCount(node) == Info::nodeCount(proxyNode)) << "Proxy node has wrong node count";
+  suite.check(Info::leafCount(node) == Info::leafCount(proxyNode)) << "Proxy node has wrong leaf count";
 }
 
 
@@ -57,6 +60,9 @@ int main(int argc, char** argv)
   sp1_1.setChild(1,sl1);
   sp1_1.setChild(2,sl1);
 
+  typedef SimpleDynamicPower<SimpleLeaf> SDP1;
+  SDP1 sdp1_1{sl1,sl1,sl1};
+
   SimpleLeaf sl2;
   SP1 sp1_2(sl2,false);
 
@@ -70,10 +76,12 @@ int main(int argc, char** argv)
 
   testProxyNode(sl1);
   testProxyNode(sp1_1);
+  testProxyNode(sdp1_1);
   testProxyNode(sc1_1);
 
   testProxyNode<const SimpleLeaf>(sl1);
   testProxyNode<const SP1>(sp1_1);
+  testProxyNode<const SDP1>(sdp1_1);
   testProxyNode<const SC1>(sc1_1);
 
   typedef SimpleComposite<SimpleLeaf,SP1,SimpleLeaf,SC1> SVC1;
