@@ -4,6 +4,7 @@ Changes
 TypeTree 2.9-git
 ----------------
 
+-   Remove `apply_to_tuple` utility.
 -   Add support for `ProxyNode` on nodes with dynamic degree.
 -   The static member variable `CHILDREN` is deprecated in favor of the function `degree()`.
 
