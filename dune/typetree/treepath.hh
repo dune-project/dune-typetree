@@ -332,6 +332,10 @@ namespace Dune {
       return HybridTreePath<index_constant<i>,T...>(std::tuple_cat(std::make_tuple(_i),tp._data));
     }
 
+    //! Removes first index on a `HybridTreePath`.
+    /**
+     * This function returns a new `HybridTreePath` without the first index.
+     */
     template <class... T>
     constexpr auto pop_front(const HybridTreePath<T...>& tp)
     {
@@ -341,6 +345,10 @@ namespace Dune {
       }, std::make_index_sequence<(sizeof...(T) - 1)>{});
     }
 
+    //! Removes last index on a `HybridTreePath`.
+    /**
+     * This function returns a new `HybridTreePath` without the last index.
+     */
     template <class... T>
     constexpr auto pop_back(const HybridTreePath<T...>& tp)
     {
