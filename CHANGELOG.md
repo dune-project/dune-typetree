@@ -4,6 +4,7 @@ Changes
 TypeTree 2.9-git
 ----------------
 
+-   The static member variable `CHILDREN` is deprecated in favor of the function `degree()`.
 
 TypeTree 2.8
 ------------

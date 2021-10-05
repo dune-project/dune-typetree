@@ -113,6 +113,7 @@ namespace Dune {
       static const bool isComposite = true;
 
       //! The number of children.
+      [[deprecated("Will be removed after release 2.9. Use degree()")]]
       static const std::size_t CHILDREN = filter_result::size;
 
       static constexpr auto degree ()

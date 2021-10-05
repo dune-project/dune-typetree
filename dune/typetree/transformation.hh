@@ -469,7 +469,7 @@ namespace Dune {
 
       static auto child_indices()
       {
-        return std::make_index_sequence<S::CHILDREN>();
+        return std::make_index_sequence<S::degree()>();
       }
 
     public:

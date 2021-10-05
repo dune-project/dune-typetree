@@ -46,6 +46,7 @@ namespace Dune {
       static const bool isComposite = true;
 
       //! The number of children.
+      [[deprecated("Will be removed after release 2.9. Use degree()")]]
       static const std::size_t CHILDREN = sizeof...(Children);
 
       static constexpr auto degree ()
@@ -57,7 +58,7 @@ namespace Dune {
       template<std::size_t k>
       struct Child {
 
-        static_assert((k < CHILDREN), "child index out of range");
+        static_assert((k < degree()), "child index out of range");
 
         //! The type of the child.
         typedef typename std::tuple_element<k,ChildTypes>::type Type;
@@ -216,7 +217,7 @@ namespace Dune {
       {}
 
       //! Initialize all children with the passed-in objects.
-      template<typename... Args, typename = typename std::enable_if<(sizeof...(Args) == CHILDREN)>::type>
+      template<typename... Args, typename = typename std::enable_if<(sizeof...(Args) == degree())>::type>
       CompositeNode (Args&&... args)
         : _children(convert_arg(std::forward<Args>(args))...)
       {}
