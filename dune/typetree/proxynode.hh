@@ -231,6 +231,14 @@ namespace Dune {
       typedef typename Node::NodeStorage NodeStorage;
     };
 
+    //! ProxyNode base class for DynamicPowerNode.
+    template<typename Node>
+    struct ProxyNodeBase<Node,DynamicPowerNodeTag>
+      : public DynamicChildAccessors<Node>
+    {
+      typedef typename Node::ChildType ChildType;
+      typedef typename Node::NodeStorage NodeStorage;
+    };
 
     //! Base class for nodes acting as a proxy for an existing node.
     /**
@@ -272,7 +280,11 @@ namespace Dune {
 
       //! The number of children.
       [[deprecated("Will be removed after release 2.9. Use degree()")]]
-      static const std::size_t CHILDREN = StaticDegree<Node>::value;
+      static const std::size_t CHILDREN = Dune::Std::detected_or_t<
+          std::integral_constant<std::size_t,std::numeric_limits<std::size_t>::max()>,
+          StaticDegree,
+          Node
+          >::value;
 
       template <class N = Node,
         std::enable_if_t<hasStaticDegree<N>, int> = 0>
