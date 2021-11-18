@@ -126,7 +126,7 @@ namespace Dune {
         {
           auto head = path[Dune::Indices::_0];
           auto tailPath = Dune::unpackIntegerSequence([&](auto... i){
-                        return treePath(path[i+1]...);
+                        return treePath(path[Dune::index_constant<i+1>{}]...);
                       }, std::make_index_sequence<sizeof...(T)-1>());
           return accessByTreePath(container[head], tailPath);
         }
