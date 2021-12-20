@@ -98,5 +98,12 @@ int main(int argc, char** argv)
     */
   }
 
+  {
+    using namespace Dune::TypeTree;
+
+    auto path = 1_tp;
+    static_assert(path[_0] == 1);
+  }
+
   return suite.exit();
 }
