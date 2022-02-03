@@ -115,7 +115,7 @@ namespace Dune {
 
       //! Get the index value at position pos.
       template<std::size_t i>
-      constexpr auto operator[](Dune::index_constant<i> pos) const
+      constexpr auto operator[](Dune::index_constant<i>) const
       {
         return std::get<i>(_data);
       }
