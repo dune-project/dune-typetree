@@ -44,7 +44,33 @@ int main(int argc, char** argv)
     suite.check(front(pop_front(path)) == 3);
     static_assert(front(pop_front(pop_front(path))) == 2);
     suite.check(front(pop_front(pop_front(path))) == 2);
+  }
 
+  { // test the operator== for HybridTreePath
+
+    using Dune::TypeTree::hybridTreePath;
+
+    suite.check(hybridTreePath(1,2,3) != hybridTreePath(1,2));
+    suite.check(hybridTreePath(1,2,3) == hybridTreePath(1u,2u,3u));
+    suite.check(hybridTreePath(1,2,3) != hybridTreePath(3,2,1));
+    suite.check(hybridTreePath(1,2,3) == hybridTreePath(_1,_2,_3));
+    suite.check(hybridTreePath(1,2,3) != hybridTreePath(_3,_2,_1));
+    suite.check(hybridTreePath(_1,_2,_3) != hybridTreePath(_3,_2,_1));
+
+    // check whether comparison can be used in constexpr context
+    static_assert(hybridTreePath(_1,_2,_3) == hybridTreePath(_1,_2,_3));
+    static_assert(hybridTreePath(_1,_2,_3) != hybridTreePath(_3,_2,_1));
+
+    auto a = hybridTreePath(std::integral_constant<int,0>{}, std::integral_constant<int,1>{});
+    auto b = hybridTreePath(std::integral_constant<std::size_t,0>{}, std::integral_constant<std::size_t,1>{});
+    static_assert(decltype(a == b)::value);
+
+    /* Note: It is not possible to check mixed integral constant arguments with
+       the purely static overload of operator==
+
+    auto c = hybridTreePath(std::integral_constant<std::size_t,0>{}, std::integral_constant<int,3>{});
+    static_assert(decltype(a != c)::value);
+    */
   }
 
   return suite.exit();
