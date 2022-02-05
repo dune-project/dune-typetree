@@ -358,6 +358,66 @@ namespace Dune {
       }, std::make_index_sequence<(sizeof...(T) - 1)>{});
     }
 
+    //! Compare two `HybridTreePath`s for value equality
+    /**
+     * The function returns true if both tree paths are of the same length
+     * and all entries have the same value.
+     *
+     * Note, it might be that the values are represented with different types.
+     * To check for same value and same type, use a combination of `std::is_same`
+     * and this comparison operator.
+     **/
+    template <class... S, class... T>
+    constexpr bool operator==(
+      const HybridTreePath<S...>& lhs,
+      const HybridTreePath<T...>& rhs)
+    {
+      if constexpr (sizeof...(S) == sizeof...(T)) {
+        if constexpr ((Dune::IsInteroperable<S,T>::value &&...)) {
+          return unpackIntegerSequence([&](auto... i){
+            return ((std::get<i>(lhs._data) == std::get<i>(rhs._data)) &&...);
+          }, std::make_index_sequence<(sizeof...(S))>{});
+        } else {
+          return false;
+        }
+      } else {
+        return false;
+      }
+    }
+
+    //! Overload for purely static `HybridTreePath`s.
+    /**
+     * The function returns `std::true_type` if the values of the passed
+     * treepaths are equal. Otherwise returns `std::false_type`. Note, this
+     * overload is chosen for purely static treepaths only.
+     **/
+    template <class S, S... lhs, class T, T... rhs>
+    constexpr auto operator==(
+      const HybridTreePath<std::integral_constant<S,lhs>...>&,
+      const HybridTreePath<std::integral_constant<T,rhs>...>&)
+    {
+      return std::bool_constant<hybridTreePath(lhs...) == hybridTreePath(rhs...)>{};
+    }
+
+
+    //! Compare two `HybridTreePath`s for unequality
+    template <class... S, class... T>
+    constexpr auto operator!=(
+      const HybridTreePath<S...>& lhs,
+      const HybridTreePath<T...>& rhs)
+    {
+      return !(lhs == rhs);
+    }
+
+    //! Compare two static `HybridTreePath`s for unequality
+    template <class S, S... lhs, class T, T... rhs>
+    constexpr auto operator!=(
+      const HybridTreePath<std::integral_constant<S,lhs>...>&,
+      const HybridTreePath<std::integral_constant<T,rhs>...>&)
+    {
+      return std::bool_constant<hybridTreePath(lhs...) != hybridTreePath(rhs...)>{};
+    }
+
     template<std::size_t... i>
     struct TreePathSize<HybridTreePath<index_constant<i>...> >
       : public index_constant<sizeof...(i)>
