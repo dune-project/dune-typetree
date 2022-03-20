@@ -55,7 +55,7 @@ namespace Dune {
        * \param treePath The position of the node within the TypeTree.
        */
       template<typename T, typename TreePath>
-      void pre(T&& t, TreePath treePath) const {}
+      void pre(T&&, TreePath) const {}
 
       //! Method for infix tree traversal.
       /**
@@ -67,7 +67,7 @@ namespace Dune {
        * \param treePath The position of the node within the TypeTree.
        */
       template<typename T, typename TreePath>
-      void in(T&& t, TreePath treePath) const {}
+      void in(T&&, TreePath) const {}
 
       //! Method for postfix tree traversal.
       /**
@@ -78,7 +78,7 @@ namespace Dune {
        * \param treePath The position of the node within the TypeTree.
        */
       template<typename T, typename TreePath>
-      void post(T&& t, TreePath treePath) const {}
+      void post(T&&, TreePath) const {}
 
       //! Method for leaf traversal.
       /**
@@ -88,7 +88,7 @@ namespace Dune {
        * \param treePath The position of the node within the TypeTree.
        */
       template<typename T, typename TreePath>
-      void leaf(T&& t, TreePath treePath) const {}
+      void leaf(T&&, TreePath) const {}
 
       //! Method for parent-child traversal.
       /**
@@ -102,7 +102,7 @@ namespace Dune {
        * \param childIndex The index of the child node in relation to the parent node.
        */
       template<typename T, typename Child, typename TreePath, typename ChildIndex>
-      void beforeChild(T&& t, Child&& child, TreePath treePath, ChildIndex childIndex) const {}
+      void beforeChild(T&&, Child&&, TreePath, ChildIndex) const {}
 
       //! Method for child-parent traversal.
       /**
@@ -117,7 +117,7 @@ namespace Dune {
        * \param childIndex The index of the child node in relation to the parent node.
        */
       template<typename T, typename Child, typename TreePath, typename ChildIndex>
-      void afterChild(T&& t, Child&& child, TreePath treePath, ChildIndex childIndex) const {}
+      void afterChild(T&&, Child&&, TreePath, ChildIndex) const {}
 
     };
 
@@ -171,7 +171,7 @@ namespace Dune {
        * \param treePath The position of the node within the TypeTree.
        */
       template<typename T1, typename T2, typename TreePath>
-      void pre(T1&& t1, T2&& t2, TreePath treePath) const {}
+      void pre(T1&&, T2&&, TreePath) const {}
 
       //! Method for infix tree traversal.
       /**
@@ -184,7 +184,7 @@ namespace Dune {
        * \param treePath The position of the node within the TypeTree.
        */
       template<typename T1, typename T2, typename TreePath>
-      void in(T1&& t1, T2&& t2, TreePath treePath) const {}
+      void in(T1&&, T2&&, TreePath) const {}
 
       //! Method for postfix traversal.
       /**
@@ -196,7 +196,7 @@ namespace Dune {
        * \param treePath The position of the node within the TypeTree.
        */
       template<typename T1, typename T2, typename TreePath>
-      void post(T1&& t1, T2&& t2, TreePath treePath) const {}
+      void post(T1&&, T2&&, TreePath) const {}
 
       //! Method for leaf traversal.
       /**
@@ -211,7 +211,7 @@ namespace Dune {
        * \param treePath The position of the node within the TypeTree.
        */
       template<typename T1, typename T2, typename TreePath>
-      void leaf(T1&& t1, T2&& t2, TreePath treePath) const {}
+      void leaf(T1&&, T2&&, TreePath) const {}
 
       //! Method for parent-child traversal.
       /**
@@ -227,7 +227,7 @@ namespace Dune {
        * \param childIndex The index of the child nodes in relation to the parent nodes.
        */
       template<typename T1, typename Child1, typename T2, typename Child2, typename TreePath, typename ChildIndex>
-      void beforeChild(T1&& t1, Child1&& child1, T2&& t2, Child2&& child2, TreePath treePath, ChildIndex childIndex) const {}
+      void beforeChild(T1&&, Child1&&, T2&&, Child2&&, TreePath, ChildIndex) const {}
 
       //! Method for child-parent traversal.
       /**
@@ -243,7 +243,7 @@ namespace Dune {
        * \param childIndex The index of the child nodes in relation to the parent nodes.
        */
       template<typename T1, typename Child1, typename T2, typename Child2, typename TreePath, typename ChildIndex>
-      void afterChild(T1&& t1, Child1&& child1, T2&& t2, Child2&& child2, TreePath treePath, ChildIndex childIndex) const {}
+      void afterChild(T1&&, Child1&&, T2&&, Child2&&, TreePath, ChildIndex) const {}
 
     };
 
@@ -291,7 +291,7 @@ namespace Dune {
          * \return         The result of applying this visitor to u.
          */
         template<typename T, typename TreePath, typename U>
-        auto pre(T&& t, TreePath treePath, const U& u) const { return u;}
+        auto pre(T&&, TreePath, const U& u) const { return u;}
 
         /**
          * \copybrief DefaultVisitor::in
@@ -301,7 +301,7 @@ namespace Dune {
          * \return         The result of applying this visitor to u.
          */
         template<typename T, typename TreePath, typename U>
-        auto in(T&& t, TreePath treePath, const U& u) const {return u;}
+        auto in(T&&, TreePath, const U& u) const {return u;}
 
         /**
          * \copybrief DefaultVisitor::post
@@ -311,7 +311,7 @@ namespace Dune {
          * \return         The result of applying this visitor to u.
          */
         template<typename T, typename TreePath, typename U>
-        auto post(T&& t, TreePath treePath, const U& u) const {return u;}
+        auto post(T&&, TreePath, const U& u) const {return u;}
 
         /**
          * \copybrief DefaultVisitor::leaf
@@ -321,7 +321,7 @@ namespace Dune {
          * \return         The result of applying this visitor to u.
          */
         template<typename T, typename TreePath, typename U>
-        auto leaf(T&& t, TreePath treePath, const U& u) const { return u;}
+        auto leaf(T&&, TreePath, const U& u) const { return u;}
 
         /**
          * \copybrief DefaultVisitor::beforeChild
@@ -331,7 +331,7 @@ namespace Dune {
          * \return         The result of applying this visitor to u.
          */
         template<typename T, typename Child, typename TreePath, typename ChildIndex, typename U>
-        auto beforeChild(T&& t, Child&& child, TreePath treePath, ChildIndex childIndex, const U& u) const {return u;}
+        auto beforeChild(T&&, Child&&, TreePath, ChildIndex, const U& u) const {return u;}
 
         /**
          * \copybrief DefaultVisitor::afterChild
@@ -341,7 +341,7 @@ namespace Dune {
          * \return         The result of applying this visitor to u.
          */
         template<typename T, typename Child, typename TreePath, typename ChildIndex, typename U>
-        auto afterChild(T&& t, Child&& child, TreePath treePath, ChildIndex childIndex, const U& u) const {return u;}
+        auto afterChild(T&&, Child&&, TreePath, ChildIndex, const U& u) const {return u;}
 
       };
     } // namespace Experimental
@@ -464,7 +464,7 @@ namespace Dune {
         }
 
         template<class Tree, class Child, class TreePath, class U>
-        std::size_t beforeChild(Tree&&, Child&&, TreePath, std::size_t childIndex, U u) const {
+        std::size_t beforeChild(Tree&&, Child&&, TreePath, std::size_t /*childIndex*/, U u) const {
           // in this case child index is a run-time index: cast accumulated u to std::size_t
           return std::size_t{u};
         }
@@ -481,7 +481,7 @@ namespace Dune {
         : public LeafCounterVisitor
       {
         template<typename Tree, typename TreePath, typename U>
-        auto pre(Tree&& tree, TreePath treePath, U u) const {
+        auto pre(Tree&&, TreePath, U u) const {
           return Hybrid::plus(u,Indices::_1);
         }
       };
