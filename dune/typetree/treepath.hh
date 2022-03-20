@@ -90,6 +90,9 @@ namespace Dune {
       constexpr HybridTreePath(const HybridTreePath& tp) = default;
       constexpr HybridTreePath(HybridTreePath&& tp) = default;
 
+      constexpr HybridTreePath& operator=(const HybridTreePath& tp) = default;
+      constexpr HybridTreePath& operator=(HybridTreePath&& tp) = default;
+
       //! Constructor from a `std::tuple`
       explicit constexpr HybridTreePath(std::tuple<T...> t)
         : _data(t)
