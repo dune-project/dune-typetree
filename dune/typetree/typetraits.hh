@@ -37,10 +37,8 @@ namespace Dune {
       template<typename X>
       static no  test(...);
 
-      enum {
-        /** @brief True if class T defines a NodeTag. */
-        value = sizeof(test<T>(0)) == sizeof(yes)
-      };
+      /** @brief True if class T defines a NodeTag. */
+      constexpr static bool value = sizeof(test<T>(0)) == sizeof(yes);
     };
 
     template<typename T, typename V>
@@ -57,10 +55,8 @@ namespace Dune {
       template<typename X>
       static no test(...);
 
-      enum {
-        /** @brief True if class T defines a NodeTag of type V. */
-        value = sizeof(test<T>(0)) == sizeof(yes)
-      };
+      /** @brief True if class T defines a NodeTag of type V. */
+      constexpr static bool value = sizeof(test<T>(0)) == sizeof(yes);
     };
 
     template<typename T>
@@ -74,10 +70,8 @@ namespace Dune {
       template<typename X>
       static no  test(...);
 
-      enum {
-        /** @brief True if class T defines an ImplementationTag. */
-        value = sizeof(test<T>(0)) == sizeof(yes)
-      };
+      /** @brief True if class T defines an ImplementationTag. */
+      constexpr static bool value = sizeof(test<T>(0)) == sizeof(yes);
     };
 
     template<typename T, typename V>
@@ -94,10 +88,8 @@ namespace Dune {
       template<typename X>
       static no test(...);
 
-      enum {
-        /** @brief True if class T defines an ImplementationTag of type V. */
-        value = sizeof(test<T>(0)) == sizeof(yes)
-      };
+      /** @brief True if class T defines an ImplementationTag of type V. */
+      constexpr static bool value = sizeof(test<T>(0)) == sizeof(yes);
     };
 
     template<typename>
