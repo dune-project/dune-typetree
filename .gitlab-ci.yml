@@ -13,3 +13,12 @@ include:
 before_script:
   - . /duneci/bin/duneci-init-job
   - duneci-install-module https://gitlab.dune-project.org/core/dune-common.git
+
+reuse:
+  image:
+    name: docker.io/fsfe/reuse:latest
+    entrypoint: [""]
+  tags: [duneci]
+  before_script: ""
+  script:
+    - reuse lint
