@@ -60,6 +60,6 @@ following licenses:
 Links
 -----
 
-[1]: GPL-3
-[2]: LGPL-3
-[3]: GPL-2
+[1]: COPYING.GPL-3
+[2]: COPYING.LGPL-3
+[3]: COPYING.GPL-2
