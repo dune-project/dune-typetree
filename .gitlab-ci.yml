@@ -15,6 +15,7 @@ before_script:
   - duneci-install-module https://gitlab.dune-project.org/core/dune-common.git
 
 reuse:
+  stage: .pre
   image:
     name: docker.io/fsfe/reuse:latest
     entrypoint: [""]
