@@ -46,6 +46,24 @@ int main(int argc, char** argv)
     suite.check(front(pop_front(path)) == 3);
     static_assert(front(pop_front(pop_front(path))) == 2);
     suite.check(front(pop_front(pop_front(path))) == 2);
+
+    suite.check(back(accumulate_back(path, 3)) == 8);
+    suite.check(back(accumulate_back(path, _3)) == 8);
+    static_assert(back(accumulate_back(pop_back(path), _3)) == _5);
+
+    suite.check(front(accumulate_front(path, 3)) == 4);
+    static_assert(front(accumulate_front(path, _3)) == _4);
+
+    constexpr auto rpath = reverse(path);
+    suite.check(rpath[_0] == 5);
+    suite.check(rpath[3] == 1);
+
+    constexpr auto jpath = join(path, rpath);
+    static_assert(jpath.max_size() == 8);
+    static_assert(jpath[_7] == _1);
+    static_assert(jpath == (path | rpath));
+    suite.check(jpath[_3] == 5);
+    suite.check(jpath[_4] == 5);
   }
 
   { // test the operator== for HybridTreePath
