@@ -6,8 +6,6 @@ SPDX-License-Identifier: LGPL-3.0-or-later OR LicenseRef-GPL-2.0-only-with-PDELa
 TypeTree
 ========
 
-This is version 2.7.0-git of the TypeTree library.
-
 TypeTree is a template library for constructing and operating on statically
 typed trees of objects. It is based around the idea of defining loosely coupled,
 componentized algorithms. Component lookup happens through tag dispatch, making
@@ -42,25 +40,14 @@ API documentation in doc/doxygen/html. Otherwise, you can build this documentati
 yourself by calling "make doc". Note that you need Doxygen and GraphViz available at
 configure time to be able to build the documentation.
 
-If you need help, please ask on the [PDELab mailinglist][5] for now. Bugs can be
-submitted to the [bugtracker][6] instead.
-
 See the file [CHANGELOG.md][8] for recent changes to the library.
 
 Dependencies
 ------------
 
-TypeTree depends on the following software packages:
+TypeTree depends on the dune-common core module:
 
-* The dune-common library from DUNE, version 2.4-dev. The dependency is actually very
-  weak, and you can easily use the library standalone by replacing the few convenience
-  components reused from dune-common (and by replacing the build system, of course).
-
-* TypeTree uses lots and lots of templates, so you need a decent C++ compiler.
-  This release requires a compiler that is at least compatible with GCC 5 in C++14
-  mode, so it whould work with all recent versions of GCC since version 5 and modern versions
-  of the clang compiler (3.9+). Very recent versions of ICC (icpc 18+) should also work, but
-  this is not tested on a regular basis.
+* https://gitlab.dune-project.org/core/dune-common
 
 License
 -------
