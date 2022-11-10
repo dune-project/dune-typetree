@@ -60,8 +60,8 @@ int main(int argc, char** argv)
 
     constexpr auto jpath = join(path, rpath);
     static_assert(jpath.max_size() == 8);
-    static_assert(jpath[_7] == _1);
-    static_assert(jpath == (path | rpath));
+    static_assert(jpath == Dune::TypeTree::hybridTreePath(_1,3,_2,5,5,_2,3,_1));
+    static_assert(join(path, Dune::TypeTree::hybridTreePath(5,_2), Dune::TypeTree::hybridTreePath(3, _1)) == Dune::TypeTree::hybridTreePath(_1,3,_2,5,5,_2,3,_1));
     suite.check(jpath[_3] == 5);
     suite.check(jpath[_4] == 5);
   }

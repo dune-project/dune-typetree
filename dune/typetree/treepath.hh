@@ -142,13 +142,6 @@ namespace Dune {
         return entry;
       }
 
-      //! Join two paths together
-      template<class OtherPath>
-      constexpr auto operator|(OtherPath path) const
-      {
-        return join(*this, path);
-      }
-
       //! Get the last index value.
       template<std::size_t i>
       constexpr auto element(Dune::index_constant<i> pos = {}) const
@@ -394,9 +387,9 @@ namespace Dune {
     }
 
     //! Join two tree paths into one
-    template<class... Head, class... Tail>
-    constexpr auto join(const HybridTreePath<Head...>& head, const HybridTreePath<Tail...>& tail) {
-      return TypeTree::HybridTreePath{std::tuple_cat(head._data, tail._data)};
+    template<class... Head, class... Other>
+    constexpr auto join(const HybridTreePath<Head...>& head, const Other&... tail) {
+      return TypeTree::HybridTreePath{std::tuple_cat(head._data, tail._data...)};
     }
 
     //! Reverses the order of the elements in the path
