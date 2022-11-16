@@ -1,5 +1,5 @@
 Module: dune-typetree
-Version: 2.9-git
+Version: 2.9
 Maintainer: dune-devel@lists.dune-project.org
 Depends: dune-common (>= 2.9)
 Whitespace-Hook: Yes
