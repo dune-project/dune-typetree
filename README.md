@@ -1,7 +1,7 @@
 TypeTree
 ========
 
-This is version 2.7.0-git of the TypeTree library.
+This is version 2.9 of the TypeTree library.
 
 TypeTree is a template library for constructing and operating on statically
 typed trees of objects. It is based around the idea of defining loosely coupled,
@@ -47,15 +47,13 @@ Dependencies
 
 TypeTree depends on the following software packages:
 
-* The dune-common library from DUNE, version 2.4-dev. The dependency is actually very
+* The dune-common library from DUNE, version 2.9. The dependency is actually very
   weak, and you can easily use the library standalone by replacing the few convenience
   components reused from dune-common (and by replacing the build system, of course).
 
 * TypeTree uses lots and lots of templates, so you need a decent C++ compiler.
-  This release requires a compiler that is at least compatible with GCC 5 in C++14
-  mode, so it whould work with all recent versions of GCC since version 5 and modern versions
-  of the clang compiler (3.9+). Very recent versions of ICC (icpc 18+) should also work, but
-  this is not tested on a regular basis.
+  This release requires a compiler that is at least compatible with GCC 7 in C++17
+  mode or clang compiler (9+).
 
 License
 -------
