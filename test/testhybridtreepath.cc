@@ -18,7 +18,7 @@ int main(int argc, char** argv)
   Dune::TestSuite suite("Check HybridTypeTree()");
 
   {
-
+    auto root = Dune::TypeTree::hybridTreePath();
     constexpr auto path = Dune::TypeTree::hybridTreePath(_1,3,_2,5);
 
     static_assert(std::is_same<std::decay_t<decltype(path.element(_0))>,std::decay_t<decltype(_1)>>{},"wrong entry value");
@@ -54,10 +54,15 @@ int main(int argc, char** argv)
     suite.check(front(accumulate_front(path, 3)) == 4);
     static_assert(front(accumulate_front(path, _3)) == _4);
 
+    static_assert(pop_front(pop_front(pop_front(pop_front(path)))).size() == 0);
+    static_assert(reverse(Dune::TypeTree::hybridTreePath()).size() == 0);
+
     constexpr auto rpath = reverse(path);
     suite.check(rpath[_0] == 5);
     suite.check(rpath[3] == 1);
 
+
+    static_assert(join(root, path) == join(path, root));
     constexpr auto jpath = join(path, rpath);
     static_assert(jpath.max_size() == 8);
     static_assert(jpath == Dune::TypeTree::hybridTreePath(_1,3,_2,5,5,_2,3,_1));
