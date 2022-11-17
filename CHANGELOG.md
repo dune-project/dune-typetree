@@ -6,7 +6,13 @@ SPDX-License-Identifier: LGPL-3.0-or-later OR LicenseRef-GPL-2.0-only-with-PDELa
 Changes
 =======
 
-TypeTree 2.9-git
+TypeTree 2.10-git
+----------------
+
+- `HybridTreePath` gained several multi-index utilities:
+  `max_size`, `join`, `reverse`, and `accumulate_[front|back]`.
+
+TypeTree 2.9
 ----------------
 
 -   Remove `apply_to_tuple` utility.
