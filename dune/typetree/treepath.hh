@@ -118,6 +118,12 @@ namespace Dune {
         return sizeof...(T);
       }
 
+      //! Get the size (length) of this path.
+      constexpr static std::size_t max_size()
+      {
+        return size();
+      }
+
       //! Get the index value at position pos.
       template<std::size_t i>
       constexpr auto operator[](Dune::index_constant<i>) const
@@ -154,9 +160,17 @@ namespace Dune {
         return entry;
       }
 
-      //! Get the last index value.
-      auto back() const
+      //! Get the first index value. Only available in non-empty paths
+      constexpr auto front() const
       {
+        static_assert(sizeof...(T) > 0, "HybridTreePath need to be a non-empty path");
+        return std::get<0>(_data);
+      }
+
+      //! Get the last index value. Only available in non-empty paths
+      constexpr auto back() const
+      {
+        static_assert(sizeof...(T) > 0, "HybridTreePath need to be a non-empty path");
         return std::get<sizeof...(T)-1>(_data);
       }
 
@@ -255,11 +269,11 @@ namespace Dune {
      * returns a copy of the value. As values are either `std::integral_constant` or `std::size_t`, that's
      * just as cheap as returning a reference.
      */
-    template<typename... T, typename std::enable_if<(sizeof...(T) > 0),bool>::type = true>
+    template<typename... T, std::enable_if_t<(sizeof...(T) > 0),bool> = true>
     constexpr auto back(const HybridTreePath<T...>& tp)
-      -> decltype(treePathEntry<sizeof...(T)-1>(tp))
+      -> decltype(tp.back())
     {
-      return treePathEntry<sizeof...(T)-1>(tp);
+      return tp.back();
     }
 
     //! Returns a copy of the first element of the `HybridTreePath`.
@@ -268,11 +282,11 @@ namespace Dune {
      * returns a copy of the value. As values are either `std::integral_constant` or `std::size_t`, that's
      * just as cheap as returning a reference.
      */
-    template<typename... T>
+    template<typename... T, std::enable_if_t<(sizeof...(T) > 0),bool> = true>
     constexpr auto front(const HybridTreePath<T...>& tp)
-      -> decltype(treePathEntry<0>(tp))
+      -> decltype(tp.front())
     {
-      return treePathEntry<0>(tp);
+      return tp.front();
     }
 
     //! Appends a run time index to a `HybridTreePath`.
@@ -337,11 +351,63 @@ namespace Dune {
       return HybridTreePath<index_constant<i>,T...>(std::tuple_cat(std::make_tuple(_i),tp._data));
     }
 
+    //! Hybrid utility that accumulates to the back of a multi-index
+    /**
+     * @brief The back of the path will be accumulated and promoted in order to
+     * hold the new index:
+     *
+     * \code{.cc}
+     *  accumulate_back(treePath(_0,_2),_2) -> treePath(_0,_4)
+     *  accumulate_back(treePath(_0,_2), 2) -> treePath(_0, 4)
+     *  accumulate_back(treePath(_0, 2),_2) -> treePath(_0, 4)
+     *  accumulate_back(treePath(_0, 2), 2) -> treePath(_0, 4)
+     * \endcode
+     */
+    template<typename I, typename... T, std::enable_if_t<(sizeof...(T) > 0),bool> = true>
+    constexpr auto accumulate_back(const HybridTreePath<T...>& tp, I i) {
+      using ::Dune::Hybrid::plus;
+      return push_back(pop_back(tp), plus(back(tp), i));
+    }
+
+
+    //! Hybrid utility that accumulates to the front of a multi-index
+    /**
+     * @brief The front of the path will be accumulated and promoted in order to
+     * hold the new index:
+     *
+     * \code{.cc}
+     *  accumulate_front(treePath(_0,_2),_2) -> treePath(_2,_2)
+     *  accumulate_front(treePath(_0,_2), 2) -> treePath( 2,_2)
+     *  accumulate_front(treePath( 0,_2),_2) -> treePath( 2,_2)
+     *  accumulate_front(treePath( 0,_2), 2) -> treePath( 2,_2)
+     * \endcode
+     */
+    template<typename I, typename... T, std::enable_if_t<(sizeof...(T) > 0),bool> = true>
+    constexpr auto accumulate_front(const HybridTreePath<T...>& tp, I i) {
+      using ::Dune::Hybrid::plus;
+      return push_front(pop_front(tp), plus(front(tp), i));
+    }
+
+    //! Join two tree paths into one
+    template<class... Head, class... Other>
+    constexpr auto join(const HybridTreePath<Head...>& head, const Other&... tail) {
+      return TypeTree::HybridTreePath{std::tuple_cat(head._data, tail._data...)};
+    }
+
+    //! Reverses the order of the elements in the path
+    template<class... T>
+    constexpr auto reverse(const HybridTreePath<T...>& tp) {
+      constexpr std::size_t size = sizeof...(T);
+      return unpackIntegerSequence([&](auto... i){
+        return treePath(tp[index_constant<size-i-1>{}] ...);
+      }, std::make_index_sequence<size>{});
+    }
+
     //! Removes first index on a `HybridTreePath`.
     /**
      * This function returns a new `HybridTreePath` without the first index.
      */
-    template <class... T>
+    template <class... T, std::enable_if_t<(sizeof...(T) > 0),bool> = true>
     constexpr auto pop_front(const HybridTreePath<T...>& tp)
     {
       static_assert(sizeof...(T) != 0, "HybridTreePath must not be empty");
@@ -354,7 +420,7 @@ namespace Dune {
     /**
      * This function returns a new `HybridTreePath` without the last index.
      */
-    template <class... T>
+    template <class... T, std::enable_if_t<(sizeof...(T) > 0),bool> = true>
     constexpr auto pop_back(const HybridTreePath<T...>& tp)
     {
       static_assert(sizeof...(T) != 0, "HybridTreePath must not be empty");
