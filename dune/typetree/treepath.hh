@@ -101,7 +101,8 @@ namespace Dune {
       {}
 
       //! Constructor from arguments
-      template<typename... U, typename std::enable_if<(sizeof...(T) > 0 && sizeof...(U) == sizeof...(T)),bool>::type = true>
+      template<typename... U,
+        typename std::enable_if_t<(sizeof...(T) > 0 && sizeof...(U) == sizeof...(T)),bool> = true>
       explicit constexpr HybridTreePath(U... t)
         : _data(t...)
       {}
@@ -125,7 +126,8 @@ namespace Dune {
       }
 
       //! Get the index value at position pos.
-      template<std::size_t i>
+      template<std::size_t i,
+        std::enable_if_t<(sizeof...(T) > i),bool> = true>
       constexpr auto operator[](Dune::index_constant<i>) const
       {
         return std::get<i>(_data);
@@ -143,7 +145,8 @@ namespace Dune {
       }
 
       //! Get the last index value.
-      template<std::size_t i>
+      template<std::size_t i,
+        std::enable_if_t<(sizeof...(T) > i),bool> = true>
       constexpr auto element(Dune::index_constant<i> pos = {}) const
       {
         return std::get<i>(_data);
@@ -161,17 +164,19 @@ namespace Dune {
       }
 
       //! Get the first index value. Only available in non-empty paths
+      template<std::size_t n = sizeof...(T),
+        std::enable_if_t<(n > 0 && n == sizeof...(T)),bool> = true>
       constexpr auto front() const
       {
-        static_assert(sizeof...(T) > 0, "HybridTreePath need to be a non-empty path");
         return std::get<0>(_data);
       }
 
       //! Get the last index value. Only available in non-empty paths
+      template<std::size_t n = sizeof...(T),
+        std::enable_if_t<(n > 0 && n == sizeof...(T)),bool> = true>
       constexpr auto back() const
       {
-        static_assert(sizeof...(T) > 0, "HybridTreePath need to be a non-empty path");
-        return std::get<sizeof...(T)-1>(_data);
+        return std::get<n-1>(_data);
       }
 
 #ifndef DOXYGEN
@@ -269,7 +274,7 @@ namespace Dune {
      * returns a copy of the value. As values are either `std::integral_constant` or `std::size_t`, that's
      * just as cheap as returning a reference.
      */
-    template<typename... T, std::enable_if_t<(sizeof...(T) > 0),bool> = true>
+    template<typename... T>
     constexpr auto back(const HybridTreePath<T...>& tp)
       -> decltype(tp.back())
     {
@@ -282,7 +287,7 @@ namespace Dune {
      * returns a copy of the value. As values are either `std::integral_constant` or `std::size_t`, that's
      * just as cheap as returning a reference.
      */
-    template<typename... T, std::enable_if_t<(sizeof...(T) > 0),bool> = true>
+    template<typename... T>
     constexpr auto front(const HybridTreePath<T...>& tp)
       -> decltype(tp.front())
     {
