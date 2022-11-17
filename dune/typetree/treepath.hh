@@ -161,7 +161,6 @@ namespace Dune {
       }
 
       //! Get the first index value. Only available in non-empty paths
-      template<class = void>
       constexpr auto front() const
       {
         static_assert(sizeof...(T) > 0, "HybridTreePath need to be a non-empty path");
@@ -169,7 +168,6 @@ namespace Dune {
       }
 
       //! Get the last index value. Only available in non-empty paths
-      template<class = void>
       constexpr auto back() const
       {
         static_assert(sizeof...(T) > 0, "HybridTreePath need to be a non-empty path");
