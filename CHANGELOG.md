@@ -11,6 +11,7 @@ TypeTree 2.10-git
 
 - `HybridTreePath` gained several multi-index utilities:
   `max_size`, `join`, `reverse`, and `accumulate_[front|back]`.
+- Add user-defined literal `_tp` to generate `HybridTreePath`
 
 TypeTree 2.9
 ----------------
