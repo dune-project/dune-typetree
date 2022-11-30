@@ -492,6 +492,9 @@ namespace Dune {
       return std::bool_constant<hybridTreePath(lhs...) != hybridTreePath(rhs...)>{};
     }
 
+
+    inline namespace Literals {
+
     //! Literal to create treepath
     /**
      * Example:
@@ -503,6 +506,9 @@ namespace Dune {
       using namespace Dune::Indices::Literals;
       return hybridTreePath(operator""_ic<digits...>());
     }
+
+    } // end namespace Literals
+
 
     template<std::size_t... i>
     struct TreePathSize<HybridTreePath<index_constant<i>...> >
