@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightInfo: Copyright © DUNE Project contributors, see file LICENSE.md in module root
 # SPDX-License-Identifier: LGPL-3.0-or-later OR LicenseRef-GPL-2.0-only-with-PDELab-exception
 
-cmake_minimum_required(VERSION 3.1.0)
+cmake_minimum_required(VERSION 3.13)
 project("dune-typetree" C CXX)
 
 if(NOT (dune-common_DIR OR dune-common_ROOT OR
