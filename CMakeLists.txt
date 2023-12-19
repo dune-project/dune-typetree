@@ -20,10 +20,13 @@ include(DuneMacros)
 
 # start a dune project with information from dune.module
 dune_project()
+dune_add_library(dunetypetree INTERFACE
+  EXPORT_NAME TypeTree
+  LINK_LIBRARIES Dune::Common)
 
 add_subdirectory(doc)
 add_subdirectory(dune)
 add_subdirectory(test)
 
 # finalize the dune project, e.g. generating config.h etc.
-finalize_dune_project(GENERATE_CONFIG_H_CMAKE)
+finalize_dune_project()
