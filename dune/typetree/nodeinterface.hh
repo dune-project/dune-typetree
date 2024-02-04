@@ -44,14 +44,6 @@ namespace Dune {
 
       //! Number of children of this node in the \ref TypeTree.
       /**
-       * \note Might not be implemented for nodes with dynamic size.
-       * Use the function `node.degree()` or `degree(node)` instead.
-       * \deprecated Will be removed after release 2.9. Use degree()
-       */
-      static const std::size_t CHILDREN = implementationDefined;
-
-      //! Number of children of this node in the \ref TypeTree.
-      /**
        * \note Static as long as the the information is known at compilation
        * time, otherwise non-static.
        * \return Dune::index_constant<k> if static, std::size_t otherwise

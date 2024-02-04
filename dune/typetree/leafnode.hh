@@ -38,10 +38,6 @@ namespace Dune {
       //! Mark this class as a non composite in the \ref TypeTree.
       static const bool isComposite = false;
 
-      //! Leafs have no children.
-      [[deprecated("Will be removed after release 2.9. Use degree()")]]
-      static const std::size_t CHILDREN = 0;
-
       //! The type tag that describes a LeafNode.
       typedef LeafNodeTag NodeTag;
 

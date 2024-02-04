@@ -17,6 +17,8 @@ TypeTree 2.10-git
 Deprecations and removals
 
 - Remove deprecated `TreePath`, use `StaticTreePath` instead.
+- Remove deprecated `CHILDREN` from `CompositeNode`, `FilteredCompositeNode`, `LeafNode`,
+  `PowerNode`, `ProxyNode`. Use `degree()` instead.
 
 TypeTree 2.9
 ----------------

@@ -280,14 +280,6 @@ namespace Dune {
       //! Mark this class as a composite in the \ref TypeTree.
       static const bool isComposite = Node::isComposite;
 
-      //! The number of children.
-      [[deprecated("Will be removed after release 2.9. Use degree()")]]
-      static const std::size_t CHILDREN = Dune::Std::detected_or_t<
-          std::integral_constant<std::size_t,std::numeric_limits<std::size_t>::max()>,
-          StaticDegree,
-          Node
-          >::value;
-
       template <class N = Node,
         std::enable_if_t<hasStaticDegree<N>, int> = 0>
       static constexpr auto degree ()
