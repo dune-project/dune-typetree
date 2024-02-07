@@ -137,7 +137,7 @@ namespace Dune {
 
       // make sure that all indices use std::size_t as the underlying number type
       static_assert((... && Impl::check_size_t<T>()),
-        "HybridTreePath indices must be convertible to std::size_t or std::integral_constant<std::size_t,v>");
+        "HybridTreePath index storage must be std::size_t or std::integral_constant<std::size_t,v>");
 
     public:
 
