@@ -47,10 +47,6 @@ namespace Dune {
       //! Mark this class as a composite in the \ref TypeTree.
       static const bool isComposite = true;
 
-      //! The number of children.
-      [[deprecated("Will be removed after release 2.9. Use degree()")]]
-      static const std::size_t CHILDREN = sizeof...(Children);
-
       static constexpr auto degree ()
       {
         return std::integral_constant<std::size_t,sizeof...(Children)>{};

@@ -14,6 +14,13 @@ TypeTree 2.10-git
   `max_size`, `join`, `reverse`, and `accumulate_[front|back]`.
 - Add user-defined literal `_tp` to generate `HybridTreePath`
 
+Deprecations and removals
+
+- Remove deprecated `TreePath`, use `StaticTreePath` instead.
+- Remove deprecated `CHILDREN` from `CompositeNode`, `FilteredCompositeNode`, `LeafNode`,
+  `PowerNode`, `ProxyNode`. Use `degree()` instead.
+- Remove deprecated `forEachNode`, use `applyToTree` instead.
+
 TypeTree 2.9
 ----------------
 
