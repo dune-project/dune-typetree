@@ -7,9 +7,12 @@
 #define DUNE_TYPETREE_TREEPATH_HH
 
 #include <cstddef>
+#include <cassert>
 #include <iostream>
+#include <type_traits>
 
 #include <dune/common/documentation.hh>
+#include <dune/common/version.hh>
 #include <dune/common/typetraits.hh>
 #include <dune/common/indices.hh>
 #include <dune/common/hybridutilities.hh>
@@ -17,9 +20,79 @@
 #include <dune/typetree/fixedcapacitystack.hh>
 #include <dune/typetree/utility.hh>
 
-
 namespace Dune {
   namespace TypeTree {
+
+    // The Impl namespace collects some free standing functions helper functions
+    namespace Impl {
+      template<typename T>
+      struct check_size_t_impl
+      {
+        static constexpr auto check() {
+          return std::is_same_v<T, std::size_t>;
+        }
+      };
+
+      template<class T, T v>
+      struct check_size_t_impl<std::integral_constant<T,v>>
+      {
+        static constexpr auto check() {
+          return std::is_same_v<T, std::size_t>;
+        }
+      };
+
+      template<typename T>
+      constexpr auto check_size_t() {
+        return check_size_t_impl<T>::check();
+      }
+
+      template<typename T>
+      constexpr auto cast_size_t(const T & v) {
+        // check that T is an integral type that can be cast to std::size_t
+        static_assert(
+          std::is_convertible_v<T,std::size_t> &&
+          std::is_integral_v<T>,
+          "HybridTreePath indices must be convertible to std::size_t or std::integral_constant<std::size_t,v>");
+        // positivity can only be checked at run-time
+        assert(v >= 0 &&
+          "HybridTreePath indices must be convertible to std::size_t or std::integral_constant<std::size_t,v>");
+        return std::size_t(v);
+      }
+
+      template<class T, T v>
+      constexpr auto cast_size_t(std::integral_constant<T,v>) {
+        // check that T is an intergal type that can be cast to std::size_t
+        // and that v is positive
+        static_assert(
+          std::is_convertible_v<T,std::size_t> &&
+          std::is_integral_v<T> &&
+          v >= 0,
+          "HybridTreePath indices must be convertible to std::size_t or std::integral_constant<std::size_t,v>");
+        return std::integral_constant<std::size_t,v>();
+      }
+
+      // these are helper functions that help triggering a deprecation warning
+      template<typename T>
+      [[deprecated("HybridTreePath index storage should be std::size_t or std::integral_constant<std::size_t,v>!\n"
+            "Using anything else is deprecated and will not possible after the 2.10 release.\n"
+            "It is adviced not to specify the template parameters expicitly,\n"
+            "but to use the helper functions `hybridTreePath` or `treePath`."
+            "These take care of converting indices to the appropriate storage.")]]
+      constexpr bool check_storage_type(MetaType<T>) {
+        return false;
+      }
+
+      // specialization of valid index type
+      template<std::size_t v>
+      constexpr bool check_storage_type(MetaType<std::integral_constant<std::size_t,v>>) {
+        return true;
+      }
+
+      // specialization of valid index type
+      constexpr bool check_storage_type(MetaType<std::size_t>) {
+        return true;
+      }
+    }
 
     template<typename... T>
     class HybridTreePath;
@@ -75,10 +148,20 @@ namespace Dune {
      * same type. At the same time, as much information as possible is kept accessible at compile
      * time, allowing for more efficient algorithms.
      *
+     * \note Internally all indices are stored as std::size_t or
+     * std::integral_constant<std::size_t,v>. The latter is the same
+     * as Dune::index_constant<v>.
      */
     template<typename... T>
     class HybridTreePath
     {
+
+      // enable check for dune-typetree 2.10 and above
+#if DUNE_VERSION_GTE(TYPETREE,2,10)
+      // make sure that all indices use std::size_t as the underlying number type
+      static_assert((... && Impl::check_size_t<T>()),
+        "HybridTreePath index storage must be std::size_t or std::integral_constant<std::size_t,v>");
+#endif
 
     public:
 
@@ -87,7 +170,10 @@ namespace Dune {
 
       //! Default constructor
       constexpr HybridTreePath()
-      {}
+      {
+        constexpr bool check =
+          (... && Impl::check_storage_type(MetaType<T>()) );
+      }
 
       constexpr HybridTreePath(const HybridTreePath& tp) = default;
       constexpr HybridTreePath(HybridTreePath&& tp) = default;
@@ -98,14 +184,20 @@ namespace Dune {
       //! Constructor from a `std::tuple`
       explicit constexpr HybridTreePath(std::tuple<T...> t)
         : _data(t)
-      {}
+      {
+        constexpr bool check =
+          (... && Impl::check_storage_type(MetaType<T>()) );
+      }
 
       //! Constructor from arguments
       template<typename... U,
         typename std::enable_if_t<(sizeof...(T) > 0 && sizeof...(U) == sizeof...(T)),bool> = true>
       explicit constexpr HybridTreePath(U... t)
-        : _data(t...)
-      {}
+        : _data(t...) // we assume that all arguments are convertible to the types T...
+      {
+        constexpr bool check =
+          (... && Impl::check_storage_type(MetaType<T>()) );
+      }
 
       //! Returns an index_sequence for enumerating the components of this HybridTreePath.
       [[nodiscard]] constexpr static index_sequence enumerate()
@@ -191,15 +283,19 @@ namespace Dune {
 
     };
 
-
-    //! Constructs a new `HybridTreePath` from the given indices.
+    //! helper function to construct a new `HybridTreePath` from the given indices.
     /**
-     * This function returns a new `HybridTreePath` with the given index values. It exists
-     * mainly to avoid having to manually specify the exact type of the new object.
+     * This function returns a new `HybridTreePath` with the given index values. It is
+     * only a helper function used by `treePath` and `hybridTreePath`.
+     *
+     * It expects that all indices use std::size_t as basic number type.
      */
     template<typename... T>
-    [[nodiscard]] constexpr HybridTreePath<T...> hybridTreePath(const T&... t)
+    [[nodiscard]] constexpr auto makeTreePath(const T... t)
     {
+      // check that all entries are based on std::size_t
+      static_assert((... && Impl::check_size_t<T>()),
+        "HybridTreePath indices must be of type std::size_t or std::integral_constant<std::size_t,v>");
       return HybridTreePath<T...>(t...);
     }
 
@@ -207,11 +303,28 @@ namespace Dune {
     /**
      * This function returns a new `HybridTreePath` with the given index values. It exists
      * mainly to avoid having to manually specify the exact type of the new object.
+     *
+     * It further ensures that the basic number type is std::size_t
+     * and casts any indices accordingly.
      */
     template<typename... T>
-    [[nodiscard]] constexpr HybridTreePath<T...> treePath(const T&... t)
+    [[nodiscard]] constexpr auto hybridTreePath(const T&... t)
     {
-      return HybridTreePath<T...>(t...);
+      return makeTreePath(Impl::cast_size_t(t)...);
+    }
+
+    //! Constructs a new `HybridTreePath` from the given indices.
+    /**
+     * This function returns a new `HybridTreePath` with the given index values. It exists
+     * mainly to avoid having to manually specify the exact type of the new object.
+     *
+     * It further ensures that the basic number type is std::size_t
+     * and casts any indices accordingly.
+     */
+    template<typename... T>
+    [[nodiscard]] constexpr auto treePath(const T&... t)
+    {
+      return makeTreePath(Impl::cast_size_t(t)...);
     }
 
 
