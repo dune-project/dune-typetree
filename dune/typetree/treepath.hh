@@ -16,6 +16,7 @@
 #include <dune/common/typetraits.hh>
 #include <dune/common/indices.hh>
 #include <dune/common/hybridutilities.hh>
+#include <dune/common/typelist.hh>
 
 #include <dune/typetree/fixedcapacitystack.hh>
 #include <dune/typetree/utility.hh>
