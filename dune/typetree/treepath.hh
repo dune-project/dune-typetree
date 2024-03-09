@@ -16,6 +16,7 @@
 #include <dune/common/typetraits.hh>
 #include <dune/common/indices.hh>
 #include <dune/common/hybridutilities.hh>
+#include <dune/common/typelist.hh>
 
 #include <dune/typetree/fixedcapacitystack.hh>
 #include <dune/typetree/utility.hh>
@@ -171,7 +172,7 @@ namespace Dune {
       //! Default constructor
       constexpr HybridTreePath()
       {
-        constexpr bool check =
+        [[maybe_unused]] constexpr bool check =
           (... && Impl::check_storage_type(MetaType<T>()) );
       }
 
@@ -185,7 +186,7 @@ namespace Dune {
       explicit constexpr HybridTreePath(std::tuple<T...> t)
         : _data(t)
       {
-        constexpr bool check =
+        [[maybe_unused]] constexpr bool check =
           (... && Impl::check_storage_type(MetaType<T>()) );
       }
 
@@ -195,7 +196,7 @@ namespace Dune {
       explicit constexpr HybridTreePath(U... t)
         : _data(t...) // we assume that all arguments are convertible to the types T...
       {
-        constexpr bool check =
+        [[maybe_unused]] constexpr bool check =
           (... && Impl::check_storage_type(MetaType<T>()) );
       }
 
