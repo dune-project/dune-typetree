@@ -84,7 +84,7 @@ namespace Dune {
        * @code {.c++}
        *   auto p = std::plus<>{};
        *   auto result_a = p(p(p(0,1),2),3);
-       *   auto result_b = left_fold(std::move(p), 0, 1, 2, 3);
+       *   auto result_b = left_fold(p, 0, 1, 2, 3);
        * // result_a is same as result_b
        * @endcode
        *
