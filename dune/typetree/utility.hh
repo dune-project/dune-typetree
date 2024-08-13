@@ -68,7 +68,7 @@ namespace Dune {
        */
       template<class BinaryOp, class Arg>
       constexpr decltype(auto)
-      left_fold(BinaryOp&& binary_op, Arg&& arg)
+      left_fold(const BinaryOp& binary_op, Arg&& arg)
       {
         return std::forward<Arg>(arg);
       }
@@ -96,10 +96,10 @@ namespace Dune {
        */
       template<class BinaryOp, class Init, class Arg0, class... Args>
       constexpr decltype(auto)
-      left_fold(BinaryOp&& binary_op, Init&& init, Arg0&& arg_0, Args&&... args)
+      left_fold(const BinaryOp& binary_op, Init&& init, Arg0&& arg_0, Args&&... args)
       {
         return left_fold(
-          std::forward<BinaryOp>(binary_op),
+          binary_op,
           binary_op(std::forward<Init>(init), std::forward<Arg0>(arg_0)),
           std::forward<Args>(args)...);
       }
