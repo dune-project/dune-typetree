@@ -7,7 +7,7 @@
 #define DUNE_TYPETREE_VISITOR_HH
 
 #include <dune/typetree/treepath.hh>
-#include <dune/typetree/utility.hh>
+#include <dune/common/hybridutilities.hh>
 
 namespace Dune {
   namespace TypeTree {

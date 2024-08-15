@@ -14,7 +14,6 @@
 
 #include <dune/common/shared_ptr.hh>
 #include <dune/common/indices.hh>
-#include <dune/common/hybridutilities.hh>
 #include <dune/typetree/nodeinterface.hh>
 #include <dune/typetree/nodetags.hh>
 
@@ -103,54 +102,6 @@ namespace Dune {
           binary_op(std::forward<Init>(init), std::forward<Arg0>(arg_0)),
           std::forward<Args>(args)...);
       }
-
-
-      namespace Hybrid {
-        using namespace Dune::Hybrid;
-
-        namespace Detail {
-          template<class Op, class... Args>
-          constexpr auto applyOperator(Op&& op, Args&&... args)
-          {
-            using T = std::common_type_t<Args...>;
-            return op(static_cast<T>(args)...);
-          }
-
-          template<class Op, class T, T... Args>
-          constexpr auto applyOperator(Op, std::integral_constant<T,Args>...)
-          {
-            static_assert(std::is_default_constructible_v<Op>,
-              "Operator in integral expressions shall be default constructible");
-            constexpr auto result = Op{}(T{Args}...);
-            return std::integral_constant<std::decay_t<decltype(result)>,result>{};
-          }
-
-          // FIXME: use lambda when we adpot c++20
-          struct Max {
-            template<class... Args>
-            constexpr auto operator()(Args&&... args) const
-            {
-              using T = std::common_type_t<Args...>;
-              return std::max({static_cast<T>(args)...});
-            }
-          };
-        }
-
-        static constexpr auto max = [](const auto& a, const auto& b)
-        {
-          return Detail::applyOperator(Detail::Max{}, a, b);
-        };
-
-        static constexpr auto plus = [](const auto& a, const auto& b)
-        {
-          return Detail::applyOperator(std::plus<>{}, a, b);
-        };
-
-        static constexpr auto minus = [](const auto& a, const auto& b)
-        {
-          return Detail::applyOperator(std::minus<>{}, a, b);
-        };
-      } // namespace Hybrid
 
     } // namespace Experimental
 
