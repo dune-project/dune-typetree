@@ -10,6 +10,7 @@
 #include <dune/typetree/nodeinterface.hh>
 #include <dune/typetree/nodetags.hh>
 #include <dune/typetree/treepath.hh>
+#include <dune/typetree/utility.hh>
 
 
 namespace Dune {
