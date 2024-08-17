@@ -68,7 +68,7 @@ namespace Dune {
        */
       template<class BinaryOp, class Arg>
       constexpr decltype(auto)
-      left_fold(BinaryOp&& binary_op, Arg&& arg)
+      left_fold(const BinaryOp& binary_op, Arg&& arg)
       {
         return std::forward<Arg>(arg);
       }
@@ -84,7 +84,7 @@ namespace Dune {
        * @code {.c++}
        *   auto p = std::plus<>{};
        *   auto result_a = p(p(p(0,1),2),3);
-       *   auto result_b = left_fold(std::move(p), 0, 1, 2, 3);
+       *   auto result_b = left_fold(p, 0, 1, 2, 3);
        * // result_a is same as result_b
        * @endcode
        *
@@ -96,10 +96,10 @@ namespace Dune {
        */
       template<class BinaryOp, class Init, class Arg0, class... Args>
       constexpr decltype(auto)
-      left_fold(BinaryOp&& binary_op, Init&& init, Arg0&& arg_0, Args&&... args)
+      left_fold(const BinaryOp& binary_op, Init&& init, Arg0&& arg_0, Args&&... args)
       {
         return left_fold(
-          std::forward<BinaryOp>(binary_op),
+          binary_op,
           binary_op(std::forward<Init>(init), std::forward<Arg0>(arg_0)),
           std::forward<Args>(args)...);
       }
