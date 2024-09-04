@@ -6,7 +6,7 @@ SPDX-License-Identifier: LGPL-3.0-or-later OR LicenseRef-GPL-2.0-only-with-PDELa
 Changes
 =======
 
-TypeTree 2.10-git
+TypeTree 2.10
 ----------------
 
 - `HybridTreePath` functions now have `[[nodiscard]]` attribute
