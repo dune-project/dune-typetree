@@ -611,7 +611,7 @@ namespace Dune {
 
             // visits between children
             auto val_in = Hybrid::ifElse(
-              Hybrid::equals(i,Indices::_0),
+              Hybrid::equal_to(i,Indices::_0),
                 [&](auto id){return std::move(val_before);},
                 [&](auto id){return visitor.in(tree, treePath, std::move(val_before));}
             );
