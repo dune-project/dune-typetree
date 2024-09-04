@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later OR LicenseRef-GPL-2.0-only-with-PDELab-exception
 
 Module: dune-typetree
-Version: 2.10-git
+Version: 2.11-git
 Maintainer: dune-devel@lists.dune-project.org
-Depends: dune-common (>= 2.10)
+Depends: dune-common (>= 2.11)
 Whitespace-Hook: Yes
