@@ -18,11 +18,17 @@ list(APPEND CMAKE_MODULE_PATH ${dune-common_MODULE_PATH}
 #include the dune macros
 include(DuneMacros)
 
+# deactivate global include-directories
+dune_policy(SET DP_DEFAULT_INCLUDE_DIRS NEW)
+
 # start a dune project with information from dune.module
 dune_project()
 dune_add_library(dunetypetree INTERFACE
   EXPORT_NAME TypeTree
   LINK_LIBRARIES Dune::Common)
+
+# set include directories for dunetypetree library
+dune_default_include_directories(dunetypetree INTERFACE)
 
 add_subdirectory(doc)
 add_subdirectory(dune)
