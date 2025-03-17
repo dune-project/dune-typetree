@@ -343,7 +343,7 @@ namespace Dune {
      *
      * \code{.cc}
      * auto tp = hybridTreePath(1,2,3,4);
-     * using namespace Dune::TypeTree::Indices;
+     * using namespace Dune::Indices;
      * // the following two lines are equivalent
      * std::cout << treePathEntry<2>(tp) << std::endl;
      * std::cout << treePathEntry(tp,_2) << std::endl;
@@ -366,7 +366,7 @@ namespace Dune {
      *
      * \code{.cc}
      * auto tp = hybridTreePath(1,2,3,4);
-     * using namespace Dune::TypeTree::Indices;
+     * using namespace Dune::Indices;
      * // the following two lines are equivalent
      * std::cout << treePathIndex<2>(tp) << std::endl;
      * std::cout << treePathIndex(tp,_2) << std::endl;
@@ -423,7 +423,7 @@ namespace Dune {
      *
      * \code{.cc}
      * auto tp = hybridTreePath(1,2,3,4);
-     * using namespace Dune::TypeTree::Indices;
+     * using namespace Dune::Indices;
      * // the following two lines are equivalent
      * auto tp_a = push_back<1>(tp);
      * auto tp_b = push_back(tp,_1);
@@ -454,7 +454,7 @@ namespace Dune {
      *
      * \code{.cc}
      * auto tp = hybridTreePath(1,2,3,4);
-     * using namespace Dune::TypeTree::Indices;
+     * using namespace Dune::Indices;
      * // the following two lines are equivalent
      * auto tp_a = push_front<1>(tp);
      * auto tp_b = push_front(tp,_1);
