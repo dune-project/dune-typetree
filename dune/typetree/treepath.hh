@@ -18,9 +18,6 @@
 #include <dune/common/hybridutilities.hh>
 #include <dune/common/typelist.hh>
 
-#include <dune/typetree/fixedcapacitystack.hh>
-#include <dune/typetree/utility.hh>
-
 namespace Dune {
   namespace TypeTree {
 
