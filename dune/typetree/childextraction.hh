@@ -14,7 +14,6 @@
 #include <dune/common/typetraits.hh>
 #include <dune/common/shared_ptr.hh>
 
-#include <dune/typetree/nodeinterface.hh>
 #include <dune/typetree/treepath.hh>
 
 
@@ -151,7 +150,7 @@ namespace Dune {
      * Example:
      *
      * \code{.cc}
-     * using namespace Dune::TypeTree::Indices; // for compile-time indices
+     * using namespace Dune::Indices; // for compile-time indices
      * auto tp = Dune::TypeTree::hybridTreePath(_4,2,_0,1);
      * auto&& c = child(node,tp);
      * \endcode
