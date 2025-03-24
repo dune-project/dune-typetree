@@ -243,6 +243,27 @@ namespace Dune {
     /**
      * \brief Traverse tree and visit each node
      *
+     * This does an in-order traversal of the tree.
+     * For leaf node the leafNodeFunc callback is called.
+     * For each inner node this function first calls the preNodeFunc,
+     * then it traverses the children, and then it calls the postNodeFunc.
+     * All callback functions are called with the
+     * node and corresponding treepath as arguments.
+     *
+     * \param tree The tree to traverse
+     * \param preNodeFunc This function is called for each inner node
+     * \param leafNodeFunc This function is called for each leaf node
+     * \param postNodeFunc This function is called for each inner node
+     */
+    template<class Tree, class PreNodeFunc, class LeafNodeFunc, class PostNodeFunc>
+    void forEachNode(Tree&& tree, PreNodeFunc&& preNodeFunc, LeafNodeFunc&& leafNodeFunc, PostNodeFunc&& postNodeFunc)
+    {
+      Detail::forEachNode(tree, hybridTreePath(), preNodeFunc, leafNodeFunc, postNodeFunc);
+    }
+
+    /**
+     * \brief Traverse tree and visit each node
+     *
      * The passed callback function is called with the
      * node and corresponding treepath as arguments.
      *
