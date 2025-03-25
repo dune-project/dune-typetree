@@ -181,6 +181,49 @@ int main()
   }
 
   {
+    std::size_t all = 0;
+    auto countNode = [&](auto&& node, auto&& path) {
+      ++all;
+    };
+    auto nop = [&](auto&& node, auto&& path) {};
+    forEachNode(tree, countNode, countNode, nop);
+    test.check(all==6)
+      << "Counting all nodes with forEachNode failed. Result is " << all << " but should be " << 6;
+  }
+
+  {
+    std::size_t all = 0;
+    auto countNode = [&](auto&& node, auto&& path) {
+      ++all;
+    };
+    auto nop = [&](auto&& node, auto&& path) {};
+    forEachNode(tree, nop, countNode, countNode);
+    test.check(all==6)
+      << "Counting all nodes with forEachNode failed. Result is " << all << " but should be " << 6;
+  }
+
+  {
+    std::size_t all = 0;
+    auto countNode = [&](auto&& node, auto&& path) {
+      ++all;
+    };
+    auto nop = [&](auto&& node, auto&& path) {};
+    forEachNode(tree, nop, countNode, nop);
+    test.check(all==4)
+      << "Counting all nodes with forEachNode failed. Result is " << all << " but should be " << 4;
+  }
+
+  {
+    std::size_t all = 0;
+    auto countNode = [&](auto&& node, auto&& path) {
+      ++all;
+    };
+    forEachNode(tree, countNode, countNode, countNode);
+    test.check(all==8)
+      << "Counting all nodes with forEachNode failed. Result is " << all << " but should be " << 8;
+  }
+
+  {
     std::size_t inner = 0;
     std::size_t leaf = 0;
     applyToTree(tree, GenericVisitor{
