@@ -612,7 +612,7 @@ namespace Dune {
      * `2_tp -> HybridTreePath<index_constant<2>>`
      **/
     template <char... digits>
-    constexpr auto operator"" _tp()
+    constexpr auto operator""_tp()
     {
       using namespace Dune::Indices::Literals;
       return hybridTreePath(operator""_ic<digits...>());
