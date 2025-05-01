@@ -81,13 +81,6 @@ int main(int argc, char** argv)
     suite.check(jpath[_4] == 5);
   }
 
-  {
-    // check our deprecation warning
-    using namespace Dune::TypeTree;
-    HybridTreePath<int,std::size_t> a(1,2);
-    HybridTreePath<std::size_t,int> b(1,2);
-  }
-
   { // test the operator== for HybridTreePath
 
     using Dune::TypeTree::hybridTreePath;
