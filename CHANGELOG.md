@@ -9,6 +9,8 @@ Changes
 TypeTree 2.11-git
 ----------------
 
+- `HybridTreePath` no longer supports entry types other than
+  `std::size_t` and `std::integral_constant<std::size_t,i>`.
 
 TypeTree 2.10
 ----------------
