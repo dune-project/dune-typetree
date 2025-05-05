@@ -217,12 +217,14 @@ namespace Dune {
       //! Get the last index value.
       template<std::size_t i,
         std::enable_if_t<(sizeof...(T) > i),bool> = true>
+      [[deprecated("Method will be removed after Dune 2.11. Use operator[] instead.")]]
       [[nodiscard]] constexpr auto element(Dune::index_constant<i> pos = {}) const
       {
         return std::get<i>(_data);
       }
 
       //! Get the index value at position pos.
+      [[deprecated("Method will be removed after Dune 2.11. Use operator[] instead.")]]
       [[nodiscard]] constexpr std::size_t element(std::size_t pos) const
       {
         std::size_t entry = 0;
