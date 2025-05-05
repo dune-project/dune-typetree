@@ -119,10 +119,12 @@ namespace Dune {
     struct TreePathConcat;
 
     template<std::size_t... i>
+    [[deprecated("This function will be removed after Dune 2.11.")]]
     void print_tree_path(std::ostream& os)
     {}
 
     template<std::size_t k, std::size_t... i>
+    [[deprecated("This function will be removed after Dune 2.11.")]]
     void print_tree_path(std::ostream& os)
     {
       os << k << " ";
