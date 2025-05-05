@@ -5,8 +5,10 @@
 #include <iostream>
 #include <type_traits>
 #include <cassert>
+#include <sstream>
 
 #include <dune/common/version.hh>
+#include <dune/common/indices.hh>
 #include <dune/common/test/testsuite.hh>
 
 #include <dune/typetree/typetree.hh>
@@ -116,6 +118,15 @@ int main(int argc, char** argv)
 
     auto path123 = 123_tp;
     static_assert(path123[_0] == 123);
+  }
+
+  {
+    using namespace Dune::TypeTree;
+    using namespace Dune::Indices;
+    auto tp = Dune::TypeTree::treePath(0, _1, 2, _3);
+
+    auto os = std::stringstream();
+    os << tp;
   }
 
   return suite.exit();

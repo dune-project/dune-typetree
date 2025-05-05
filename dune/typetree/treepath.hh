@@ -22,56 +22,45 @@ namespace Dune {
 
     // The Impl namespace collects some free standing functions helper functions
     namespace Impl {
-      template<typename T>
-      struct check_size_t_impl
-      {
-        static constexpr auto check() {
-          return std::is_same_v<T, std::size_t>;
-        }
-      };
 
-      template<class T, T v>
-      struct check_size_t_impl<std::integral_constant<T,v>>
+      template<class T>
+      constexpr bool isHybridSizeT()
       {
-        static constexpr auto check() {
-          return std::is_same_v<T, std::size_t>;
+        if constexpr (std::is_same_v<T, std::size_t>)
+          return true;
+        else
+        {
+          if constexpr (requires { T::value; })
+            return std::is_same_v<T, std::integral_constant<std::size_t, T::value>>;
+          else
+            return false;
         }
-      };
-
-      template<typename T>
-      constexpr auto check_size_t() {
-        return check_size_t_impl<T>::check();
       }
 
-      template<typename T>
-      constexpr auto cast_size_t(const T & v) {
-        // check that T is an integral type that can be cast to std::size_t
-        static_assert(
-          std::is_convertible_v<T,std::size_t> &&
-          std::is_integral_v<T>,
-          "HybridTreePath indices must be convertible to std::size_t or std::integral_constant<std::size_t,v>");
-        // positivity can only be checked at run-time
-        assert(v >= 0 &&
-          "HybridTreePath indices must be convertible to std::size_t or std::integral_constant<std::size_t,v>");
-        return std::size_t(v);
-      }
-
-      template<class T, T v>
-      constexpr auto cast_size_t(std::integral_constant<T,v>) {
-        // check that T is an intergal type that can be cast to std::size_t
-        // and that v is positive
-        static_assert(
-          std::is_convertible_v<T,std::size_t> &&
-          std::is_integral_v<T> &&
-          v >= 0,
-          "HybridTreePath indices must be convertible to std::size_t or std::integral_constant<std::size_t,v>");
-        return std::integral_constant<std::size_t,v>();
+      template<class T>
+      constexpr auto castToHybridSizeT(T t)
+      {
+        if constexpr (Dune::IsIntegralConstant<T>::value)
+        {
+          using VT = typename T::value_type;
+          static_assert(
+            std::is_convertible_v<VT,std::size_t> &&
+            std::is_integral_v<VT> &&
+            T::value >= 0,
+            "HybridTreePath indices must be convertible to std::size_t or std::integral_constant<std::size_t,v>");
+          return std::integral_constant<std::size_t, T::value>{};
+        } else {
+          static_assert(
+            std::is_convertible_v<T,std::size_t> &&
+            std::is_integral_v<T>,
+            "HybridTreePath indices must be convertible to std::size_t or std::integral_constant<std::size_t,v>");
+          assert(t >= 0 &&
+            "HybridTreePath indices must be convertible to std::size_t or std::integral_constant<std::size_t,v>");
+          return std::size_t(t);
+        }
       }
 
     }
-
-    template<typename... T>
-    class HybridTreePath;
 
     //! \addtogroup TreePath
     //! \ingroup TypeTree
@@ -133,7 +122,7 @@ namespace Dune {
     {
 
       // make sure that all indices use std::size_t as the underlying number type
-      static_assert((... && Impl::check_size_t<T>()),
+      static_assert((... && Impl::isHybridSizeT<T>()),
         "HybridTreePath index storage must be std::size_t or std::integral_constant<std::size_t,v>");
 
     public:
@@ -194,7 +183,7 @@ namespace Dune {
         std::size_t entry = 0;
         Dune::Hybrid::forEach(enumerate(), [&] (auto i) {
             if (i==pos)
-              entry = this->element(i);
+              entry = (*this)[i];
         });
         return entry;
       }
@@ -213,7 +202,7 @@ namespace Dune {
         std::size_t entry = 0;
         Dune::Hybrid::forEach(enumerate(), [&] (auto i) {
             if (i==pos)
-              entry = this->element(i);
+              entry = (*this)[i];
         });
         return entry;
       }
@@ -239,6 +228,9 @@ namespace Dune {
       // I can't be bothered to make all the external accessors friends of HybridTreePath,
       // so we'll only hide the data tuple from the user in Doxygen.
 
+      template<class... Head, class... Other>
+      friend constexpr auto join(const HybridTreePath<Head...>&, const Other&...);
+
       using Data = std::tuple<T...>;
       Data _data;
 
@@ -257,7 +249,7 @@ namespace Dune {
     [[nodiscard]] constexpr auto makeTreePath(const T... t)
     {
       // check that all entries are based on std::size_t
-      static_assert((... && Impl::check_size_t<T>()),
+      static_assert((... && Impl::isHybridSizeT<T>()),
         "HybridTreePath indices must be of type std::size_t or std::integral_constant<std::size_t,v>");
       return HybridTreePath<T...>(t...);
     }
@@ -273,7 +265,7 @@ namespace Dune {
     template<typename... T>
     [[nodiscard]] constexpr auto hybridTreePath(const T&... t)
     {
-      return makeTreePath(Impl::cast_size_t(t)...);
+      return makeTreePath(Impl::castToHybridSizeT(t)...);
     }
 
     //! Constructs a new `HybridTreePath` from the given indices.
@@ -287,7 +279,7 @@ namespace Dune {
     template<typename... T>
     [[nodiscard]] constexpr auto treePath(const T&... t)
     {
-      return makeTreePath(Impl::cast_size_t(t)...);
+      return makeTreePath(Impl::castToHybridSizeT(t)...);
     }
 
 
@@ -317,9 +309,8 @@ namespace Dune {
      */
     template<std::size_t i, typename... T>
     [[nodiscard]] constexpr auto treePathEntry(const HybridTreePath<T...>& tp, index_constant<i> = {})
-      -> typename std::decay<decltype(std::get<i>(tp._data))>::type
     {
-      return std::get<i>(tp._data);
+      return tp[index_constant<i>{}];
     }
 
     //! Returns the index value of the i-th element of the `HybridTreePath`.
@@ -341,7 +332,7 @@ namespace Dune {
     template<std::size_t i,typename... T>
     [[nodiscard]] constexpr std::size_t treePathIndex(const HybridTreePath<T...>& tp, index_constant<i> = {})
     {
-      return std::get<i>(tp._data);
+      return tp[index_constant<i>{}];
     }
 
     //! Returns a copy of the last element of the `HybridTreePath`.
@@ -377,7 +368,9 @@ namespace Dune {
     template<typename... T>
     [[nodiscard]] constexpr HybridTreePath<T...,std::size_t> push_back(const HybridTreePath<T...>& tp, std::size_t i)
     {
-      return HybridTreePath<T...,std::size_t>(std::tuple_cat(tp._data,std::make_tuple(i)));
+      return unpackIntegerSequence([&](auto... j){
+        return treePath(tp[j] ..., i);
+      }, tp.enumerate());
     }
 
     //! Appends a compile time index to a `HybridTreePath`.
@@ -396,9 +389,11 @@ namespace Dune {
      *
      */
     template<std::size_t i, typename... T>
-    [[nodiscard]] constexpr HybridTreePath<T...,index_constant<i>> push_back(const HybridTreePath<T...>& tp, index_constant<i> i_ = {})
+    [[nodiscard]] constexpr HybridTreePath<T...,index_constant<i>> push_back(const HybridTreePath<T...>& tp, index_constant<i> iConstant = {})
     {
-      return HybridTreePath<T...,index_constant<i> >(std::tuple_cat(tp._data,std::make_tuple(i_)));
+      return unpackIntegerSequence([&](auto... j){
+        return treePath(tp[j] ..., iConstant);
+      }, tp.enumerate());
     }
 
     //! Prepends a run time index to a `HybridTreePath`.
@@ -406,9 +401,11 @@ namespace Dune {
      * This function returns a new `HybridTreePath` with the run time index `i` prepended.
      */
     template<typename... T>
-    [[nodiscard]] constexpr HybridTreePath<std::size_t,T...> push_front(const HybridTreePath<T...>& tp, std::size_t element)
+    [[nodiscard]] constexpr HybridTreePath<std::size_t,T...> push_front(const HybridTreePath<T...>& tp, std::size_t i)
     {
-      return HybridTreePath<std::size_t,T...>(std::tuple_cat(std::make_tuple(element),tp._data));
+      return unpackIntegerSequence([&](auto... j){
+        return treePath(i, tp[j] ...);
+      }, tp.enumerate());
     }
 
     //! Prepends a compile time index to a `HybridTreePath`.
@@ -427,9 +424,11 @@ namespace Dune {
      *
      */
     template<std::size_t i, typename... T>
-    [[nodiscard]] constexpr HybridTreePath<index_constant<i>,T...> push_front(const HybridTreePath<T...>& tp, index_constant<i> _i = {})
+    [[nodiscard]] constexpr HybridTreePath<index_constant<i>,T...> push_front(const HybridTreePath<T...>& tp, index_constant<i> iConstant = {})
     {
-      return HybridTreePath<index_constant<i>,T...>(std::tuple_cat(std::make_tuple(_i),tp._data));
+      return unpackIntegerSequence([&](auto... j){
+        return treePath(iConstant, tp[j] ...);
+      }, tp.enumerate());
     }
 
     //! Hybrid utility that accumulates to the back of a multi-index
@@ -492,7 +491,7 @@ namespace Dune {
     [[nodiscard]] constexpr auto pop_front(const HybridTreePath<T...>& tp)
     {
       return unpackIntegerSequence([&](auto... i){
-        return HybridTreePath{std::make_tuple(std::get<i+1>(tp._data)...)};
+        return HybridTreePath{std::make_tuple(tp[Dune::index_constant<i+1>{}]...)};
       }, std::make_index_sequence<(sizeof...(T) - 1)>{});
     }
 
@@ -504,7 +503,7 @@ namespace Dune {
     [[nodiscard]] constexpr auto pop_back(const HybridTreePath<T...>& tp)
     {
       return unpackIntegerSequence([&](auto... i){
-        return HybridTreePath{std::make_tuple(std::get<i>(tp._data)...)};
+        return HybridTreePath{std::make_tuple(tp[i]...)};
       }, std::make_index_sequence<(sizeof...(T) - 1)>{});
     }
 
@@ -525,8 +524,8 @@ namespace Dune {
       if constexpr (sizeof...(S) == sizeof...(T)) {
         if constexpr ((Dune::IsInteroperable<S,T>::value &&...)) {
           return unpackIntegerSequence([&](auto... i){
-            return ((std::get<i>(lhs._data) == std::get<i>(rhs._data)) &&...);
-          }, std::make_index_sequence<(sizeof...(S))>{});
+            return ((lhs[i] == rhs[i]) &&...);
+          }, lhs.enumerate());
         } else {
           return false;
         }
@@ -645,39 +644,14 @@ namespace Dune {
       typedef HybridTreePath<index_constant<i>...,index_constant<k>...> type;
     };
 
-#ifndef DOXYGEN
-
-    namespace impl {
-
-      // end of recursion
-      template<std::size_t i, typename... T>
-      typename std::enable_if<
-        (i == sizeof...(T))
-        >::type
-      print_hybrid_tree_path(std::ostream& os, const HybridTreePath<T...>& tp, index_constant<i> _i)
-      {}
-
-      // print current entry and recurse
-      template<std::size_t i, typename... T>
-      typename std::enable_if<
-        (i < sizeof...(T))
-        >::type
-      print_hybrid_tree_path(std::ostream& os, const HybridTreePath<T...>& tp, index_constant<i> _i)
-      {
-        os << treePathIndex(tp,_i) << " ";
-        print_hybrid_tree_path(os,tp,index_constant<i+1>{});
-      }
-
-    } // namespace impl
-
-#endif // DOXYGEN
-
     //! Dumps a `HybridTreePath` to a stream.
     template<typename... T>
     std::ostream& operator<<(std::ostream& os, const HybridTreePath<T...>& tp)
     {
       os << "HybridTreePath< ";
-      impl::print_hybrid_tree_path(os, tp, index_constant<0>{});
+      Dune::Hybrid::forEach(tp, [&] (auto tp_i) {
+        os << tp_i << " ";
+      });
       os << ">";
       return os;
     }
