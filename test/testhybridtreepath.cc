@@ -7,6 +7,7 @@
 #include <cassert>
 #include <sstream>
 
+#include <dune/common/deprecated.hh>
 #include <dune/common/version.hh>
 #include <dune/common/indices.hh>
 #include <dune/common/test/testsuite.hh>
@@ -23,16 +24,27 @@ int main(int argc, char** argv)
     auto root = Dune::TypeTree::hybridTreePath();
     constexpr auto path = Dune::TypeTree::hybridTreePath(_1,3,_2,5);
 
-    static_assert(std::is_same<std::decay_t<decltype(path.element(_0))>,std::decay_t<decltype(_1)>>{},"wrong entry value");
-    static_assert(path.element(_0) == 1,"wrong entry value");
-
     static_assert(std::is_same<std::decay_t<decltype(path[_2])>,std::decay_t<decltype(_2)>>{},"wrong entry value");
     static_assert(path[_0] == 1,"wrong entry value");
 
-    static_assert(std::is_same<std::decay_t<decltype(path.element(_1))>,std::size_t>{},"wrong entry type");
-    static_assert(std::is_same<std::decay_t<decltype(path.element(_3))>,std::size_t>{},"wrong entry type");
     static_assert(std::is_same<std::decay_t<decltype(path[_1])>,std::size_t>{},"wrong entry type");
     static_assert(std::is_same<std::decay_t<decltype(path[_3])>,std::size_t>{},"wrong entry type");
+
+    suite.check(path[_0] == 1);
+    suite.check(path[_1] == 3);
+    suite.check(path[_2] == 2);
+    suite.check(path[_3] == 5);
+
+    suite.check(path[1] == 3);
+    suite.check(path[3] == 5);
+
+DUNE_NO_DEPRECATED_BEGIN
+
+    static_assert(std::is_same<std::decay_t<decltype(path.element(_0))>,std::decay_t<decltype(_1)>>{},"wrong entry value");
+    static_assert(path.element(_0) == 1,"wrong entry value");
+
+    static_assert(std::is_same<std::decay_t<decltype(path.element(_1))>,std::size_t>{},"wrong entry type");
+    static_assert(std::is_same<std::decay_t<decltype(path.element(_3))>,std::size_t>{},"wrong entry type");
 
     suite.check(path.element(_0) == 1);
     suite.check(path.element(_1) == 3);
@@ -42,8 +54,7 @@ int main(int argc, char** argv)
     suite.check(path.element(1) == 3);
     suite.check(path.element(3) == 5);
 
-    suite.check(path[_0] == 1);
-    suite.check(path[3] == 5);
+DUNE_NO_DEPRECATED_END
 
     suite.check(back(path) == 5);
     static_assert(back(push_back(path, _3)) == 3);

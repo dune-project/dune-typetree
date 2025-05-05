@@ -70,35 +70,61 @@ namespace Dune {
       enum Type { fullyStatic, dynamic };
     }
 
+    /**
+     * \deprecated This class template will be removed after Dune 2.11
+     */
     template<typename>
     struct TreePathSize;
 
+    /**
+     * \deprecated This class template will be removed after Dune 2.11
+     */
     template<typename,std::size_t>
     struct TreePathPushBack;
 
+    /**
+     * \deprecated This class template will be removed after Dune 2.11
+     */
     template<typename,std::size_t>
     struct TreePathPushFront;
 
+    /**
+     * \deprecated This class template will be removed after Dune 2.11
+     */
     template<typename>
     struct TreePathBack;
 
+    /**
+     * \deprecated This class template will be removed after Dune 2.11
+     */
     template<typename>
     struct TreePathFront;
 
+    /**
+     * \deprecated This class template will be removed after Dune 2.11
+     */
     template<typename, std::size_t...>
     struct TreePathPopBack;
 
+    /**
+     * \deprecated This class template will be removed after Dune 2.11
+     */
     template<typename>
     struct TreePathPopFront;
 
+    /**
+     * \deprecated This class template will be removed after Dune 2.11
+     */
     template<typename, typename>
     struct TreePathConcat;
 
     template<std::size_t... i>
+    [[deprecated("This function will be removed after Dune 2.11.")]]
     void print_tree_path(std::ostream& os)
     {}
 
     template<std::size_t k, std::size_t... i>
+    [[deprecated("This function will be removed after Dune 2.11.")]]
     void print_tree_path(std::ostream& os)
     {
       os << k << " ";
@@ -191,12 +217,14 @@ namespace Dune {
       //! Get the last index value.
       template<std::size_t i,
         std::enable_if_t<(sizeof...(T) > i),bool> = true>
+      [[deprecated("Method will be removed after Dune 2.11. Use operator[] instead.")]]
       [[nodiscard]] constexpr auto element(Dune::index_constant<i> pos = {}) const
       {
         return std::get<i>(_data);
       }
 
       //! Get the index value at position pos.
+      [[deprecated("Method will be removed after Dune 2.11. Use operator[] instead.")]]
       [[nodiscard]] constexpr std::size_t element(std::size_t pos) const
       {
         std::size_t entry = 0;
@@ -318,6 +346,8 @@ namespace Dune {
      * This function always returns the actual index value, irrespective of whether the
      * entry is a compile time index or a run time index.
      *
+     * \deprecated The functions is deprecated. Use operator[] instead.
+     *
      * The index for the entry can be passed either as a template parameter or as an `index_constant`:
      *
      * \code{.cc}
@@ -330,6 +360,7 @@ namespace Dune {
      *
      */
     template<std::size_t i,typename... T>
+    [[deprecated("This function will be removed after Dune 2.11. Use operator[] instead.")]]
     [[nodiscard]] constexpr std::size_t treePathIndex(const HybridTreePath<T...>& tp, index_constant<i> = {})
     {
       return tp[index_constant<i>{}];
@@ -586,40 +617,54 @@ namespace Dune {
 
 
     template<std::size_t... i>
-    struct TreePathSize<HybridTreePath<index_constant<i>...> >
+    struct
+    [[deprecated("This class will be removed after Dune 2.11. Use the size() member function instead.")]]
+    TreePathSize<HybridTreePath<index_constant<i>...> >
       : public index_constant<sizeof...(i)>
     {};
 
 
     template<std::size_t k, std::size_t... i>
-    struct TreePathPushBack<HybridTreePath<index_constant<i>...>,k>
+    struct
+    [[deprecated("This class will be removed after Dune 2.11. Use the free push_back() function instead.")]]
+    TreePathPushBack<HybridTreePath<index_constant<i>...>,k>
     {
       typedef HybridTreePath<index_constant<i>...,index_constant<k>> type;
     };
 
     template<std::size_t k, std::size_t... i>
-    struct TreePathPushFront<HybridTreePath<index_constant<i>...>,k>
+    struct
+    [[deprecated("This class will be removed after Dune 2.11. Use the free push_front() function instead.")]]
+    TreePathPushFront<HybridTreePath<index_constant<i>...>,k>
     {
       typedef HybridTreePath<index_constant<k>,index_constant<i>...> type;
     };
 
     template<std::size_t k>
-    struct TreePathBack<HybridTreePath<index_constant<k>>>
+    struct
+    [[deprecated("This class will be removed after Dune 2.11. Use the back() member function instead.")]]
+    TreePathBack<HybridTreePath<index_constant<k>>>
       : public index_constant<k>
     {};
 
     template<std::size_t j, std::size_t k, std::size_t... l>
-    struct TreePathBack<HybridTreePath<index_constant<j>,index_constant<k>,index_constant<l>...>>
+    struct
+    [[deprecated("This class will be removed after Dune 2.11. Use the back() member function instead.")]]
+    TreePathBack<HybridTreePath<index_constant<j>,index_constant<k>,index_constant<l>...>>
       : public TreePathBack<HybridTreePath<index_constant<k>,index_constant<l>...>>
     {};
 
     template<std::size_t k, std::size_t... i>
-    struct TreePathFront<HybridTreePath<index_constant<k>,index_constant<i>...>>
+    struct
+    [[deprecated("This class will be removed after Dune 2.11. Use the front() member function instead.")]]
+    TreePathFront<HybridTreePath<index_constant<k>,index_constant<i>...>>
       : public index_constant<k>
     {};
 
     template<std::size_t k, std::size_t... i>
-    struct TreePathPopBack<HybridTreePath<index_constant<k>>,i...>
+    struct
+    [[deprecated("This class will be removed after Dune 2.11. Use the free pop_back() function instead.")]]
+    TreePathPopBack<HybridTreePath<index_constant<k>>,i...>
     {
       typedef HybridTreePath<index_constant<i>...> type;
     };
@@ -628,18 +673,24 @@ namespace Dune {
              std::size_t k,
              std::size_t... l,
              std::size_t... i>
-    struct TreePathPopBack<HybridTreePath<index_constant<j>,index_constant<k>,index_constant<l>...>,i...>
+    struct
+    [[deprecated("This class will be removed after Dune 2.11. Use the free pop_back() function instead.")]]
+    TreePathPopBack<HybridTreePath<index_constant<j>,index_constant<k>,index_constant<l>...>,i...>
       : public TreePathPopBack<HybridTreePath<index_constant<k>,index_constant<l>...>,i...,j>
     {};
 
     template<std::size_t k, std::size_t... i>
-    struct TreePathPopFront<HybridTreePath<index_constant<k>,index_constant<i>...> >
+    struct
+    [[deprecated("This class will be removed after Dune 2.11. Use the free pop_front() function instead.")]]
+    TreePathPopFront<HybridTreePath<index_constant<k>,index_constant<i>...> >
     {
       typedef HybridTreePath<index_constant<i>...> type;
     };
 
     template<std::size_t... i, std::size_t... k>
-    struct TreePathConcat<HybridTreePath<index_constant<i>...>,HybridTreePath<index_constant<k>...> >
+    struct
+    [[deprecated("This class will be removed after Dune 2.11. Use the free join() function instead.")]]
+    TreePathConcat<HybridTreePath<index_constant<i>...>,HybridTreePath<index_constant<k>...> >
     {
       typedef HybridTreePath<index_constant<i>...,index_constant<k>...> type;
     };

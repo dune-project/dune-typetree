@@ -356,7 +356,7 @@ namespace Dune {
         >
       {
         typedef typename std::conditional<
-          TreePathBack<tree_path>::value == 0,
+          tree_path().back() == 0,
           start_type,
           current_type
           >::type type;
