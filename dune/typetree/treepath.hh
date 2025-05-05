@@ -195,6 +195,19 @@ namespace Dune {
         return size();
       }
 
+      /**
+       * \brief Get the index value at position pos.
+       *
+       * The get member function is required by the std-tuple-protocol
+       * which e.g. enables structured bindings.
+       */
+      template<std::size_t i,
+        std::enable_if_t<(sizeof...(T) > i),bool> = true>
+      [[nodiscard]] constexpr auto get() const
+      {
+        return std::get<i>(_data);
+      }
+
       //! Get the index value at position pos.
       template<std::size_t i,
         std::enable_if_t<(sizeof...(T) > i),bool> = true>
@@ -714,5 +727,22 @@ namespace Dune {
 
   } // namespace TypeTree
 } //namespace Dune
+
+
+
+// Implement the tuple-protocol for HybridTreePath
+namespace std {
+
+  template<typename... T>
+  struct tuple_size<Dune::TypeTree::HybridTreePath<T...>> : public std::integral_constant<std::size_t,sizeof...(T)> {};
+
+  template <size_t i, typename... T>
+  struct tuple_element<i, Dune::TypeTree::HybridTreePath<T...> >
+  {
+    using type = std::tuple_element_t<i, std::tuple<T...> >;
+  };
+
+}
+
 
 #endif // DUNE_TYPETREE_TREEPATH_HH

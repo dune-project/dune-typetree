@@ -140,5 +140,28 @@ DUNE_NO_DEPRECATED_END
     os << tp;
   }
 
+  {
+    using namespace Dune::TypeTree;
+    using namespace Dune::Indices;
+    auto tp = Dune::TypeTree::treePath(0, _1, 2, _3);
+
+    suite.check(tp.get<0>() == 0);
+    suite.check(tp.get<1>() == 1);
+    suite.check(tp.get<2>() == 2);
+    suite.check(tp.get<3>() == 3);
+
+    auto [a, b, c, d] = tp;
+
+    suite.check(a == 0);
+    suite.check(b == 1);
+    suite.check(c == 2);
+    suite.check(d == 3);
+
+    suite.check(std::is_same_v<decltype(a), std::size_t>);
+    suite.check(std::is_same_v<decltype(b), Dune::index_constant<1>>);
+    suite.check(std::is_same_v<decltype(c), std::size_t>);
+    suite.check(std::is_same_v<decltype(d), Dune::index_constant<3>>);
+  }
+
   return suite.exit();
 }
