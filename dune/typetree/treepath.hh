@@ -655,39 +655,14 @@ namespace Dune {
       typedef HybridTreePath<index_constant<i>...,index_constant<k>...> type;
     };
 
-#ifndef DOXYGEN
-
-    namespace impl {
-
-      // end of recursion
-      template<std::size_t i, typename... T>
-      typename std::enable_if<
-        (i == sizeof...(T))
-        >::type
-      print_hybrid_tree_path(std::ostream& os, const HybridTreePath<T...>& tp, index_constant<i> _i)
-      {}
-
-      // print current entry and recurse
-      template<std::size_t i, typename... T>
-      typename std::enable_if<
-        (i < sizeof...(T))
-        >::type
-      print_hybrid_tree_path(std::ostream& os, const HybridTreePath<T...>& tp, index_constant<i> _i)
-      {
-        os << treePathIndex(tp,_i) << " ";
-        print_hybrid_tree_path(os,tp,index_constant<i+1>{});
-      }
-
-    } // namespace impl
-
-#endif // DOXYGEN
-
     //! Dumps a `HybridTreePath` to a stream.
     template<typename... T>
     std::ostream& operator<<(std::ostream& os, const HybridTreePath<T...>& tp)
     {
       os << "HybridTreePath< ";
-      impl::print_hybrid_tree_path(os, tp, index_constant<0>{});
+      Dune::Hybrid::forEach(tp, [&] (auto tp_i) {
+        os << tp_i << " ";
+      });
       os << ">";
       return os;
     }
