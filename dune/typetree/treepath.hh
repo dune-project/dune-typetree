@@ -17,6 +17,9 @@
 #include <dune/common/hybridutilities.hh>
 #include <dune/common/typelist.hh>
 
+#include <dune/typetree/hybridmultiindex.hh>
+
+
 namespace Dune {
   namespace TypeTree {
 
@@ -144,140 +147,7 @@ namespace Dune {
      * as Dune::index_constant<v>.
      */
     template<typename... T>
-    class HybridTreePath
-    {
-
-      // make sure that all indices use std::size_t as the underlying number type
-      static_assert((... && Impl::isHybridSizeT<T>()),
-        "HybridTreePath index storage must be std::size_t or std::integral_constant<std::size_t,v>");
-
-    public:
-
-      //! An `index_sequence` for the entries in this `HybridTreePath`.
-      using index_sequence = std::index_sequence_for<T...>;
-
-      //! Default constructor
-      constexpr HybridTreePath() = default;
-
-      constexpr HybridTreePath(const HybridTreePath& tp) = default;
-      constexpr HybridTreePath(HybridTreePath&& tp) = default;
-
-      constexpr HybridTreePath& operator=(const HybridTreePath& tp) = default;
-      constexpr HybridTreePath& operator=(HybridTreePath&& tp) = default;
-
-      //! Constructor from a `std::tuple`
-      explicit constexpr HybridTreePath(std::tuple<T...> t)
-        : _data(t)
-      {}
-
-      //! Constructor from arguments
-      template<typename... U,
-        typename std::enable_if_t<(sizeof...(T) > 0 && sizeof...(U) == sizeof...(T)),bool> = true>
-      explicit constexpr HybridTreePath(U... t)
-        : _data(t...) // we assume that all arguments are convertible to the types T...
-      {}
-
-      //! Returns an index_sequence for enumerating the components of this HybridTreePath.
-      [[nodiscard]] constexpr static index_sequence enumerate()
-      {
-        return {};
-      }
-
-      //! Get the size (length) of this path.
-      [[nodiscard]] constexpr static std::size_t size()
-      {
-        return sizeof...(T);
-      }
-
-      //! Get the size (length) of this path.
-      [[nodiscard]] constexpr static std::size_t max_size()
-      {
-        return size();
-      }
-
-      /**
-       * \brief Get the index value at position pos.
-       *
-       * The get member function is required by the std-tuple-protocol
-       * which e.g. enables structured bindings.
-       */
-      template<std::size_t i,
-        std::enable_if_t<(sizeof...(T) > i),bool> = true>
-      [[nodiscard]] constexpr auto get() const
-      {
-        return std::get<i>(_data);
-      }
-
-      //! Get the index value at position pos.
-      template<std::size_t i,
-        std::enable_if_t<(sizeof...(T) > i),bool> = true>
-      [[nodiscard]] constexpr auto operator[](Dune::index_constant<i>) const
-      {
-        return std::get<i>(_data);
-      }
-
-      //! Get the index value at position pos.
-      [[nodiscard]] constexpr std::size_t operator[](std::size_t pos) const
-      {
-        std::size_t entry = 0;
-        Dune::Hybrid::forEach(enumerate(), [&] (auto i) {
-            if (i==pos)
-              entry = (*this)[i];
-        });
-        return entry;
-      }
-
-      //! Get the last index value.
-      template<std::size_t i,
-        std::enable_if_t<(sizeof...(T) > i),bool> = true>
-      [[deprecated("Method will be removed after Dune 2.11. Use operator[] instead.")]]
-      [[nodiscard]] constexpr auto element(Dune::index_constant<i> pos = {}) const
-      {
-        return std::get<i>(_data);
-      }
-
-      //! Get the index value at position pos.
-      [[deprecated("Method will be removed after Dune 2.11. Use operator[] instead.")]]
-      [[nodiscard]] constexpr std::size_t element(std::size_t pos) const
-      {
-        std::size_t entry = 0;
-        Dune::Hybrid::forEach(enumerate(), [&] (auto i) {
-            if (i==pos)
-              entry = (*this)[i];
-        });
-        return entry;
-      }
-
-      //! Get the first index value. Only available in non-empty paths
-      template<std::size_t n = sizeof...(T),
-        std::enable_if_t<(n > 0 && n == sizeof...(T)),bool> = true>
-      [[nodiscard]] constexpr auto front() const
-      {
-        return std::get<0>(_data);
-      }
-
-      //! Get the last index value. Only available in non-empty paths
-      template<std::size_t n = sizeof...(T),
-        std::enable_if_t<(n > 0 && n == sizeof...(T)),bool> = true>
-      [[nodiscard]] constexpr auto back() const
-      {
-        return std::get<n-1>(_data);
-      }
-
-#ifndef DOXYGEN
-
-      // I can't be bothered to make all the external accessors friends of HybridTreePath,
-      // so we'll only hide the data tuple from the user in Doxygen.
-
-      template<class... Head, class... Other>
-      friend constexpr auto join(const HybridTreePath<Head...>&, const Other&...);
-
-      using Data = std::tuple<T...>;
-      Data _data;
-
-#endif // DOXYGEN
-
-    };
+    using HybridTreePath = Dune::HybridMultiIndex<T...>;
 
     //! helper function to construct a new `HybridTreePath` from the given indices.
     /**
@@ -515,7 +385,7 @@ namespace Dune {
     //! Join two tree paths into one
     template<class... Head, class... Other>
     [[nodiscard]] constexpr auto join(const HybridTreePath<Head...>& head, const Other&... tail) {
-      return TypeTree::HybridTreePath{std::tuple_cat(head._data, tail._data...)};
+      return Dune::join(head, tail...);
     }
 
     //! Reverses the order of the elements in the path
@@ -708,18 +578,6 @@ namespace Dune {
       typedef HybridTreePath<index_constant<i>...,index_constant<k>...> type;
     };
 
-    //! Dumps a `HybridTreePath` to a stream.
-    template<typename... T>
-    std::ostream& operator<<(std::ostream& os, const HybridTreePath<T...>& tp)
-    {
-      os << "HybridTreePath< ";
-      Dune::Hybrid::forEach(tp, [&] (auto tp_i) {
-        os << tp_i << " ";
-      });
-      os << ">";
-      return os;
-    }
-
     template<std::size_t... i>
     using StaticTreePath = HybridTreePath<Dune::index_constant<i>...>;
 
@@ -728,21 +586,6 @@ namespace Dune {
   } // namespace TypeTree
 } //namespace Dune
 
-
-
-// Implement the tuple-protocol for HybridTreePath
-namespace std {
-
-  template<typename... T>
-  struct tuple_size<Dune::TypeTree::HybridTreePath<T...>> : public std::integral_constant<std::size_t,sizeof...(T)> {};
-
-  template <size_t i, typename... T>
-  struct tuple_element<i, Dune::TypeTree::HybridTreePath<T...> >
-  {
-    using type = std::tuple_element_t<i, std::tuple<T...> >;
-  };
-
-}
 
 
 #endif // DUNE_TYPETREE_TREEPATH_HH
