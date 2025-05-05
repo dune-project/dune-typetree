@@ -183,7 +183,7 @@ namespace Dune {
         std::size_t entry = 0;
         Dune::Hybrid::forEach(enumerate(), [&] (auto i) {
             if (i==pos)
-              entry = this->element(i);
+              entry = (*this)[i];
         });
         return entry;
       }
@@ -202,7 +202,7 @@ namespace Dune {
         std::size_t entry = 0;
         Dune::Hybrid::forEach(enumerate(), [&] (auto i) {
             if (i==pos)
-              entry = this->element(i);
+              entry = (*this)[i];
         });
         return entry;
       }
