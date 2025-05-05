@@ -346,6 +346,8 @@ namespace Dune {
      * This function always returns the actual index value, irrespective of whether the
      * entry is a compile time index or a run time index.
      *
+     * \deprecated The functions is deprecated. Use operator[] instead.
+     *
      * The index for the entry can be passed either as a template parameter or as an `index_constant`:
      *
      * \code{.cc}
@@ -358,6 +360,7 @@ namespace Dune {
      *
      */
     template<std::size_t i,typename... T>
+    [[deprecated("This function will be removed after Dune 2.11. Use operator[] instead.")]]
     [[nodiscard]] constexpr std::size_t treePathIndex(const HybridTreePath<T...>& tp, index_constant<i> = {})
     {
       return tp[index_constant<i>{}];
