@@ -56,6 +56,31 @@ DUNE_NO_DEPRECATED_BEGIN
 
 DUNE_NO_DEPRECATED_END
 
+    // Check free utility functions using qualified calls in
+    // Dune:: and Dune::TypeTree:: and unqualified ADL calls
+
+    suite.check(Dune::back(path) == Dune::TypeTree::back(path));
+    suite.check(Dune::front(path) == Dune::TypeTree::front(path));
+    suite.check(Dune::push_back(path, _3) == Dune::TypeTree::push_back(path, _3));
+    suite.check(Dune::push_front(path, _3) == Dune::TypeTree::push_front(path, _3));
+    suite.check(Dune::pop_back(path) == Dune::TypeTree::pop_back(path));
+    suite.check(Dune::pop_front(path) == Dune::TypeTree::pop_front(path));
+    suite.check(Dune::accumulate_back(path, _3) == Dune::TypeTree::accumulate_back(path, _3));
+    suite.check(Dune::accumulate_front(path, _3) == Dune::TypeTree::accumulate_front(path, _3));
+    suite.check(Dune::join(path, path) == Dune::TypeTree::join(path, path));
+    suite.check(Dune::reverse(path) == Dune::TypeTree::reverse(path));
+
+    suite.check(back(path) == Dune::TypeTree::back(path));
+    suite.check(front(path) == Dune::TypeTree::front(path));
+    suite.check(push_back(path, _3) == Dune::TypeTree::push_back(path, _3));
+    suite.check(push_front(path, _3) == Dune::TypeTree::push_front(path, _3));
+    suite.check(pop_back(path) == Dune::TypeTree::pop_back(path));
+    suite.check(pop_front(path) == Dune::TypeTree::pop_front(path));
+    suite.check(accumulate_back(path, _3) == Dune::TypeTree::accumulate_back(path, _3));
+    suite.check(accumulate_front(path, _3) == Dune::TypeTree::accumulate_front(path, _3));
+    suite.check(join(path, path) == Dune::TypeTree::join(path, path));
+    suite.check(reverse(path) == Dune::TypeTree::reverse(path));
+
     suite.check(back(path) == 5);
     static_assert(back(push_back(path, _3)) == 3);
     suite.check(back(push_back(path, 3)) == 3);
@@ -161,6 +186,30 @@ DUNE_NO_DEPRECATED_END
     suite.check(std::is_same_v<decltype(b), Dune::index_constant<1>>);
     suite.check(std::is_same_v<decltype(c), std::size_t>);
     suite.check(std::is_same_v<decltype(d), Dune::index_constant<3>>);
+  }
+
+  {
+    using namespace Dune::Indices;
+
+    auto mi = Dune::HybridMultiIndex(3, _2, 1, _0);
+    auto mi_size_t = Dune::HybridMultiIndex(std::size_t(3), std::integral_constant<std::size_t, 2>{}, std::size_t(1), std::integral_constant<std::size_t, 0>{});
+    auto mi_signed = Dune::HybridMultiIndex(int(3), std::integral_constant<int, 2>{}, (signed char)(1), std::integral_constant<signed long, 0>{});
+
+    suite.check(std::is_same_v<decltype(mi), decltype(mi_size_t)>);
+    suite.check(std::is_same_v<decltype(mi), decltype(mi_signed)>);
+    suite.check(mi == mi_size_t);
+    suite.check(mi == mi_signed);
+  }
+
+  {
+    using namespace Dune::Indices;
+
+    auto t = std::make_tuple(_2, _1, std::size_t(0));
+    auto mi_tuple = Dune::HybridMultiIndex(t);
+    auto mi = Dune::HybridMultiIndex(_2, _1, std::size_t(0));
+
+    suite.check(std::is_same_v<decltype(mi), decltype(mi_tuple)>);
+    suite.check(mi == mi_tuple);
   }
 
   return suite.exit();
