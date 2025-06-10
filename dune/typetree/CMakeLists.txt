@@ -11,6 +11,7 @@ install(FILES
   filters.hh
   fixedcapacitystack.hh
   generictransformationdescriptors.hh
+  hybridmultiindex.hh
   leafnode.hh
   nodeinterface.hh
   nodetags.hh
