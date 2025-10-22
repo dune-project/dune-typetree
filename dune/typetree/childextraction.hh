@@ -115,7 +115,7 @@ namespace Dune {
      * a compile-time index and some using a run-time index.
      *
      * \param node        The node from which to extract the child.
-     * \param indices...  A list of indices that describes the path into the tree to the
+     * \param indices     A list of indices that describes the path into the tree to the
      *                    wanted child. These parameters can be a combination of run time indices
      *                    (for tree nodes that allow accessing their children using run time information,
      *                    like PowerNode) and instances of index_constant, which work for all types of inner
@@ -160,7 +160,7 @@ namespace Dune {
      * a compile-time index and some using a run-time index.
      *
      * \param node        The node from which to extract the child.
-     * \param tree{ath    A HybridTreePath that describes the path into the tree to the
+     * \param treePath    A HybridTreePath that describes the path into the tree to the
      *                    wanted child. This tree path object  can be a combination of run time indices
      *                    (for tree nodes that allow accessing their children using run time information,
      *                    like PowerNode) and instances of index_constant, which work for all types of inner

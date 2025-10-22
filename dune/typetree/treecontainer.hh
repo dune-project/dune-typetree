@@ -23,7 +23,7 @@ namespace Dune {
 
     namespace Detail {
 
-      /*
+      /**
        * \brief A factory class creating a hybrid container compatible with a type tree
        *
        * This class allows to create a nested hybrid container having the same structure
@@ -53,7 +53,7 @@ namespace Dune {
          *
          * The given predicate will be stored by value.
          *
-         * \param A predicate used to generate the stored values for the leaves
+         * \param leafToValue A predicate used to generate the stored values for the leaves
          */
         ContainerFactory(LeafToValue leafToValue) :
           leafToValue_(leafToValue)
@@ -250,7 +250,7 @@ namespace Dune {
      */
 
     /**
-     * \brief Create container havin the same structure as the given tree
+     * \brief Create container having the same structure as the given tree
      *
      * This class allows to create a nested hybrid container having the same structure
      * as a given type tree. Power nodes are represented as std::array's while composite
@@ -273,7 +273,7 @@ namespace Dune {
     }
 
     /**
-     * \brief Create container havin the same structure as the given tree
+     * \brief Create container having the same structure as the given tree
      *
      * This class allows to create a nested hybrid container having the same structure
      * as a given type tree. Power nodes are represented as std::array's while composite
@@ -283,7 +283,7 @@ namespace Dune {
      * provides operator[] access using a HybridTreePath.
      *
      * \tparam Value Type of the values to be stored for the leafs. Should be default constructible.
-     * \param leafToValue A predicate used to generate the stored values for the leaves
+     * \param tree The tree which should be mapper to a container
      *
      * \returns A container matching the tree structure
      */
