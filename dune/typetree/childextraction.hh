@@ -8,9 +8,12 @@
 
 #include <type_traits>
 #include <utility>
+#include <tuple>
 
 #include <dune/common/concept.hh>
 #include <dune/common/documentation.hh>
+#include <dune/common/indices.hh>
+#include <dune/common/typelist.hh>
 #include <dune/common/typetraits.hh>
 #include <dune/common/shared_ptr.hh>
 
@@ -138,6 +141,39 @@ namespace Dune {
      */
     template<typename Node, typename TreePath>
     using ChildForTreePath = std::decay_t<decltype(child(std::declval<Node>(), std::declval<TreePath>()))>;
+
+
+
+    namespace Impl {
+
+      template<class N>
+      static constexpr auto childTypes()
+      {
+        if constexpr (Dune::TypeTree::Concept::StaticDegreeInnerTreeNode<N>)
+        {
+          return Dune::unpackIntegerSequence([&](auto... i) {
+            return Dune::MetaType<std::tuple<Dune::TypeTree::Child<N, i>...>>{};
+          }, std::make_index_sequence<N::degree()>{});
+        }
+        else
+          return Dune::MetaType<void>{};
+      }
+
+      //! Template alias to extract the types of direct children of a node
+      /**
+       * For a node satifying the \ref StaticDegreeInnerTreeNode concept,
+       * this alias provides a tuple of the types of the direct children.
+       * For nodes not satisfying the concept this is an alias for void.
+       * In these cases the node is either a leaf node and has no children
+       * or has a dynamic degree such that all children have the same
+       * type available as `Child<Node,0>`.
+       *
+       * \tparam Node     The type of the parent node.
+       */
+      template<class N>
+      using Children = typename decltype(Impl::childTypes<N>())::type;
+
+    }
 
 #ifndef DOXYGEN
 
