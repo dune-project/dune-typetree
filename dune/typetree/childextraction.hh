@@ -99,6 +99,24 @@ namespace Dune {
       return child(node, Dune::HybridMultiIndex{indices...});
     }
 
+    namespace Impl {
+
+      // We could directly implement Child as
+      //
+      //   using Child = std::decay_t<decltype(child(std::declval<Node>(), Dune::index_constant<indices>()...))>;
+      //
+      // but this triggers an internal compiler error in
+      // gcc 11, 12, and 13 while it does work with gcc 10
+      // and 14 and clang. This can be avoided by extracting
+      // this into a traits class.
+      template<typename Node, std::size_t... indices>
+      struct ChildTraits
+      {
+        using type = std::decay_t<decltype(child(std::declval<Node>(), Dune::index_constant<indices>()...))>;
+      };
+
+    }
+
     //! Template alias for the type of a child node given by a list of child indices.
     /**
      * This template alias is implemented in terms of the free-standing child() functions and uses those
@@ -108,7 +126,7 @@ namespace Dune {
      * \tparam indices  A list of index values the describes the path to the wanted child.
      */
     template<typename Node, std::size_t... indices>
-    using Child = std::decay_t<decltype(child(std::declval<Node>(), Dune::index_constant<indices>{}...))>;
+    using Child = typename Impl::ChildTraits<Node, indices...>::type;
 
     //! Template alias for the type of a child node given by a HybridTreePath type.
     /**
