@@ -9,6 +9,18 @@ Changes
 TypeTree 2.11-git
 ----------------
 
+- A new algorithm `forEachChild()` has been added, which
+  only loops over direct children.
+- The requirements of tree nodes have been formalized as
+  concepts `TreeNode`, `InnerTreeNode`, `UniformInnerTreeNode`,
+  and `StaticDegreeInnerTreeNode`. When using the `forEach...`
+  algorithms of dune-typetree, one no longer has to derive
+  node types from the node base classes. It is sufficient
+  to implement the respective concepts.
+- The method `Dune::HybridMultiIndex::element()` has been deprecated.
+  Use `operator[]` instead.
+- The class `Dune::TypeTree::HybridTreePath` has been extracted
+  into `Dune::HybridMultiIndex`. The old class persists as type alias.
 - `HybridTreePath` no longer supports entry types other than
   `std::size_t` and `std::integral_constant<std::size_t,i>`.
 
