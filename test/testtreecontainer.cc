@@ -4,9 +4,9 @@
 
 #include "typetreetestutility.hh"
 
+#include <dune/common/typetree/treecontainer.hh>
 
 #include <dune/typetree/traversal.hh>
-#include <dune/typetree/treecontainer.hh>
 
 #include <dune/common/test/testsuite.hh>
 
