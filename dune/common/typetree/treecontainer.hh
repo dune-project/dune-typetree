@@ -16,7 +16,7 @@
 #include <dune/common/rangeutilities.hh>
 #include <dune/common/tuplevector.hh>
 
-#include <dune/typetree/treepath.hh>
+#include <dune/common/typetree/treepath.hh>
 
 namespace Dune::TypeTree {
 

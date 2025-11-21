@@ -6,4 +6,5 @@ install(FILES
   nodeconcepts.hh
   traversal.hh
   treecontainer.hh
+  treepath.hh
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/dune/common/typetree)

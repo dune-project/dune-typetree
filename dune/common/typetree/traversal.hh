@@ -14,8 +14,7 @@
 
 #include <dune/common/typetree/nodeconcepts.hh>
 #include <dune/common/typetree/childaccess.hh>
-
-#include <dune/typetree/treepath.hh>
+#include <dune/common/typetree/treepath.hh>
 
 namespace Dune::TypeTree {
 
