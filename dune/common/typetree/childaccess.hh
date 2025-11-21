@@ -15,9 +15,10 @@
 #include <dune/common/typelist.hh>
 #include <dune/common/typetraits.hh>
 
+#include <dune/common/typetree/nodeconcepts.hh>
+
 #include <dune/typetree/hybridmultiindex.hh>
 #include <dune/typetree/treepath.hh>
-#include <dune/typetree/nodeconcepts.hh>
 
 
 namespace Dune::TypeTree {

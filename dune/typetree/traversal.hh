@@ -12,10 +12,11 @@
 #include <dune/common/indices.hh>
 #include <dune/common/std/type_traits.hh>
 
+#include <dune/common/typetree/nodeconcepts.hh>
+
 #include <dune/typetree/childextraction.hh>
 #include <dune/typetree/treepath.hh>
 #include <dune/typetree/visitor.hh>
-#include <dune/typetree/nodeconcepts.hh>
 
 namespace Dune {
   namespace TypeTree {

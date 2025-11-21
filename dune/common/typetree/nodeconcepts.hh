@@ -3,8 +3,8 @@
 // SPDX-FileCopyrightInfo: Copyright © DUNE Project contributors, see file LICENSE.md in module root
 // SPDX-License-Identifier: LGPL-3.0-or-later OR LicenseRef-GPL-2.0-only-with-PDELab-exception
 
-#ifndef DUNE_TYPETREE_NODECONCEPTS_HH
-#define DUNE_TYPETREE_NODECONCEPTS_HH
+#ifndef DUNE_COMMON_TYPETREE_NODECONCEPTS_HH
+#define DUNE_COMMON_TYPETREE_NODECONCEPTS_HH
 
 #include <dune/common/typetraits.hh>
 #include <dune/common/indices.hh>
@@ -64,4 +64,4 @@ namespace Dune::TypeTree::Concept {
 
 } // namespace Dune::TypeTree::Concept
 
-#endif // DUNE_TYPETREE_NODECONCEPTS_HH
+#endif // DUNE_COMMON_TYPETREE_NODECONCEPTS_HH

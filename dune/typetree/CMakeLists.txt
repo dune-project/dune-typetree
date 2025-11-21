@@ -13,7 +13,6 @@ install(FILES
   generictransformationdescriptors.hh
   hybridmultiindex.hh
   leafnode.hh
-  nodeconcepts.hh
   nodeinterface.hh
   nodetags.hh
   pairtraversal.hh
