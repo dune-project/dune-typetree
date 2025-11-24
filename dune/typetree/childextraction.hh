@@ -8,13 +8,18 @@
 
 #include <type_traits>
 #include <utility>
+#include <tuple>
 
 #include <dune/common/concept.hh>
 #include <dune/common/documentation.hh>
+#include <dune/common/indices.hh>
+#include <dune/common/typelist.hh>
 #include <dune/common/typetraits.hh>
 #include <dune/common/shared_ptr.hh>
 
+#include <dune/typetree/hybridmultiindex.hh>
 #include <dune/typetree/treepath.hh>
+#include <dune/typetree/nodeconcepts.hh>
 
 
 namespace Dune {
@@ -25,79 +30,48 @@ namespace Dune {
     //! \ingroup TypeTree
     //! \{
 
-#ifndef DOXYGEN
-
-    namespace Impl {
-
-      // check at run time whether index is a valid child index
-      template <class Node, class Index>
-      std::true_type checkChildIndex (Node const& node, Index i)
-      {
-        assert(std::size_t(i) < node.degree() && "Child index out of range");
-        return {};
-      }
-
-      // check at compile time whether index is a valid index
-      template <class Node, std::size_t i>
-      std::bool_constant<(i < Node::degree())> checkChildIndex (Node const& node, index_constant<i>)
-      {
-        static_assert(i < Node::degree(), "Child index out of range");
-        return {};
-      }
-
-      // finally return the node itself if no further indices are provided. Break condition
-      // for the recursion over the node childs.
-      template<class Node>
-      decltype(auto) childImpl (Node&& node)
-      {
+    //! Extracts the child of a node given by a HybridTreePath object.
+    /**
+     * Use this function to extract a (possibly indirect) child of a TypeTree node.
+     *
+     * Example:
+     *
+     * \code{.cc}
+     * using namespace Dune::Indices; // for compile-time indices
+     * auto tp = Dune::TypeTree::HybridTreePath(_4,2,_0,1);
+     * auto&& c = child(node,tp);
+     * \endcode
+     *
+     * returns the second child of the first child of the third child
+     * of the fifth child of node, where some child lookups were done using
+     * a compile-time index and some using a run-time index.
+     *
+     * \param node        The node from which to extract the child.
+     * \param treePath    A HybridTreePath that describes the path into the tree to the
+     *                    wanted child. This tree path object  can be a combination of run time indices
+     *                    (for tree nodes that allow accessing their children using run time information,
+     *                    like PowerNode) and instances of index_constant, which work for all types of inner
+     *                    nodes.
+     * \return            A reference to the child, its cv-qualification depends on the passed-in node.
+     */
+    template<typename Node, typename... Indices>
+    decltype(auto) child (Node&& node, HybridTreePath<Indices...> treePath)
+    {
+      if constexpr (sizeof...(Indices) == 0)
         return std::forward<Node>(node);
-      }
-
-      template<class NodePtr>
-      auto childStorageImpl (NodePtr&& nodePtr)
+      else
       {
-        return std::forward<NodePtr>(nodePtr);
-      }
-
-      // recursively call `node.child(...)` with the given indices
-      template<class Node, class I0, class... I>
-      decltype(auto) childImpl (Node&& node, I0 i0, [[maybe_unused]] I... i)
-      {
-        auto valid = checkChildIndex(node,i0);
-        if constexpr (valid)
-          return childImpl(node.child(i0),i...);
+        using I0 = std::tuple_element_t<0, HybridTreePath<Indices...>>;
+        if constexpr (Dune::IsIntegralConstant<I0>::value and Concept::StaticDegreeInnerTreeNode<Node>)
+          static_assert(I0::value < std::decay_t<Node>::degree(), "Child index out of range");
         else
-          return;
-      }
-
-      // recursively call `node.childStorage(...)` with the given indices
-      template<class NodePtr, class I0, class... I>
-      decltype(auto) childStorageImpl (NodePtr&& nodePtr, I0 i0, [[maybe_unused]] I... i)
-      {
-        auto valid = checkChildIndex(*nodePtr,i0);
-        if constexpr (valid)
-          return childStorageImpl(nodePtr->childStorage(i0),i...);
+          assert(std::size_t(treePath.front()) < node.degree() && "Child index out of range");
+        if constexpr (sizeof...(Indices) == 1)
+          return node.child(treePath.front());
         else
-          return;
+          return child(node.child(treePath.front()), pop_front(treePath));
       }
-
-      // forward to the impl methods by extracting the indices from the treepath
-      template<class Node, class... Indices, std::size_t... i>
-      decltype(auto) child (Node&& node, [[maybe_unused]] HybridTreePath<Indices...> tp, std::index_sequence<i...>)
-      {
-        return childImpl(std::forward<Node>(node),treePathEntry<i>(tp)...);
-      }
-
-      // forward to the impl methods by extracting the indices from the treepath
-      template<class NodePtr, class... Indices, std::size_t... i>
-      decltype(auto) childStorage (NodePtr&& nodePtr, [[maybe_unused]] HybridTreePath<Indices...> tp, std::index_sequence<i...>)
-      {
-        return childStorageImpl(std::forward<NodePtr>(nodePtr),treePathEntry<i>(tp)...);
-      }
-
-    } // end namespace Impl
-
-#endif // DOXYGEN
+    }
 
     //! Extracts the child of a node given by a sequence of compile-time and run-time indices.
     /**
@@ -123,133 +97,145 @@ namespace Dune {
      * \return            A reference to the child, its cv-qualification depends on the passed-in node.
      */
     template<typename Node, typename... Indices>
-#ifdef DOXYGEN
-    ImplementationDefined child (Node&& node, Indices... indices)
-#else
     decltype(auto) child (Node&& node, Indices... indices)
-#endif
     {
-      return Impl::childImpl(std::forward<Node>(node),indices...);
+      return child(node, Dune::HybridMultiIndex{indices...});
     }
 
-    template<typename Node, typename... Indices>
-#ifdef DOXYGEN
-    ImplementationDefined childStorage (Node&& node, Indices... indices)
-#else
-    auto childStorage (Node&& node, Indices... indices)
-#endif
-    {
-      static_assert(sizeof...(Indices) > 0, "childStorage() cannot be called with an empty list of child indices");
-      return Impl::childStorageImpl(&node,indices...);
-    }
+    namespace Impl {
 
-    //! Extracts the child of a node given by a HybridTreePath object.
-    /**
-     * Use this function to extract a (possibly indirect) child of a TypeTree node.
-     *
-     * Example:
-     *
-     * \code{.cc}
-     * using namespace Dune::Indices; // for compile-time indices
-     * auto tp = Dune::TypeTree::hybridTreePath(_4,2,_0,1);
-     * auto&& c = child(node,tp);
-     * \endcode
-     *
-     * returns the second child of the first child of the third child
-     * of the fifth child of node, where some child lookups were done using
-     * a compile-time index and some using a run-time index.
-     *
-     * \param node        The node from which to extract the child.
-     * \param treePath    A HybridTreePath that describes the path into the tree to the
-     *                    wanted child. This tree path object  can be a combination of run time indices
-     *                    (for tree nodes that allow accessing their children using run time information,
-     *                    like PowerNode) and instances of index_constant, which work for all types of inner
-     *                    nodes.
-     * \return            A reference to the child, its cv-qualification depends on the passed-in node.
-     */
-    template<typename Node, typename... Indices>
-#ifdef DOXYGEN
-    ImplementationDefined child (Node&& node, HybridTreePath<Indices...> treePath)
-#else
-    decltype(auto) child (Node&& node, HybridTreePath<Indices...> tp)
-#endif
-    {
-      return Impl::child(std::forward<Node>(node),tp,std::index_sequence_for<Indices...>{});
-    }
-
-    template<typename Node, typename... Indices>
-#ifdef DOXYGEN
-    ImplementationDefined child (Node&& node, HybridTreePath<Indices...> treePath)
-#else
-    auto childStorage (Node&& node, HybridTreePath<Indices...> tp)
-#endif
-    {
-      static_assert(sizeof...(Indices) > 0, "childStorage() cannot be called with an empty TreePath");
-      return Impl::childStorage(&node,tp,std::index_sequence_for<Indices...>{});
-    }
-
-
-#ifndef DOXYGEN
-
-    namespace impl {
-
-      template<typename T>
-      struct filter_void
+      // We could directly implement Child as
+      //
+      //   using Child = std::decay_t<decltype(child(std::declval<Node>(), Dune::index_constant<indices>()...))>;
+      //
+      // but this triggers an internal compiler error in
+      // gcc 11, 12, and 13 while it does work with gcc 10
+      // and 14 and clang. This can be avoided by extracting
+      // this into a traits class.
+      template<typename Node, std::size_t... indices>
+      struct ChildTraits
       {
-        using type = T;
+        using type = std::decay_t<decltype(child(std::declval<Node>(), Dune::index_constant<indices>()...))>;
       };
 
-      template<>
-      struct filter_void<void>
-      {};
-
-      template<typename Node, std::size_t... indices>
-      struct _Child
-        : public filter_void<std::decay_t<decltype(child(std::declval<Node>(),index_constant<indices>{}...))>>
-      {};
-
     }
-
-#endif // DOXYGEN
 
     //! Template alias for the type of a child node given by a list of child indices.
     /**
      * This template alias is implemented in terms of the free-standing child() functions and uses those
      * in combination with decltype() to extract the child type.
-
+     *
      * \tparam Node     The type of the parent node.
      * \tparam indices  A list of index values the describes the path to the wanted child.
      */
     template<typename Node, std::size_t... indices>
-    using Child = typename impl::_Child<Node,indices...>::type;
+    using Child = typename Impl::ChildTraits<Node, indices...>::type;
+
+    //! Template alias for the type of a child node given by a HybridTreePath type.
+    /**
+     * This template alias is implemented in terms of the free-standing child() functions and uses those
+     * in combination with decltype() to extract the child type.
+     *
+     * \tparam Node      The type of the parent node.
+     * \tparam TreePath  The type of a HybridTreePath that describes the path to the wanted child.
+     */
+    template<typename Node, typename TreePath>
+    using ChildForTreePath = std::decay_t<decltype(child(std::declval<Node>(), std::declval<TreePath>()))>;
 
 
-#ifndef DOXYGEN
 
-    namespace impl {
+    namespace Impl {
 
-      template<typename Node, typename TreePath>
-      struct _ChildForTreePath
+      template<class N>
+      static constexpr auto childTypes()
       {
-        using type = typename std::decay<decltype(child(std::declval<Node>(),std::declval<TreePath>()))>::type;
-      };
+        if constexpr (Dune::TypeTree::Concept::StaticDegreeInnerTreeNode<N>)
+        {
+          return Dune::unpackIntegerSequence([&](auto... i) {
+            return Dune::MetaType<std::tuple<Dune::TypeTree::Child<N, i>...>>{};
+          }, std::make_index_sequence<N::degree()>{});
+        }
+        else
+          return Dune::MetaType<void>{};
+      }
+
+      //! Template alias to extract the types of direct children of a node
+      /**
+       * For a node satifying the \ref StaticDegreeInnerTreeNode concept,
+       * this alias provides a tuple of the types of the direct children.
+       * For nodes not satisfying the concept this is an alias for void.
+       * In these cases the node is either a leaf node and has no children
+       * or has a dynamic degree such that all children have the same
+       * type available as `Child<Node,0>`.
+       *
+       * \tparam Node     The type of the parent node.
+       */
+      template<class N>
+      using Children = typename decltype(Impl::childTypes<N>())::type;
 
     }
 
+#ifndef DOXYGEN
+
+    namespace Impl {
+
+      // check at run time whether index is a valid child index
+      template <class Node, class Index>
+      std::true_type checkChildIndex (Node const& node, Index i)
+      {
+        assert(std::size_t(i) < node.degree() && "Child index out of range");
+        return {};
+      }
+
+      // check at compile time whether index is a valid index
+      template <class Node, std::size_t i>
+      std::bool_constant<(i < Node::degree())> checkChildIndex (Node const& node, index_constant<i>)
+      {
+        static_assert(i < Node::degree(), "Child index out of range");
+        return {};
+      }
+
+      template<class NodePtr>
+      auto childStorageImpl (NodePtr&& nodePtr)
+      {
+        return std::forward<NodePtr>(nodePtr);
+      }
+
+      // recursively call `node.childStorage(...)` with the given indices
+      template<class NodePtr, class I0, class... I>
+      decltype(auto) childStorageImpl (NodePtr&& nodePtr, I0 i0, [[maybe_unused]] I... i)
+      {
+        auto valid = checkChildIndex(*nodePtr,i0);
+        if constexpr (valid)
+          return childStorageImpl(nodePtr->childStorage(i0),i...);
+        else
+          return;
+      }
+
+      // forward to the impl methods by extracting the indices from the treepath
+      template<class NodePtr, class... Indices, std::size_t... i>
+      decltype(auto) childStorage (NodePtr&& nodePtr, [[maybe_unused]] HybridTreePath<Indices...> tp, std::index_sequence<i...>)
+      {
+        return childStorageImpl(std::forward<NodePtr>(nodePtr),treePathEntry<i>(tp)...);
+      }
+
+    } // end namespace Impl
+
 #endif // DOXYGEN
 
-    //! Template alias for the type of a child node given by a TreePath or a HybridTreePath type.
-    /**
-     * This template alias is implemented in terms of the free-standing child() functions and uses those
-     * in combination with decltype() to extract the child type. It supports both TreePath and
-     * HybridTreePath.
-     *
-     * \tparam Node      The type of the parent node.
-     * \tparam TreePath  The type of a TreePath or a HybridTreePath that describes the path to the wanted child.
-     */
-    template<typename Node, typename TreePath>
-    using ChildForTreePath = typename impl::_ChildForTreePath<Node,TreePath>::type;
+    template<typename Node, typename... Indices>
+    auto childStorage (Node&& node, Indices... indices)
+    {
+      static_assert(sizeof...(Indices) > 0, "childStorage() cannot be called with an empty list of child indices");
+      return Impl::childStorageImpl(&node,indices...);
+    }
 
+    template<typename Node, typename... Indices>
+    auto childStorage (Node&& node, HybridTreePath<Indices...> treePath)
+    {
+      static_assert(sizeof...(Indices) > 0, "childStorage() cannot be called with an empty TreePath");
+      return Impl::childStorage(&node, treePath, std::index_sequence_for<Indices...>{});
+    }
 
 #ifndef DOXYGEN
 
