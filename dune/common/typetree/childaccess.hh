@@ -158,7 +158,7 @@ namespace Dune::TypeTree {
 
     //! Template alias to extract the types of direct children of a node
     /**
-     * For a node satifying the \ref StaticDegreeInnerTreeNode concept,
+     * For a node satisfying the \ref StaticDegreeInnerTreeNode concept,
      * this alias provides a tuple of the types of the direct children.
      * For nodes not satisfying the concept this is an alias for void.
      * In these cases the node is either a leaf node and has no children

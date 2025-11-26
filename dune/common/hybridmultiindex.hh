@@ -3,8 +3,8 @@
 // SPDX-FileCopyrightInfo: Copyright © DUNE Project contributors, see file LICENSE.md in module root
 // SPDX-License-Identifier: LicenseRef-GPL-2.0-only-with-DUNE-exception OR LGPL-3.0-or-later
 
-#ifndef DUNE_COMMON_TYPETREE_HYBRIDMULTIINDEX_HH
-#define DUNE_COMMON_TYPETREE_HYBRIDMULTIINDEX_HH
+#ifndef DUNE_COMMON_HYBRIDMULTIINDEX_HH
+#define DUNE_COMMON_HYBRIDMULTIINDEX_HH
 
 #include <cstddef>
 #include <cassert>
@@ -429,14 +429,14 @@ namespace Dune {
     const HybridMultiIndex<std::integral_constant<S,lhs>...>&,
     const HybridMultiIndex<std::integral_constant<T,rhs>...>&)
   {
-    // If we directly put the expresion into std::bool_constant,
+    // If we directly put the expression into std::bool_constant,
     // gcc-10 deduced the return type of this method as `HybridMultiIndex<>.
     constexpr auto result = (HybridMultiIndex(lhs...) == HybridMultiIndex(rhs...));
     return std::bool_constant<result>{};
   }
 
 
-  //! Compare two `HybridMultiIndex`s for unequality
+  //! Compare two `HybridMultiIndex`s for inequality
   template <class... S, class... T>
   [[nodiscard]] constexpr auto operator!=(
     const HybridMultiIndex<S...>& lhs,
@@ -445,13 +445,13 @@ namespace Dune {
     return !(lhs == rhs);
   }
 
-  //! Compare two static `HybridMultiIndex`s for unequality
+  //! Compare two static `HybridMultiIndex`s for inequality
   template <class S, S... lhs, class T, T... rhs>
   [[nodiscard]] constexpr auto operator!=(
     const HybridMultiIndex<std::integral_constant<S,lhs>...>&,
     const HybridMultiIndex<std::integral_constant<T,rhs>...>&)
   {
-    // If we directly put the expresion into std::bool_constant,
+    // If we directly put the expression into std::bool_constant,
     // gcc-10 deduced the return type of this method as `HybridMultiIndex<>.
     constexpr auto result = (HybridMultiIndex(lhs...) != HybridMultiIndex(rhs...));
     return std::bool_constant<result>{};
@@ -488,4 +488,4 @@ namespace std {
 }
 
 
-#endif // DUNE_COMMON_TYPETREE_HYBRIDMULTIINDEX_HH
+#endif // DUNE_COMMON_HYBRIDMULTIINDEX_HH
