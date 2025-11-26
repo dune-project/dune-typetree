@@ -9,6 +9,7 @@
 #include <dune/common/typetraits.hh>
 #include <dune/typetree/nodeinterface.hh>
 #include <dune/typetree/nodetags.hh>
+#include <dune/typetree/traversal.hh>
 #include <dune/typetree/treepath.hh>
 #include <dune/typetree/utility.hh>
 

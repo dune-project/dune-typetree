@@ -7,6 +7,7 @@
 #define DUNE_TYPETREE_FILTERS_HH
 
 #include <tuple>
+#include <memory>
 
 #include <dune/common/typetraits.hh>
 
