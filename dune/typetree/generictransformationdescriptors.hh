@@ -8,6 +8,7 @@
 
 #include <array>
 #include <memory>
+#include <vector>
 
 #include <dune/typetree/nodeinterface.hh>
 #include <dune/typetree/nodetags.hh>
