@@ -5,7 +5,7 @@
 
 #include <cstdlib>
 
-#include <dune/typetree/childextraction.hh>
+#include <dune/common/typetree/childaccess.hh>
 
 // Bring concepts into scope
 using Dune::TypeTree::Concept::TreeNode;

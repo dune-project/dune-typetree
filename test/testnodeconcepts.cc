@@ -3,7 +3,7 @@
 
 #include <cstdlib>
 
-#include <dune/typetree/nodeconcepts.hh>
+#include <dune/common/typetree/nodeconcepts.hh>
 
 // Bring concepts into scope
 using Dune::TypeTree::Concept::TreeNode;

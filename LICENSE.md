@@ -10,19 +10,19 @@ Copyright holders
 | 2009--2014 | Markus Blatt               |
 | 2013       | Andreas Buhr               |
 | 2014--2022 | Ansgar Burchardt           |
-| 2009--2024 | Christian Engwer           |
+| 2009--2025 | Christian Engwer           |
 | 2009--2013 | Jorrit Fahlke              |
-| 2015--2020 | Carsten Gräser             |
+| 2015--2025 | Carsten Gräser             |
 | 2015--2016 | Felix Gruber               |
-| 2013--2024 | Christoph Grüninger        |
+| 2013--2025 | Christoph Grüninger        |
 | 2020       | René Heß                   |
 | 2013--2019 | Dominic Kempf              |
 | 2010--2019 | Steffen Müthing            |
 | 2012       | Rebecca Neumann            |
-| 2021--2024 | Santiago Ospina            |
+| 2021--2025 | Santiago Ospina            |
 | 2015       | Elias Pipping              |
-| 2018--2024 | Simon Praetorius           |
-| 2015--2020 | Oliver Sander              |
+| 2018--2025 | Simon Praetorius           |
+| 2015--2025 | Oliver Sander              |
 | 2013       | Bård Skaflestad            |
 
 License
