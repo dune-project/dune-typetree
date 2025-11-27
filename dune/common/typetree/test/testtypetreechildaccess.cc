@@ -1,45 +1,25 @@
 // -*- tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 2 -*-
 // vi: set et ts=8 sw=2 sts=2:
 // SPDX-FileCopyrightInfo: Copyright © DUNE Project contributors, see file LICENSE.md in module root
-// SPDX-License-Identifier: LGPL-3.0-or-later OR LicenseRef-GPL-2.0-only-with-PDELab-exception
+// SPDX-License-Identifier: LicenseRef-GPL-2.0-only-with-DUNE-exception OR LGPL-3.0-or-later
+
+#include <config.h>
 
 #include <cstdlib>
+#include <utility>
+#include <type_traits>
+#include <tuple>
 
+#include <dune/common/indices.hh>
+#include <dune/common/hybridmultiindex.hh>
 #include <dune/common/typetree/childaccess.hh>
+#include <dune/common/typetree/test/testtypetreeutilities.hh>
+
+
+
 
 // Bring concepts into scope
-using Dune::TypeTree::Concept::TreeNode;
-using Dune::TypeTree::Concept::InnerTreeNode;
-using Dune::TypeTree::Concept::StaticDegreeInnerTreeNode;
-using Dune::TypeTree::Concept::UniformInnerTreeNode;
-using Dune::TypeTree::Concept::LeafTreeNode;
 using namespace Dune::Indices;
-
-// Leaf node
-template<int tag>
-struct Leaf {
-  static constexpr auto degree() { return _0; }
-};
-
-
-// Inner node with dynamic degree
-template<std::size_t n, class C>
-struct DynamicInner {
-  auto degree() const { return n; }
-  const auto& child(std::size_t i) const { return children_[i]; };
-  std::array<C, n> children_;
-};
-
-// Inner node with static degree
-template<class... CC>
-struct StaticInner {
-  static constexpr auto degree() { return Dune::index_constant<sizeof...(CC)>{}; }
-  template<std::size_t i>
-  const auto& child(Dune::index_constant<i>) const { return std::get<i>(children_); }
-  std::tuple<CC...> children_;
-};
-
-
 
 template<class Tree, class Child, std::size_t... i>
 void checkChild() {
@@ -72,14 +52,20 @@ void checkChildren() {
 
 int main() {
 
-  using Tree = StaticInner<
-      DynamicInner<3,
-        Leaf<23>
-      >,
-      Leaf<42>,
-      StaticInner<
-        Leaf<237>,
-        Leaf<47>
+  // Use tags to generate different type nodes
+  using TagA = Dune::index_constant<23>;
+  using TagB = Dune::index_constant<42>;
+  using TagC = Dune::index_constant<237>;
+  using TagD = Dune::index_constant<47>;
+
+  using Tree = NonUniformInner<TagA,
+      UniformStaticInner<TagB,
+        Leaf<TagA>
+      , 3>,
+      Leaf<TagB>,
+      NonUniformInner<TagC,
+        Leaf<TagC>,
+        Leaf<TagD>
       >
     >;
 
@@ -88,56 +74,56 @@ int main() {
     >();
 
   checkChildren<Tree,
-      DynamicInner<3,
-        Leaf<23>
-      >,
-      Leaf<42>,
-      StaticInner<
-        Leaf<237>,
-        Leaf<47>
+      UniformStaticInner<TagB,
+        Leaf<TagA>
+      , 3>,
+      Leaf<TagB>,
+      NonUniformInner<TagC,
+        Leaf<TagC>,
+        Leaf<TagD>
       >
     >();
 
   checkChild<Tree,
-    DynamicInner<3,
-      Leaf<23>
-    >
+    UniformStaticInner<TagB,
+      Leaf<TagA>
+    , 3>
     , 0>();
 
   checkChildren<Dune::TypeTree::Child<Tree, 0>>();
 
   checkChild<Tree,
-    Leaf<23>
+    Leaf<TagA>
     , 0, 0>();
 
   checkChildren<Dune::TypeTree::Child<Tree, 0, 0>>();
 
   checkChild<Tree,
-    Leaf<42>
+    Leaf<TagB>
     , 1>();
 
   checkChildren<Dune::TypeTree::Child<Tree, 1>>();
 
   checkChild<Tree,
-    StaticInner<
-      Leaf<237>,
-      Leaf<47>
+    NonUniformInner<TagC,
+      Leaf<TagC>,
+      Leaf<TagD>
     >
     , 2>();
 
   checkChildren<Dune::TypeTree::Child<Tree, 2>,
-      Leaf<237>,
-      Leaf<47>
+      Leaf<TagC>,
+      Leaf<TagD>
     >();
 
   checkChild<Tree,
-    Leaf<237>
+    Leaf<TagC>
     , 2, 0>();
 
   checkChildren<Dune::TypeTree::Child<Tree, 2, 0>>();
 
   checkChild<Tree,
-    Leaf<47>
+    Leaf<TagD>
     , 2, 1>();
 
   checkChildren<Dune::TypeTree::Child<Tree, 2, 1>>();

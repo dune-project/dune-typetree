@@ -1,18 +1,22 @@
 // SPDX-FileCopyrightInfo: Copyright © DUNE Project contributors, see file LICENSE.md in module root
-// SPDX-License-Identifier: LGPL-3.0-or-later OR LicenseRef-GPL-2.0-only-with-PDELab-exception
-#include "config.h"
+// SPDX-License-Identifier: LicenseRef-GPL-2.0-only-with-DUNE-exception OR LGPL-3.0-or-later
 
-#include <iostream>
-#include <type_traits>
+#include <config.h>
+
 #include <cassert>
+#include <cstddef>
+#include <iostream>
 #include <sstream>
+#include <tuple>
+#include <type_traits>
+#include <type_traits>
+#include <utility>
 
 #include <dune/common/deprecated.hh>
-#include <dune/common/version.hh>
 #include <dune/common/indices.hh>
 #include <dune/common/test/testsuite.hh>
-
-#include <dune/typetree/typetree.hh>
+#include <dune/common/typetree/treepath.hh>
+#include <dune/common/version.hh>
 
 int main(int argc, char** argv)
 {
