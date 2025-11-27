@@ -16,6 +16,7 @@
 #include <dune/common/rangeutilities.hh>
 #include <dune/common/tuplevector.hh>
 
+#include <dune/common/typetree/nodeconcepts.hh>
 #include <dune/common/typetree/treepath.hh>
 
 namespace Dune::TypeTree {
@@ -36,15 +37,6 @@ namespace Dune::TypeTree {
     template<class LeafToValue>
     class ContainerFactory
     {
-      template<class N>
-      using DynamicDegreeConcept = decltype((std::size_t(std::declval<N>().degree()), true));
-
-      template<class N>
-      using StaticDegreeConcept = decltype((std::integral_constant<std::size_t, N::degree()>{}, true));
-
-      template<class N>
-      using DynamicChildAccessConcept = decltype((std::declval<N>().child(0u), true));
-
     public:
 
       /**
@@ -59,50 +51,38 @@ namespace Dune::TypeTree {
       {}
 
       template<class Node>
+      requires Dune::TypeTree::Concept::TreeNode<Node>
       auto operator()(const Node& node)
       {
-        return (*this)(node, Dune::PriorityTag<5>{});
-      }
-
-    private:
-
-      template<class Node,
-        std::enable_if_t<Node::isLeaf, bool> = true>
-      auto operator()(const Node& node, Dune::PriorityTag<4>)
-      {
-        return leafToValue_(node);
-      }
-
-      template<class Node,
-        StaticDegreeConcept<Node> = true,
-        DynamicChildAccessConcept<Node> = true>
-      auto operator()(const Node& node, Dune::PriorityTag<3>)
-      {
-        return Dune::unpackIntegerSequence([&](auto... indices) {
-            return std::array{(*this)(node.child(indices))...};
-          }, std::make_index_sequence<std::size_t(Node::degree())>());
-      }
-
-      template<class Node,
-        DynamicDegreeConcept<Node> = true,
-        DynamicChildAccessConcept<Node> = true>
-      auto operator()(const Node& node, Dune::PriorityTag<2>)
-      {
-        using TransformedChild = decltype((*this)(node.child(0)));
-        std::vector<TransformedChild> container;
-        container.reserve(node.degree());
-        for (std::size_t i = 0; i < node.degree(); ++i)
-          container.emplace_back((*this)(node.child(i)));
-        return container;
-      }
-
-      template<class Node,
-        StaticDegreeConcept<Node> = true>
-      auto operator()(const Node& node, Dune::PriorityTag<1>)
-      {
-        return Dune::unpackIntegerSequence([&](auto... indices) {
-            return Dune::makeTupleVector((*this)(node.child(indices))...);
-          }, std::make_index_sequence<std::size_t(Node::degree())>());
+        if constexpr (Dune::TypeTree::Concept::LeafTreeNode<Node>)
+          return leafToValue_(node);
+        else
+        {
+          if constexpr (Dune::TypeTree::Concept::UniformInnerTreeNode<Node>)
+          {
+            if constexpr (Dune::TypeTree::Concept::StaticDegreeInnerTreeNode<Node>)
+            {
+              return Dune::unpackIntegerSequence([&](auto... indices) {
+                  return std::array{(*this)(node.child(indices))...};
+                }, std::make_index_sequence<std::size_t(Node::degree())>());
+            }
+            else
+            {
+              using TransformedChild = decltype((*this)(node.child(0)));
+              std::vector<TransformedChild> container;
+              container.reserve(node.degree());
+              for (std::size_t i = 0; i < node.degree(); ++i)
+                container.emplace_back((*this)(node.child(i)));
+              return container;
+            }
+          }
+          else
+          {
+            return Dune::unpackIntegerSequence([&](auto... indices) {
+                return Dune::makeTupleVector((*this)(node.child(indices))...);
+              }, std::make_index_sequence<std::size_t(Node::degree())>());
+          }
+        }
       }
 
     private:
@@ -132,38 +112,19 @@ namespace Dune::TypeTree {
         return accessByTreePath(container[head], tailPath);
       }
 
-      template<class C, class Tree,
-        std::enable_if_t<Tree::isLeaf, bool> = true>
-      static void resizeImpl(C& /*container*/, const Tree& /*tree*/, Dune::PriorityTag<2>)
-      {
-        /* do nothing */
-      }
-
-      template<class C, class Tree,
-        class = decltype(std::declval<C>().resize(0u))>
-      static void resizeImpl(C& container, const Tree& tree, Dune::PriorityTag<1>)
-      {
-        container.resize(tree.degree());
-        Dune::Hybrid::forEach(Dune::range(tree.degree()), [&](auto i) {
-          resizeImpl(container[i], tree.child(i), Dune::PriorityTag<5>{});
-        });
-      }
 
       template<class C, class Tree>
-      static void resizeImpl(C& container, const Tree& tree, Dune::PriorityTag<0>)
+      static void recursiveResize(C& container, const Tree& tree)
       {
-        Dune::Hybrid::forEach(Dune::range(tree.degree()), [&](auto i) {
-          resizeImpl(container[i], tree.child(i), Dune::PriorityTag<5>{});
-        });
+        if constexpr (not Dune::TypeTree::Concept::LeafTreeNode<Tree>)
+        {
+          if constexpr (requires { container.resize(0u); })
+            container.resize(tree.degree());
+          Dune::Hybrid::forEach(Dune::range(tree.degree()), [&](auto i) {
+            recursiveResize(container[i], tree.child(i));
+          });
+        }
       }
-
-      template<class T>
-      using TypeTreeConcept = decltype((
-        std::declval<T>().degree(),
-        T::isLeaf,
-        T::isPower,
-        T::isComposite,
-      true));
 
     public:
       //! Move the passed container into the internal storage
@@ -172,7 +133,8 @@ namespace Dune::TypeTree {
       {}
 
       //! Default construct the container and perform a resize depending on the tree-node degrees.
-      template <class Tree, TypeTreeConcept<Tree> = true>
+      template <class Tree>
+      requires Dune::TypeTree::Concept::TreeNode<Tree>
       TreeContainerVectorBackend(const Tree& tree) :
         TreeContainerVectorBackend()
       {
@@ -199,10 +161,11 @@ namespace Dune::TypeTree {
       }
 
       //! Resize the (nested) container depending on the degree of the tree nodes
-      template<class Tree, TypeTreeConcept<Tree> = true>
+      template<class Tree>
+      requires Dune::TypeTree::Concept::TreeNode<Tree>
       void resize(const Tree& tree)
       {
-        resizeImpl(container_, tree, Dune::PriorityTag<5>{});
+        recursiveResize(container_, tree);
       }
 
       const Container& data() const
