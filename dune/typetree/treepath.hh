@@ -67,6 +67,43 @@ namespace Dune {
     //! \ingroup TypeTree
     //! \{
 
+    //! A type for representing tree paths that supports both compile time and run time indices.
+    /**
+     * A `HybridTreePath` supports storing a combination of run time and compile time indices.
+     * This makes it possible to store the tree path to a tree node inside the tree node itself,
+     * even if the path contains one or more `PowerNode`s, where each child must have exactly the
+     * same type. At the same time, as much information as possible is kept accessible at compile
+     * time, allowing for more efficient algorithms.
+     *
+     * \note Internally all indices are stored as std::size_t or
+     * std::integral_constant<std::size_t,v>. The latter is the same
+     * as Dune::index_constant<v>. If indices of other integral
+     * or std::integral_constant types are passed as arguments,
+     * they are converted.
+     */
+    template<typename... T>
+    using HybridTreePath = Dune::HybridMultiIndex<T...>;
+
+    //! Constructs a new `HybridTreePath` from the given indices.
+    /**
+     * This function returns a new `HybridTreePath` with the given index values. It exists
+     * mainly to avoid having to manually specify the exact type of the new object.
+     *
+     * \note Internally all indices are stored as std::size_t or
+     * std::integral_constant<std::size_t,v>. The latter is the same
+     * as Dune::index_constant<v>. If indices of other integral
+     * or std::integral_constant types are passed as arguments,
+     * they are converted.
+     *
+     * \note This is an alias for TreePath and HybridMultiIndex
+     */
+    template<typename... T>
+    requires (((std::is_integral_v<T> or Dune::IsIntegralConstant<T>::value) && ...))
+    [[nodiscard]] constexpr auto hybridTreePath(const T&... t)
+    {
+      return HybridMultiIndex(t...);
+    }
+
     namespace TreePathType {
       enum Type { fullyStatic, dynamic };
     }
