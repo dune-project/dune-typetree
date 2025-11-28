@@ -97,13 +97,13 @@ namespace Dune::TypeTree {
     class TreeContainerVectorBackend
     {
       template<class C>
-      static constexpr decltype(auto) accessByTreePath(C&& container, const HybridTreePath<>& path)
+      static constexpr decltype(auto) accessByTreePath(C&& container, const TreePath<>& path)
       {
         return container;
       }
 
       template<class C, class... T>
-      static constexpr decltype(auto) accessByTreePath(C&& container, const HybridTreePath<T...>& path)
+      static constexpr decltype(auto) accessByTreePath(C&& container, const TreePath<T...>& path)
       {
         auto head = path[Dune::Indices::_0];
         auto tailPath = Dune::unpackIntegerSequence([&](auto... i){
@@ -149,13 +149,13 @@ namespace Dune::TypeTree {
       {}
 
       template<class... T>
-      decltype(auto) operator[](const HybridTreePath<T...>&  path) const
+      decltype(auto) operator[](const TreePath<T...>&  path) const
       {
         return accessByTreePath(container_, path);
       }
 
       template<class... T>
-      decltype(auto) operator[](const HybridTreePath<T...>&  path)
+      decltype(auto) operator[](const TreePath<T...>&  path)
       {
         return accessByTreePath(container_, path);
       }
@@ -219,7 +219,7 @@ namespace Dune::TypeTree {
    * nodes are represented as Dune::TupleVector's. The stored values for the leaf nodes
    * are creating using a given predicate. For convenience the created container is
    * not returned directly. Instead, the returned object stores the container and
-   * provides operator[] access using a HybridTreePath.
+   * provides operator[] access using a TreePath.
    *
    * \param tree The tree which should be mapper to a container
    * \param leafToValue A predicate used to generate the stored values for the leaves
@@ -242,7 +242,7 @@ namespace Dune::TypeTree {
    * nodes are represented as Dune::TupleVector's. The stored values for the leaf nodes
    * are of the given type Value. For convenience the created container is
    * not returned directly. Instead, the returned object stores the container and
-   * provides operator[] access using a HybridTreePath.
+   * provides operator[] access using a TreePath.
    *
    * \tparam Value Type of the values to be stored for the leafs. Should be default constructible.
    * \param tree The tree which should be mapper to a container

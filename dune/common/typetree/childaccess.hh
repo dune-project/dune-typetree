@@ -27,7 +27,7 @@ namespace Dune::TypeTree {
   //! \ingroup TypeTree
   //! \{
 
-  //! Extracts the child of a node given by a HybridTreePath object.
+  //! Extracts the child of a node given by a TreePath object.
   /**
    * Use this function to extract a (possibly indirect) child of a TypeTree node.
    *
@@ -35,7 +35,7 @@ namespace Dune::TypeTree {
    *
    * \code{.cc}
    * using namespace Dune::Indices; // for compile-time indices
-   * auto tp = Dune::TypeTree::HybridTreePath(_4,2,_0,1);
+   * auto tp = Dune::TypeTree::TreePath(_4,2,_0,1);
    * auto&& c = child(node,tp);
    * \endcode
    *
@@ -44,7 +44,7 @@ namespace Dune::TypeTree {
    * a compile-time index and some using a run-time index.
    *
    * \param node        The node from which to extract the child.
-   * \param treePath    A HybridTreePath that describes the path into the tree to the
+   * \param treePath    A TreePath that describes the path into the tree to the
    *                    wanted child. This tree path object  can be a combination of run time indices
    *                    (for tree nodes that allow accessing their children using run time information,
    *                    like PowerNode) and instances of index_constant, which work for all types of inner
@@ -52,13 +52,13 @@ namespace Dune::TypeTree {
    * \return            A reference to the child, its cv-qualification depends on the passed-in node.
    */
   template<typename Node, typename... Indices>
-  decltype(auto) child (Node&& node, HybridTreePath<Indices...> treePath)
+  decltype(auto) child (Node&& node, TreePath<Indices...> treePath)
   {
     if constexpr (sizeof...(Indices) == 0)
       return std::forward<Node>(node);
     else
     {
-      using I0 = std::tuple_element_t<0, HybridTreePath<Indices...>>;
+      using I0 = std::tuple_element_t<0, TreePath<Indices...>>;
       if constexpr (Dune::IsIntegralConstant<I0>::value and Concept::StaticDegreeInnerTreeNode<Node>)
         static_assert(I0::value < std::decay_t<Node>::degree(), "Child index out of range");
       else
@@ -128,13 +128,13 @@ namespace Dune::TypeTree {
   template<typename Node, std::size_t... indices>
   using Child = typename Impl::ChildTraits<Node, indices...>::type;
 
-  //! Template alias for the type of a child node given by a HybridTreePath type.
+  //! Template alias for the type of a child node given by a TreePath type.
   /**
    * This template alias is implemented in terms of the free-standing child() functions and uses those
    * in combination with decltype() to extract the child type.
    *
    * \tparam Node      The type of the parent node.
-   * \tparam TreePath  The type of a HybridTreePath that describes the path to the wanted child.
+   * \tparam TreePath  The type of a TreePath that describes the path to the wanted child.
    */
   template<typename Node, typename TreePath>
   using ChildForTreePath = std::decay_t<decltype(child(std::declval<Node>(), std::declval<TreePath>()))>;

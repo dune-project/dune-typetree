@@ -132,7 +132,7 @@ namespace Dune::TypeTree {
   template<class Tree, class PreNodeFunc, class LeafNodeFunc, class PostNodeFunc>
   void forEachNode(Tree&& tree, PreNodeFunc&& preNodeFunc, LeafNodeFunc&& leafNodeFunc, PostNodeFunc&& postNodeFunc)
   {
-    Detail::forEachNode(tree, hybridTreePath(), preNodeFunc, leafNodeFunc, postNodeFunc);
+    Detail::forEachNode(tree, treePath(), preNodeFunc, leafNodeFunc, postNodeFunc);
   }
 
   /**
@@ -147,7 +147,7 @@ namespace Dune::TypeTree {
   template<Concept::TreeNode Tree, class NodeFunc>
   void forEachNode(Tree&& tree, NodeFunc&& nodeFunc)
   {
-    Detail::forEachNode(tree, hybridTreePath(), nodeFunc, nodeFunc, NoOp{});
+    Detail::forEachNode(tree, treePath(), nodeFunc, nodeFunc, NoOp{});
   }
 
   /**
@@ -162,7 +162,7 @@ namespace Dune::TypeTree {
   template<Concept::TreeNode Tree, class LeafFunc>
   void forEachLeafNode(Tree&& tree, LeafFunc&& leafFunc)
   {
-    Detail::forEachNode(tree, hybridTreePath(), NoOp{}, leafFunc, NoOp{});
+    Detail::forEachNode(tree, treePath(), NoOp{}, leafFunc, NoOp{});
   }
 
   //! \} group Tree Traversal

@@ -14,12 +14,14 @@ TypeTree 2.11-git
   subset in includes the node concepts, the child access via `Child`,
   `ChildForTreePath`, and `child()`, the traversal via the `forEach*()`,
   the `Dune::HybridMultiIndex` class and its alias
-  `Dune::TypeTree::HybridTreePath`,  and the utilities from `treecontainer.hh`.
+  `Dune::TypeTree::TreePath`,  and the utilities from `treecontainer.hh`.
   This subset can be used independently of the rest of dune-typetree
   and in particular without deriving from the node base classes.
   It is intended to later move this subset to dune-common such that
   usercode that only relies on this functionality no longer needs
   to depend on dune-typetree.
+- The name `TreePath` has been reintroduced as alias for `HybridMultiIndex`
+  and `HybridTreePath`.
 - A new algorithm `forEachChild()` has been added, which
   only loops over direct children.
 - The requirements of tree nodes have been formalized as
