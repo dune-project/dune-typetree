@@ -22,11 +22,11 @@ int main(int argc, char** argv)
 {
 
   using namespace Dune::Indices;
-  Dune::TestSuite suite("Check HybridTypeTree()");
+  Dune::TestSuite suite("Check treePath()");
 
   {
-    auto root = Dune::TypeTree::hybridTreePath();
-    constexpr auto path = Dune::TypeTree::hybridTreePath(_1,3,_2,5);
+    auto root = Dune::TypeTree::treePath();
+    constexpr auto path = Dune::TypeTree::treePath(_1,3,_2,5);
 
     static_assert(std::is_same<std::decay_t<decltype(path[_2])>,std::decay_t<decltype(_2)>>{},"wrong entry value");
     static_assert(path[_0] == 1,"wrong entry value");
@@ -107,7 +107,7 @@ DUNE_NO_DEPRECATED_END
     static_assert(front(accumulate_front(path, _3)) == _4);
 
     static_assert(pop_front(pop_front(pop_front(pop_front(path)))).size() == 0);
-    static_assert(reverse(Dune::TypeTree::hybridTreePath()).size() == 0);
+    static_assert(reverse(Dune::TypeTree::treePath()).size() == 0);
 
     constexpr auto rpath = reverse(path);
     suite.check(rpath[_0] == 5);
@@ -117,35 +117,35 @@ DUNE_NO_DEPRECATED_END
     static_assert(join(root, path) == join(path, root));
     constexpr auto jpath = join(path, rpath);
     static_assert(jpath.max_size() == 8);
-    static_assert(jpath == Dune::TypeTree::hybridTreePath(_1,3,_2,5,5,_2,3,_1));
-    static_assert(join(path, Dune::TypeTree::hybridTreePath(5,_2), Dune::TypeTree::hybridTreePath(3, _1)) == Dune::TypeTree::hybridTreePath(_1,3,_2,5,5,_2,3,_1));
+    static_assert(jpath == Dune::TypeTree::treePath(_1,3,_2,5,5,_2,3,_1));
+    static_assert(join(path, Dune::TypeTree::treePath(5,_2), Dune::TypeTree::treePath(3, _1)) == Dune::TypeTree::treePath(_1,3,_2,5,5,_2,3,_1));
     suite.check(jpath[_3] == 5);
     suite.check(jpath[_4] == 5);
   }
 
-  { // test the operator== for HybridTreePath
+  { // test the operator== for TreePath
 
-    using Dune::TypeTree::hybridTreePath;
+    using Dune::TypeTree::treePath;
 
-    suite.check(hybridTreePath(1,2,3) != hybridTreePath(1,2));
-    suite.check(hybridTreePath(1,2,3) == hybridTreePath(1u,2u,3u));
-    suite.check(hybridTreePath(1,2,3) != hybridTreePath(3,2,1));
-    suite.check(hybridTreePath(1,2,3) == hybridTreePath(_1,_2,_3));
-    suite.check(hybridTreePath(1,2,3) != hybridTreePath(_3,_2,_1));
-    suite.check(hybridTreePath(_1,_2,_3) != hybridTreePath(_3,_2,_1));
+    suite.check(treePath(1,2,3) != treePath(1,2));
+    suite.check(treePath(1,2,3) == treePath(1u,2u,3u));
+    suite.check(treePath(1,2,3) != treePath(3,2,1));
+    suite.check(treePath(1,2,3) == treePath(_1,_2,_3));
+    suite.check(treePath(1,2,3) != treePath(_3,_2,_1));
+    suite.check(treePath(_1,_2,_3) != treePath(_3,_2,_1));
 
     // check whether comparison can be used in constexpr context
-    static_assert(hybridTreePath(_1,_2,_3) == hybridTreePath(_1,_2,_3));
-    static_assert(hybridTreePath(_1,_2,_3) != hybridTreePath(_3,_2,_1));
+    static_assert(treePath(_1,_2,_3) == treePath(_1,_2,_3));
+    static_assert(treePath(_1,_2,_3) != treePath(_3,_2,_1));
 
-    auto a = hybridTreePath(std::integral_constant<int,0>{}, std::integral_constant<int,1>{});
-    auto b = hybridTreePath(std::integral_constant<std::size_t,0>{}, std::integral_constant<std::size_t,1>{});
+    auto a = treePath(std::integral_constant<int,0>{}, std::integral_constant<int,1>{});
+    auto b = treePath(std::integral_constant<std::size_t,0>{}, std::integral_constant<std::size_t,1>{});
     static_assert(decltype(a == b)::value);
 
     /* Note: It is not possible to check mixed integral constant arguments with
        the purely static overload of operator==
 
-    auto c = hybridTreePath(std::integral_constant<std::size_t,0>{}, std::integral_constant<int,3>{});
+    auto c = treePath(std::integral_constant<std::size_t,0>{}, std::integral_constant<int,3>{});
     static_assert(decltype(a != c)::value);
     */
   }
