@@ -18,7 +18,7 @@
 
 namespace Dune::TypeTree {
 
-  namespace Detail {
+  namespace Impl {
 
     template<class Callable, class Arg0, class Arg1>
     constexpr void invokeWithTwoOrOneArg(Callable&& callable, Arg0&& arg0, Arg1&& arg1) {
@@ -29,7 +29,7 @@ namespace Dune::TypeTree {
         callable(arg0);
     };
 
-  } // namespace Detail
+  } // namespace Impl
 
   /** \addtogroup Tree Traversal
    *  \ingroup TypeTree
@@ -68,14 +68,14 @@ namespace Dune::TypeTree {
   {
     if constexpr (Concept::UniformInnerTreeNode<Tree>)
       for (std::size_t i = 0; i != container.degree(); ++i)
-        Detail::invokeWithTwoOrOneArg(at_value, std::forward<Tree>(container).child(i), i);
+        Impl::invokeWithTwoOrOneArg(at_value, std::forward<Tree>(container).child(i), i);
     else
       Dune::unpackIntegerSequence(
-        [&](auto... i) { (Detail::invokeWithTwoOrOneArg(at_value, std::forward<Tree>(container).child(i), i), ...); },
+        [&](auto... i) { (Impl::invokeWithTwoOrOneArg(at_value, std::forward<Tree>(container).child(i), i), ...); },
         std::make_index_sequence<std::remove_cvref_t<Tree>::degree()>{});
   }
 
-  namespace Detail {
+  namespace Impl {
 
     /* Traverse tree and visit each node. The signature is the same
      * as for the public forEachNode function in Dune::Typtree,
@@ -89,9 +89,9 @@ namespace Dune::TypeTree {
     void forEachNode(Tree&& tree, TreePath treePath, PreFunc&& preFunc, LeafFunc&& leafFunc, PostFunc&& postFunc)
     {
       if constexpr(Concept::LeafTreeNode<std::decay_t<Tree>>) {
-        Detail::invokeWithTwoOrOneArg(leafFunc, tree, treePath);
+        Impl::invokeWithTwoOrOneArg(leafFunc, tree, treePath);
       } else {
-        Detail::invokeWithTwoOrOneArg(preFunc, tree, treePath);
+        Impl::invokeWithTwoOrOneArg(preFunc, tree, treePath);
         forEachChild(
           tree,
           [&]<class Child>(Child&& child, auto i) {
@@ -103,11 +103,11 @@ namespace Dune::TypeTree {
               postFunc
             );
           });
-        Detail::invokeWithTwoOrOneArg(postFunc, tree, treePath);
+        Impl::invokeWithTwoOrOneArg(postFunc, tree, treePath);
       }
     }
 
-  } // namespace Detail
+  } // namespace Impl
 
 
   // ********************************************************************************
@@ -132,7 +132,7 @@ namespace Dune::TypeTree {
   template<class Tree, class PreNodeFunc, class LeafNodeFunc, class PostNodeFunc>
   void forEachNode(Tree&& tree, PreNodeFunc&& preNodeFunc, LeafNodeFunc&& leafNodeFunc, PostNodeFunc&& postNodeFunc)
   {
-    Detail::forEachNode(tree, treePath(), preNodeFunc, leafNodeFunc, postNodeFunc);
+    Impl::forEachNode(tree, treePath(), preNodeFunc, leafNodeFunc, postNodeFunc);
   }
 
   /**
@@ -147,7 +147,7 @@ namespace Dune::TypeTree {
   template<Concept::TreeNode Tree, class NodeFunc>
   void forEachNode(Tree&& tree, NodeFunc&& nodeFunc)
   {
-    Detail::forEachNode(tree, treePath(), nodeFunc, nodeFunc, NoOp{});
+    forEachNode(tree, nodeFunc, nodeFunc, NoOp{});
   }
 
   /**
@@ -162,7 +162,7 @@ namespace Dune::TypeTree {
   template<Concept::TreeNode Tree, class LeafFunc>
   void forEachLeafNode(Tree&& tree, LeafFunc&& leafFunc)
   {
-    Detail::forEachNode(tree, treePath(), NoOp{}, leafFunc, NoOp{});
+    forEachNode(tree, NoOp{}, leafFunc, NoOp{});
   }
 
   //! \} group Tree Traversal

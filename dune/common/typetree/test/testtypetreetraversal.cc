@@ -94,7 +94,7 @@ int main()
     auto countVisit = [] (auto&& node, auto&& path) {
       ++(node.value());
     };
-    Dune::TypeTree::Detail::forEachNode(tree, Dune::TypeTree::treePath(), countVisit, countVisit, countVisit);
+    Dune::TypeTree::forEachNode(tree, countVisit, countVisit, countVisit);
 
     std::size_t visits=0;
     Dune::TypeTree::forEachNode(tree, [&](auto&& node, auto&& path) {
