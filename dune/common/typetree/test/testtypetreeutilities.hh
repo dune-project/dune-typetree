@@ -135,7 +135,7 @@ std::string treeName(const Tree& tree)
 {
   using namespace std::string_literals;
   auto name = std::string{};
-  Dune::TypeTree::Detail::forEachNode(tree, Dune::TypeTree::treePath(),
+  Dune::TypeTree::forEachNode(tree,
     [&](auto&& node) { name += node.name() + "<"s; },
     [&](auto&& node) { name += node.name() + ","s; },
     [&](auto&& node) { name += ">"s; }
