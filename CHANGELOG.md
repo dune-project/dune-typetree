@@ -6,7 +6,7 @@ SPDX-License-Identifier: LGPL-3.0-or-later OR LicenseRef-GPL-2.0-only-with-PDELa
 Changes
 =======
 
-TypeTree 2.11-git
+TypeTree 2.11
 ----------------
 
 - A modernized lightweight subset of the typetree interface has been
